@@ -335,19 +335,10 @@ public final class SipCallManager
             HalefDbWriter.setClientSessionId(randomCode);
 
             if (randomCode.equals("")) {
-                requestContent = Json.createObjectBuilder()
-                                 .add("interaction_type_name", "CALL")
-                                 .add("use_case_name", use_case_name)
-                                 .add("jvxml_session_id", jsession.getSessionID())
-                                 .add("asterisk_call_id", asteriskCallID)
-                                 .add("jvxml_call_id", jCallID)
-                                 .add("jvxml_extension", calledNumber)
-                                 .add("jvxml_server_ip", System.getenv("IP"))
-                                 .add("cairo_call_id", cCallID)
-                                 .add("cairo_server_ip", System.getenv("IP")).build().toString();
+              LOGGER.error("NO client_session_id! Logging will not work for this call. ");
             } else {
                 requestContent = Json.createObjectBuilder()
-                                 .add("interaction_type_name", "CALL")
+                                 .add("event_type", "JVXML_CALL_START")
                                  .add("client_session_id", randomCode)
                                  .add("use_case_name", use_case_name)
                                  .add("jvxml_session_id", jsession.getSessionID())
@@ -357,12 +348,13 @@ public final class SipCallManager
                                  .add("jvxml_server_ip", System.getenv("IP"))
                                  .add("cairo_call_id", cCallID)
                                  .add("cairo_server_ip", System.getenv("IP")).build().toString();
+
+                HalefDbWriter.logGanesha("log", requestContent);
+                LOGGER.info(requestContent);
             }
 
 
 
-            HalefDbWriter.logGanesha("jvxml_call_start", requestContent);
-            LOGGER.info(requestContent);
 
 
 
