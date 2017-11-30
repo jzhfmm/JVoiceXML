@@ -338,6 +338,7 @@ public final class SipCallManager
               LOGGER.error("NO client_session_id! Logging will not work for this call. ");
             } else {
                 requestContent = Json.createObjectBuilder()
+                                 .add("api_version", 1)
                                  .add("event_type", "JVXML_CALL_START")
                                  .add("client_session_id", randomCode)
                                  .add("use_case_name", use_case_name)
