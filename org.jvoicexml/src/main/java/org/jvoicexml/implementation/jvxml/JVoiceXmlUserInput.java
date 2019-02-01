@@ -24,6 +24,7 @@ package org.jvoicexml.implementation.jvxml;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,11 +68,8 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
     private static final Logger LOGGER = LogManager
             .getLogger(JVoiceXmlUserInput.class);
 
-    /** The character input device. */
-    private final BufferedDtmfInput dtmfInput;
-
-    /** The spoken input device. */
-    private final UserInputImplementation spokenInput;
+    /** The known user inputs */
+    private final Map<ModeType, UserInputImplementation> inputs;
 
     /** The cache of already processed grammars. */
     private final GrammarCache cache;
@@ -85,8 +83,9 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
      *            the buffered character input.
      */
     JVoiceXmlUserInput(final UserInputImplementation input, final BufferedDtmfInput dtmf) {
-        spokenInput = input;
-        dtmfInput = dtmf;
+        inputs = new java.util.HashMap<ModeType, UserInputImplementation>();
+        inputs.put(ModeType.VOICE, input);
+        inputs.put(ModeType.DTMF, dtmf);
         cache = new GrammarCache();
     }
 
@@ -98,19 +97,8 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
      * @since 0.5.5
      */
     @Override
-    public UserInputImplementation getSpokenInput() {
-        return spokenInput;
-    }
-
-    /**
-     * Retrieves the character input.
-     * 
-     * @return character input.
-     * 
-     * @since 0.5.5
-     */
-    public DtmfInput getDtmfInput() {
-        return dtmfInput;
+    public UserInputImplementation getUserInputImplemenation(ModeType mode) {
+        return inputs.get(mode);
     }
 
     /**
@@ -120,31 +108,21 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
     public int activateGrammars(final Collection<GrammarDocument> grammars)
             throws BadFetchError, UnsupportedLanguageError, NoresourceError,
             UnsupportedFormatError {
-        // Separate grammars for the DTMF and voice recognizer
-        final Collection<GrammarImplementation<?>> voiceGrammars =
-                new java.util.ArrayList<GrammarImplementation<?>>();
-        final Collection<GrammarImplementation<?>> dtmfGrammars =
-                new java.util.ArrayList<GrammarImplementation<?>>();
-        for (GrammarDocument grammar : grammars) {
-            final GrammarImplementation<?> grammarImplementation = loadGrammar(
-                    grammar);
-            final ModeType type = grammarImplementation.getModeType();
-            // A grammar is voice by default.
-            if (type == ModeType.DTMF) {
-                dtmfGrammars.add(grammarImplementation);
-            } else {
-                voiceGrammars.add(grammarImplementation);
+        int loadedGrammars = 0;
+        for (ModeType mode : inputs.keySet()) {
+            final Collection<GrammarImplementation<?>> modeGramamrs =
+                    new java.util.ArrayList<GrammarImplementation<?>>();
+            final UserInputImplementation input = inputs.get(mode);
+            for (GrammarDocument grammar : grammars) {
+                final GrammarImplementation<?> grammarImplementation = loadGrammar(
+                        grammar);
+                modeGramamrs.add(grammarImplementation);
             }
+            input.activateGrammars(modeGramamrs);
+            loadedGrammars += modeGramamrs.size();
         }
 
-        // Activate the specific grammars per mode type
-        if (!voiceGrammars.isEmpty()) {
-            spokenInput.activateGrammars(voiceGrammars);
-        }
-        if ((dtmfInput != null) && !dtmfGrammars.isEmpty()) {
-            dtmfInput.activateGrammars(dtmfGrammars);
-        }
-        return voiceGrammars.size() + dtmfGrammars.size();
+        return loadedGrammars;
     }
 
     /**
@@ -153,33 +131,25 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
     @Override
     public int deactivateGrammars(final Collection<GrammarDocument> grammars)
             throws NoresourceError, BadFetchError {
-        final Collection<GrammarImplementation<?>> voiceGrammars =
-                new java.util.ArrayList<GrammarImplementation<?>>();
-        final Collection<GrammarImplementation<?>> dtmfGrammars =
-                new java.util.ArrayList<GrammarImplementation<?>>();
-
-        for (GrammarDocument grammar : grammars) {
-            GrammarImplementation<?> impl = cache.getImplementation(grammar);
-            if (impl == null) {
-                LOGGER.warn("no implementation for grammar " + grammar);
-                continue;
+        int unloadedGrammars = 0;
+        for (ModeType mode : inputs.keySet()) {
+            final Collection<GrammarImplementation<?>> modeGramamrs =
+                    new java.util.ArrayList<GrammarImplementation<?>>();
+            final UserInputImplementation input = inputs.get(mode);
+            for (GrammarDocument grammar : grammars) {
+                GrammarImplementation<?> grammarImplementation =
+                        cache.getImplementation(grammar);
+                if (grammarImplementation == null) {
+                    LOGGER.warn("no implementation for grammar " + grammar);
+                    continue;
+                }
+                modeGramamrs.add(grammarImplementation);
             }
-            final ModeType type = grammar.getModeType();
-            // A grammar is voice by default.
-            if (type == ModeType.DTMF) {
-                dtmfGrammars.add(impl);
-            } else {
-                voiceGrammars.add(impl);
-            }
+            input.deactivateGrammars(modeGramamrs);
+            unloadedGrammars += modeGramamrs.size();
         }
 
-        if (!voiceGrammars.isEmpty()) {
-            spokenInput.deactivateGrammars(voiceGrammars);
-        }
-        if ((dtmfInput != null) && !dtmfGrammars.isEmpty()) {
-            dtmfInput.deactivateGrammars(dtmfGrammars);
-        }
-        return voiceGrammars.size() + dtmfGrammars.size();
+        return unloadedGrammars;
     }
 
     /**
@@ -187,7 +157,14 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
      */
     @Override
     public Collection<BargeInType> getSupportedBargeInTypes() {
-        return spokenInput.getSupportedBargeInTypes();
+        final Collection<BargeInType> types =
+                new java.util.ArrayList<BargeInType>();
+        for (UserInputImplementation input : inputs.values()) {
+            final Collection<BargeInType> current = 
+                    input.getSupportedBargeInTypes();
+            types.addAll(current);
+        }
+        return types;
     }
 
     /**
@@ -237,14 +214,15 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
         // Actually load and cache the grammar
         final GrammarType type = document.getMediaType();
         final ModeType mode = document.getModeType();
+        final UserInputImplementation input = inputs.get(mode);
+        if (input == null) {
+            throw new NoresourceError("No input known for mode ' + mode + "
+                    + "' to load grammar " + document.getURI());
+        }
         try {
             LOGGER.info("loading '" + type + "' grammar from '" + uri + "'");
-            final GrammarImplementation<?> implementation;
-            if (mode == ModeType.DTMF) {
-                implementation = dtmfInput.loadGrammar(uri, type);
-            } else {
-                implementation = spokenInput.loadGrammar(uri, type);
-            }
+            final GrammarImplementation<?> implementation =
+                    input.loadGrammar(uri, type);
             final LoadedGrammar loaded = new LoadedGrammar(document,
                     implementation);
             cache.add(loaded);
@@ -258,9 +236,8 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
      * {@inheritDoc}
      */
     public void addListener(final UserInputImplementationListener listener) {
-        spokenInput.addListener(listener);
-        if (dtmfInput != null) {
-            dtmfInput.addListener(listener);
+        for (UserInputImplementation input : inputs.values()) {
+            input.addListener(listener);
         }
     }
 
@@ -268,9 +245,8 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
      * {@inheritDoc}
      */
     public void removeListener(final UserInputImplementationListener listener) {
-        spokenInput.removeListener(listener);
-        if (dtmfInput != null) {
-            dtmfInput.removeListener(listener);
+        for (UserInputImplementation input : inputs.values()) {
+            input.removeListener(listener);
         }
     }
 
@@ -283,11 +259,11 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
             final SpeechRecognizerProperties speech,
             final DtmfRecognizerProperties dtmf)
             throws NoresourceError, BadFetchError {
-        if (types.contains(ModeType.VOICE)) {
-            spokenInput.startRecognition(model, speech, dtmf);
-        }
-        if (dtmfInput != null && types.contains(ModeType.DTMF)) {
-            dtmfInput.startRecognition(model, speech, dtmf);
+        for (ModeType type : types) {
+            final UserInputImplementation input = inputs.get(type);
+            if (input != null) {
+                input.startRecognition(model, speech, dtmf);
+            }
         }
     }
 
@@ -296,12 +272,11 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
      */
     @Override
     public void stopRecognition(final Collection<ModeType> types) {
-        if (types == null || types.contains(ModeType.VOICE)) {
-            spokenInput.stopRecognition();
-        }
-        if (dtmfInput != null
-                && (types == null || types.contains(ModeType.DTMF))) {
-            dtmfInput.stopRecognition();
+        for (ModeType type : types) {
+            final UserInputImplementation input = inputs.get(type);
+            if (input != null) {
+                input.stopRecognition();
+            }
         }
     }
 
@@ -311,14 +286,14 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
     @Override
     public Collection<GrammarType> getSupportedGrammarTypes(
             final ModeType mode) {
-        if (mode == ModeType.DTMF) {
-            final Collection<GrammarType> types =
-                    new java.util.ArrayList<GrammarType>();
-            types.add(GrammarType.SRGS_XML);
-            return types;
-        } else {
-            return spokenInput.getSupportedGrammarTypes();
+        final Collection<GrammarType> types =
+                new java.util.ArrayList<GrammarType>();
+        for (UserInputImplementation input : inputs.values()) {
+            final Collection<GrammarType> current = 
+                    input.getSupportedGrammarTypes();
+            types.addAll(current);
         }
+        return types;
     }
 
     /**
@@ -327,6 +302,11 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
      * @return <code>true</code> if the input devices is busy.
      */
     public boolean isBusy() {
-        return spokenInput.isBusy();
+        for (UserInputImplementation input : inputs.values()) {
+            if (input.isBusy()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

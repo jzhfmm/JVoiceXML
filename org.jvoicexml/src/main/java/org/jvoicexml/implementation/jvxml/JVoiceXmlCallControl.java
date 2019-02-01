@@ -33,11 +33,12 @@ import org.jvoicexml.CallControlProperties;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.UserInput;
 import org.jvoicexml.event.error.NoresourceError;
+import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationProvider;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.UserInputImplementationProvider;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
-import org.jvoicexml.implementation.SystemOutputImplementationProvider;
-import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Basic wrapper for {@link CallControl}. Method calls are forwarded to
@@ -112,7 +113,8 @@ final class JVoiceXmlCallControl implements CallControl {
         if (input instanceof UserInputImplementationProvider) {
             final UserInputImplementationProvider provider =
                 (UserInputImplementationProvider) input;
-            final UserInputImplementation recognizer = provider.getSpokenInput();
+            final UserInputImplementation recognizer =
+                    provider.getUserInputImplemenation(ModeType.VOICE);
             telephony.record(recognizer, props);
         } else {
             LOGGER.warn("unable to retrieve a recognizer output from "
@@ -144,7 +146,7 @@ final class JVoiceXmlCallControl implements CallControl {
         if (input instanceof UserInputImplementationProvider) {
             final UserInputImplementationProvider provider =
                 (UserInputImplementationProvider) input;
-            final UserInputImplementation recognizer = provider.getSpokenInput();
+            final UserInputImplementation recognizer = provider.getUserInputImplemenation(ModeType.VOICE);
             telephony.startRecording(recognizer, stream, props);
         } else {
             LOGGER.warn("unable to retrieve a recognizer output from "

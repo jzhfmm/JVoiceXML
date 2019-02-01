@@ -55,17 +55,17 @@ import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStoppedEvent;
-import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.event.plain.jvxml.TransferEvent;
-import org.jvoicexml.implementation.ExternalResource;
-import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.UserInputImplementationListener;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
-import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.CallControlImplementationEvent;
 import org.jvoicexml.implementation.CallControlImplementationListener;
+import org.jvoicexml.implementation.ExternalResource;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.implementation.dtmf.BufferedDtmfInput;
 import org.jvoicexml.implementation.pool.KeyedResourcePool;
 import org.jvoicexml.xml.srgs.ModeType;
@@ -430,7 +430,7 @@ public final class JVoiceXmlImplementationPlatform
                 }
                 userInput.removeListener(this);
 
-                final UserInputImplementation spokenInput = userInput.getSpokenInput();
+                final UserInputImplementation spokenInput = userInput.getUserInputImplemenation(ModeType.VOICE);
                 returnExternalResourceToPool(recognizerPool, spokenInput);
 
                 LOGGER.info("returned user input of type '" + type + "'");
@@ -654,7 +654,8 @@ public final class JVoiceXmlImplementationPlatform
             result.setMark(markname);
 
             final RecognitionEvent recognitionEvent = new RecognitionEvent(
-                    input.getSpokenInput(), session.getSessionId(), result);
+                    input.getUserInputImplemenation(ModeType.VOICE),
+                    session.getSessionId(), result);
             eventbus.publish(recognitionEvent);
         }
 
@@ -677,7 +678,8 @@ public final class JVoiceXmlImplementationPlatform
         if (eventbus != null) {
             result.setMark(markname);
             final NomatchEvent noMatchEvent = new NomatchEvent(
-                    input.getSpokenInput(), session.getSessionId(), result);
+                    input.getUserInputImplemenation(ModeType.VOICE), 
+                    session.getSessionId(), result);
             eventbus.publish(noMatchEvent);
         }
         synchronized (inputLock) {

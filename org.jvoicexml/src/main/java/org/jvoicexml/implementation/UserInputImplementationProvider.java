@@ -22,6 +22,7 @@
 package org.jvoicexml.implementation;
 
 import org.jvoicexml.event.error.NoresourceError;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Objects that implement this class have an association to a
@@ -33,10 +34,12 @@ import org.jvoicexml.event.error.NoresourceError;
  */
 public interface UserInputImplementationProvider {
     /**
-     * Retrieves the spoken input device.
-     * @return the spoken input device.
+     * Retrieves the user input device for the specified mode.
+     * @param mode the the mode type
+     * @return the user input device.
      * @throws NoresourceError
      *         Error obtaining the device.
      */
-    UserInputImplementation getSpokenInput() throws NoresourceError;
+    UserInputImplementation getUserInputImplemenation(final ModeType mode)
+            throws NoresourceError;
 }
