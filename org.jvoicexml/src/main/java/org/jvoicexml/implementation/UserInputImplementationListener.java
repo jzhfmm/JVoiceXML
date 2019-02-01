@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -22,23 +22,23 @@
 package org.jvoicexml.implementation;
 
 import org.jvoicexml.event.ErrorEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 
 
 /**
- * Listener for events from the {@link SpokenInput} implementation.
+ * Listener for events from the {@link UserInputImplementation} implementation.
  *
  * @author Dirk Schnelle-Walka
  * @see org.jvoicexml.UserInput
  * @since 0.5
  */
-public interface SpokenInputListener {
+public interface UserInputImplementationListener {
     /**
-     * Notification about status changes in the {@link SpokenInput}.
+     * Notification about status changes in the {@link UserInputImplementation}.
      * @param event the input event..
      * @since 0.6
      */
-    void inputStatusChanged(SpokenInputEvent event);
+    void inputStatusChanged(UserInputEvent event);
 
     /**
      * An error occured while an output processes an input.

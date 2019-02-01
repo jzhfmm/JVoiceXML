@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2011 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -30,23 +25,22 @@ package org.jvoicexml.implementation;
  * Basic implementation of a {@link PlatformFactory}.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.6
  */
 public final class Platform implements PlatformFactory {
     /** The used spoken input. */
-    private ResourceFactory<SpokenInput> spokenInputFactory;
+    private ResourceFactory<UserInputImplementation> spokenInputFactory;
 
     /** The used synthesized output. */
-    private ResourceFactory<SynthesizedOutput> synthesizedOutputFactory;
+    private ResourceFactory<SystemOutputOutputImplementation> synthesizedOutputFactory;
 
     /** The used telephonyFactory implementation. */
-    private ResourceFactory<Telephony> telephonyFactory;
+    private ResourceFactory<CallControlImplementation> telephonyFactory;
 
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<SpokenInput> getSpokeninput() {
+    public ResourceFactory<UserInputImplementation> getSpokeninput() {
         return spokenInputFactory;
     }
 
@@ -54,14 +48,14 @@ public final class Platform implements PlatformFactory {
      * Sets the spoken input implementation.
      * @param input the spokenInputFactory to set
      */
-    public void setSpokeninput(final ResourceFactory<SpokenInput> input) {
+    public void setSpokeninput(final ResourceFactory<UserInputImplementation> input) {
         spokenInputFactory = input;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<SynthesizedOutput> getSynthesizedoutput() {
+    public ResourceFactory<SystemOutputOutputImplementation> getSynthesizedoutput() {
         return synthesizedOutputFactory;
     }
 
@@ -70,14 +64,14 @@ public final class Platform implements PlatformFactory {
      * @param output the synthesizedOutputFactory to set
      */
     public void setSynthesizedoutput(
-            final ResourceFactory<SynthesizedOutput> output) {
+            final ResourceFactory<SystemOutputOutputImplementation> output) {
         synthesizedOutputFactory = output;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<Telephony> getTelephony() {
+    public ResourceFactory<CallControlImplementation> getTelephony() {
         return telephonyFactory;
     }
 
@@ -85,7 +79,7 @@ public final class Platform implements PlatformFactory {
      * Sets the telephonyFactory implementation.
      * @param tel the telephonyFactory to set
      */
-    public void setTelephony(final ResourceFactory<Telephony> tel) {
+    public void setTelephony(final ResourceFactory<CallControlImplementation> tel) {
         telephonyFactory = tel;
     }
 }

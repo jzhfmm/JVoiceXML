@@ -46,9 +46,9 @@ import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.Text;
 import org.jvoicexml.xml.ssml.Speak;
 import org.jvoicexml.xml.ssml.SsmlDocument;
@@ -68,7 +68,7 @@ import org.w3c.dom.NodeList;
  * @since 0.7.7
  */
 public final class BMLSynthesizedOutput
-    implements SynthesizedOutput, BMLClient {
+    implements SystemOutputOutputImplementation, BMLClient {
     /** Logger for this class. */
     private static final Logger LOGGER =
             Logger.getLogger(BMLSynthesizedOutput.class);
@@ -99,7 +99,7 @@ public final class BMLSynthesizedOutput
     private BMLFeedback feedback;
 
     /** Known synthesized output listeners. */
-    private final Collection<SynthesizedOutputListener> listeners;
+    private final Collection<SystemOutputImplementationListener> listeners;
 
     /** The queued speakables. */
     private final SpeakableQueue speakables;
@@ -125,7 +125,7 @@ public final class BMLSynthesizedOutput
      * Constructs a new object.
      */
     public BMLSynthesizedOutput() {
-        listeners = new java.util.ArrayList<SynthesizedOutputListener>();
+        listeners = new java.util.ArrayList<SystemOutputImplementationListener>();
         speakables = new SpeakableQueue();
     }
 
@@ -379,7 +379,7 @@ public final class BMLSynthesizedOutput
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final SynthesizedOutputListener listener) {
+    public void addListener(final SystemOutputImplementationListener listener) {
         synchronized (listeners) {
             listeners.add(listener);
         }
@@ -389,7 +389,7 @@ public final class BMLSynthesizedOutput
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final SynthesizedOutputListener listener) {
+    public void removeListener(final SystemOutputImplementationListener listener) {
         synchronized (listeners) {
             listeners.remove(listener);
         }
@@ -447,7 +447,7 @@ public final class BMLSynthesizedOutput
         }
         if (error != null) {
             synchronized (listeners) {
-                for (SynthesizedOutputListener listener : listeners) {
+                for (SystemOutputImplementationListener listener : listeners) {
                     listener.outputError(error);
                 }
             }
@@ -579,20 +579,20 @@ public final class BMLSynthesizedOutput
                 return;
             }
             final SpeakableText speakable = queuedSpeakable.getSpeakable();
-            final SynthesizedOutputEvent event = new OutputEndedEvent(this,
+            final SystemOutputEvent event = new OutputEndedEvent(this,
                     sessionId, speakable);
             synchronized (listeners) {
-                for (SynthesizedOutputListener listener : listeners) {
+                for (SystemOutputImplementationListener listener : listeners) {
                     listener.outputStatusChanged(event);
                 }
             }
     
             if (speakables.isEmpty()) {
                 LOGGER.info("BML queue is empty");
-                final SynthesizedOutputEvent emptyEvent = new QueueEmptyEvent(
+                final SystemOutputEvent emptyEvent = new QueueEmptyEvent(
                         this, sessionId);
                 synchronized (listeners) {
-                    for (SynthesizedOutputListener listener : listeners) {
+                    for (SystemOutputImplementationListener listener : listeners) {
                         listener.outputStatusChanged(emptyEvent);
                     }
                 }

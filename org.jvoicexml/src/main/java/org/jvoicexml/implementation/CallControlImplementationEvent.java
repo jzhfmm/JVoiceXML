@@ -22,11 +22,11 @@
 package org.jvoicexml.implementation;
 
 /**
- * Event generated from the {@link Telephony} implementation.
+ * Event generated from the {@link CallControlImplementation} implementation.
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-public final class TelephonyEvent {
+public final class CallControlImplementationEvent {
     /** A call has been answered. */
     public static final int ANSWERED = 1;
 
@@ -49,7 +49,7 @@ public final class TelephonyEvent {
     public static final int TRANSFERRED = RECORD_STOPPED << 1;
 
     /** Object that caused the event. */
-    private final Telephony source;
+    private final CallControlImplementation source;
 
     /** Event identifier. */
     private final int event;
@@ -63,7 +63,7 @@ public final class TelephonyEvent {
      * @param telephony object that caused the event.
      * @param eventType event identifier.
      */
-    public TelephonyEvent(final Telephony telephony,
+    public CallControlImplementationEvent(final CallControlImplementation telephony,
             final int eventType) {
         this(telephony, eventType, null);
     }
@@ -74,7 +74,7 @@ public final class TelephonyEvent {
      * @param eventType event identifier.
      * @param parameter optional parameter.
      */
-    public TelephonyEvent(final Telephony telephony,
+    public CallControlImplementationEvent(final CallControlImplementation telephony,
             final int eventType, final Object parameter) {
         source = telephony;
         event = eventType;
@@ -85,7 +85,7 @@ public final class TelephonyEvent {
      * Retrieves the object that caused the event.
      * @return the source object.
      */
-    public Telephony getSource() {
+    public CallControlImplementation getSource() {
         return source;
     }
 

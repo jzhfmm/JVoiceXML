@@ -29,8 +29,8 @@ import java.util.List;
 
 import org.jvoicexml.LastResult;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 
 /**
@@ -66,7 +66,7 @@ public interface ExtensionNotificationDataConverter {
      * @throws ConversionException
      *             error converting the result
      */
-    Object convertSynthesizedOutputEvent(final SynthesizedOutputEvent event)
+    Object convertSynthesizedOutputEvent(final SystemOutputEvent event)
             throws ConversionException;
 
     /**
@@ -94,6 +94,6 @@ public interface ExtensionNotificationDataConverter {
      * @throws ConversionException
      *             error converting the result
      */
-    Object convertSpokenInputEvent(final SpokenInputEvent input)
+    Object convertSpokenInputEvent(final UserInputEvent input)
             throws ConversionException;
 }

@@ -26,7 +26,7 @@
 
 package org.jvoicexml.event.plain.implementation;
 
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * A notification that a certain mark within an SSML document has been reached.
@@ -36,12 +36,12 @@ import org.jvoicexml.implementation.SynthesizedOutput;
  * @since 0.7.1
  */
 @SuppressWarnings("serial")
-public final class MarkerReachedEvent extends SynthesizedOutputEvent {
+public final class MarkerReachedEvent extends SystemOutputEvent {
     /** The unsupported element. */
     public static final String DETAIL = "marker";
 
     /** The detail message. */
-    public static final String EVENT_TYPE = SynthesizedOutputEvent.class
+    public static final String EVENT_TYPE = SystemOutputEvent.class
             .getCanonicalName() + "." + DETAIL;
     
     /** The reached mark. */
@@ -64,7 +64,7 @@ public final class MarkerReachedEvent extends SynthesizedOutputEvent {
      * @param name
      *            name of the mark that has been reached.
      */
-    public MarkerReachedEvent(final SynthesizedOutput output,
+    public MarkerReachedEvent(final SystemOutputOutputImplementation output,
             final String sessionId, final String name) {
         super(output, DETAIL, sessionId);
         mark = name;

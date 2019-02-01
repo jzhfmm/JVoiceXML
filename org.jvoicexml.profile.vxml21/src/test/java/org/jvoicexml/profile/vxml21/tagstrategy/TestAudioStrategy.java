@@ -36,8 +36,8 @@ import org.jvoicexml.SpeakableText;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.interpreter.JVoiceXmlApplication;
 import org.jvoicexml.interpreter.VoiceXmlInterpreterContext;
 import org.jvoicexml.xml.ssml.Audio;
@@ -55,7 +55,7 @@ import org.jvoicexml.xml.vxml.Vxml;
  * @since 0.6
  */
 public final class TestAudioStrategy extends TagStrategyTestBase
-    implements SynthesizedOutputListener {
+    implements SystemOutputImplementationListener {
     /** The queued speakable. */
     private SpeakableText queuedSpeakable;
 
@@ -128,7 +128,7 @@ public final class TestAudioStrategy extends TagStrategyTestBase
     /**
      * {@inheritDoc}
      */
-    public void outputStatusChanged(final SynthesizedOutputEvent event) {
+    public void outputStatusChanged(final SystemOutputEvent event) {
         if (event.isType(OutputStartedEvent.EVENT_TYPE)) {
             final OutputStartedEvent started = (OutputStartedEvent) event;
             queuedSpeakable = started.getSpeakable();

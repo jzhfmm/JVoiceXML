@@ -54,9 +54,9 @@ import org.jvoicexml.event.plain.implementation.MarkerReachedEvent;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.SsmlNode;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
@@ -97,7 +97,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Dirk Schnelle-Walka
  */
 public final class Jsapi10SynthesizedOutput
-        implements SynthesizedOutput, SpeakableListener,
+        implements SystemOutputOutputImplementation, SpeakableListener,
         StreamableSynthesizedOutput {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
@@ -119,7 +119,7 @@ public final class Jsapi10SynthesizedOutput
     private final SynthesizerModeDesc desc;
 
     /** The system output listener. */
-    private final Collection<SynthesizedOutputListener> listener;
+    private final Collection<SystemOutputImplementationListener> listener;
 
     /** A custom handler to handle remote connections. */
     private SynthesizedOutputConnectionHandler handler;
@@ -181,7 +181,7 @@ public final class Jsapi10SynthesizedOutput
      */
     public Jsapi10SynthesizedOutput(final SynthesizerModeDesc defaultDescriptor) {
         desc = defaultDescriptor;
-        listener = new java.util.ArrayList<SynthesizedOutputListener>();
+        listener = new java.util.ArrayList<SystemOutputImplementationListener>();
         queuedSpeakables = new java.util.LinkedList<SpeakableText>();
         emptyLock = new Object();
         endplayLock = new Object();
@@ -284,7 +284,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
-    public void addListener(final SynthesizedOutputListener outputListener) {
+    public void addListener(final SystemOutputImplementationListener outputListener) {
         synchronized (listener) {
             listener.add(outputListener);
         }
@@ -293,7 +293,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
-    public void removeListener(final SynthesizedOutputListener outputListener) {
+    public void removeListener(final SystemOutputImplementationListener outputListener) {
         synchronized (listener) {
             listener.remove(outputListener);
         }
@@ -465,7 +465,7 @@ public final class Jsapi10SynthesizedOutput
      *            the current speakable.
      */
     private void fireOutputStarted(final SpeakableText speakable) {
-        final SynthesizedOutputEvent event = new OutputStartedEvent(this, null,
+        final SystemOutputEvent event = new OutputStartedEvent(this, null,
                 speakable);
         fireOutputEvent(event);
     }
@@ -477,7 +477,7 @@ public final class Jsapi10SynthesizedOutput
      *            the reached marker.
      */
     private void fireMarkerReached(final String mark) {
-        final SynthesizedOutputEvent event = new MarkerReachedEvent(this, null,
+        final SystemOutputEvent event = new MarkerReachedEvent(this, null,
                 mark);
         fireOutputEvent(event);
     }
@@ -489,7 +489,7 @@ public final class Jsapi10SynthesizedOutput
      *            the current speakable.
      */
     private void fireOutputEnded(final SpeakableText speakable) {
-        final SynthesizedOutputEvent event = new OutputEndedEvent(this, null,
+        final SystemOutputEvent event = new OutputEndedEvent(this, null,
                 speakable);
         fireOutputEvent(event);
         synchronized (endplayLock) {
@@ -501,7 +501,7 @@ public final class Jsapi10SynthesizedOutput
      * Notifies all listeners that output queue is empty.
      */
     private void fireQueueEmpty() {
-        final SynthesizedOutputEvent event = new QueueEmptyEvent(this, null);
+        final SystemOutputEvent event = new QueueEmptyEvent(this, null);
         fireOutputEvent(event);
     }
 
@@ -924,11 +924,11 @@ public final class Jsapi10SynthesizedOutput
      *            the event.
      * @since 0.6
      */
-    private void fireOutputEvent(final SynthesizedOutputEvent event) {
+    private void fireOutputEvent(final SystemOutputEvent event) {
         synchronized (listener) {
-            final Collection<SynthesizedOutputListener> copy = new java.util.ArrayList<SynthesizedOutputListener>();
+            final Collection<SystemOutputImplementationListener> copy = new java.util.ArrayList<SystemOutputImplementationListener>();
             copy.addAll(listener);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputStatusChanged(event);
             }
         }
@@ -943,9 +943,9 @@ public final class Jsapi10SynthesizedOutput
      */
     private void notifyError(final ErrorEvent error) {
         synchronized (listener) {
-            final Collection<SynthesizedOutputListener> copy = new java.util.ArrayList<SynthesizedOutputListener>();
+            final Collection<SystemOutputImplementationListener> copy = new java.util.ArrayList<SystemOutputImplementationListener>();
             copy.addAll(listener);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputError(error);
             }
         }

@@ -37,18 +37,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link org.jvoicexml.implementation.SynthesizedOutput} based on
+ * for the {@link org.jvoicexml.implementation.SystemOutputOutputImplementation} based on
  * JSAPI 2.0.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.5.5
  */
 public final class Jsapi20SynthesizedOutputFactory
-        implements ResourceFactory<SynthesizedOutput> {
+        implements ResourceFactory<SystemOutputOutputImplementation> {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(Jsapi20SynthesizedOutputFactory.class);
@@ -103,7 +103,7 @@ public final class Jsapi20SynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public SynthesizedOutput createResource() throws NoresourceError {
+    public SystemOutputOutputImplementation createResource() throws NoresourceError {
         final SynthesizerMode mode = getEngineProperties();
         final Jsapi20SynthesizedOutput output =
             new Jsapi20SynthesizedOutput(mode, locatorFactory);
@@ -195,7 +195,7 @@ public final class Jsapi20SynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SynthesizedOutput> getResourceType() {
-        return SynthesizedOutput.class;
+    public Class<SystemOutputOutputImplementation> getResourceType() {
+        return SystemOutputOutputImplementation.class;
     }
 }

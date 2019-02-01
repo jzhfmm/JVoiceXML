@@ -46,10 +46,10 @@ import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.xml.srgs.GrammarType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
@@ -66,7 +66,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @version $Revision$
  */
 public final class MobicentsSpokenInput
-        implements SpokenInput, StreamableSpokenInput {
+        implements UserInputImplementation, StreamableSpokenInput {
     /** Logger for this class. */
     private static final Logger LOGGER =
         Logger.getLogger(MobicentsSpokenInput.class);
@@ -82,7 +82,7 @@ public final class MobicentsSpokenInput
 
 
     /** Listener for user input events. */
-    private final Collection<SpokenInputListener> listener;
+    private final Collection<UserInputImplementationListener> listener;
 
     /** The default recognizer mode descriptor. */
     private  RecognizerModeDesc desc;
@@ -114,7 +114,7 @@ public final class MobicentsSpokenInput
      */
     public MobicentsSpokenInput(final RecognizerModeDesc defaultDescriptor) {
         desc = defaultDescriptor;
-        listener = new java.util.ArrayList<SpokenInputListener>();
+        listener = new java.util.ArrayList<UserInputImplementationListener>();
     }
 
     /**
@@ -141,7 +141,7 @@ public final class MobicentsSpokenInput
     /**
      * {@inheritDoc}
      */
-    public void addListener(final SpokenInputListener inputListener) {
+    public void addListener(final UserInputImplementationListener inputListener) {
         synchronized (listener) {
             listener.add(inputListener);
         }
@@ -150,7 +150,7 @@ public final class MobicentsSpokenInput
     /**
      * {@inheritDoc}
      */
-    public void removeListener(final SpokenInputListener inputListener) {
+    public void removeListener(final UserInputImplementationListener inputListener) {
         synchronized (listener) {
             listener.remove(inputListener);
         }
@@ -338,15 +338,15 @@ public final class MobicentsSpokenInput
      * @param event the event.
      * @since 0.6
      */
-    void fireInputEvent(final SpokenInputEvent event) 
+    void fireInputEvent(final UserInputEvent event) 
     {
         LOGGER.info("SpokenInputEvent:"+event);
         synchronized (listener) 
         {
-            final Collection<SpokenInputListener> copy =
-                new java.util.ArrayList<SpokenInputListener>();
+            final Collection<UserInputImplementationListener> copy =
+                new java.util.ArrayList<UserInputImplementationListener>();
             copy.addAll(listener);
-            for (SpokenInputListener current : copy) {
+            for (UserInputImplementationListener current : copy) {
                 current.inputStatusChanged(event);
             }
         }

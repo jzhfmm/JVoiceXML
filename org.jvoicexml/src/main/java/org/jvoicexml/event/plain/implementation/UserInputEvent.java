@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2014 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -27,28 +22,41 @@
 package org.jvoicexml.event.plain.implementation;
 
 import org.jvoicexml.event.JVoiceXMLEvent;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
- * Event generated from the {@link SynthesizedOutput} implementation. Events are
- * associated to a dedicated event source, i.e. the system output device, and a
- * session.
+ * Event generated from the {@link UserInputImplementation} implementation.
  * 
  * @author Dirk Schnelle-Walka
  * @version $Revision$
- * @since 0.6
+ * 
  */
 @SuppressWarnings("serial")
-public class SynthesizedOutputEvent extends JVoiceXMLEvent {
+public class UserInputEvent extends JVoiceXMLEvent {
     /** The detail message. */
-    public static final String EVENT_TYPE = SynthesizedOutputEvent.class
+    public static final String EVENT_TYPE = UserInputEvent.class
             .getCanonicalName();
+
+    /** The recognition process has been started. */
+    public static final int RECOGNITION_STARTED = 1;
+
+    /** The recognition process has ended. */
+    public static final int RECOGNITION_STOPPED = RECOGNITION_STARTED << 1;
+
+    /** The user has started to speak. */
+    public static final int INPUT_STARTED = RECOGNITION_STOPPED << 1;
+
+    /** The user made an utterance that matched an active grammar. */
+    public static final int RESULT_ACCEPTED = INPUT_STARTED << 1;
+
+    /** The user made an utterance that did not match an active grammar. */
+    public static final int RESULT_REJECTED = RESULT_ACCEPTED << 1;
 
     /** The detailing of this event. */
     private final String detail;
 
     /** Object that caused the event. */
-    private final SynthesizedOutput source;
+    private final UserInputImplementation source;
 
     /** The id of the related session. */
     private final String sessionId;
@@ -59,13 +67,13 @@ public class SynthesizedOutputEvent extends JVoiceXMLEvent {
      * @param output
      *            object that caused the event.
      * @param detailedType
-     *            the detailed message
+     *            detailed message
      * @param id
      *            the session id
      * @exception IllegalArgumentException
      *                if an illegal event type is passed.
      */
-    public SynthesizedOutputEvent(final SynthesizedOutput output,
+    public UserInputEvent(final UserInputImplementation output,
             final String detailedType, final String id)
             throws IllegalArgumentException {
         source = output;
@@ -74,11 +82,28 @@ public class SynthesizedOutputEvent extends JVoiceXMLEvent {
     }
 
     /**
+     * Constructs a new object.
+     * 
+     * @param output
+     *            object that caused the event.
+     * @param id
+     *            the session id
+     * @exception IllegalArgumentException
+     *                if an illegal event type is passed.
+     */
+    public UserInputEvent(final UserInputImplementation output, final String id)
+            throws IllegalArgumentException {
+        source = output;
+        detail = null;
+        sessionId = id;
+    }
+
+    /**
      * Retrieves the object that caused the event.
      * 
      * @return the source object.
      */
-    public final SynthesizedOutput getSource() {
+    public final UserInputImplementation getSource() {
         return source;
     }
 
@@ -86,7 +111,7 @@ public class SynthesizedOutputEvent extends JVoiceXMLEvent {
      * Retrieves the session id.
      * 
      * @return the session id
-     * @since 0.7.5
+     * @since 0.7.7
      */
     public final String getSessionId() {
         return sessionId;

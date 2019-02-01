@@ -28,19 +28,19 @@ package org.jvoicexml.implementation.jtapi;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.Telephony;
+import org.jvoicexml.implementation.CallControlImplementation;
 
 /**
  * Demo implementation of a
  * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link Telephony} based on JTAPI 1.3.1.
+ * {@link CallControlImplementation} based on JTAPI 1.3.1.
  *
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  * @since 0.6
  */
 public final class JtapiTelephonyFactory
-    implements ResourceFactory<Telephony> {
+    implements ResourceFactory<CallControlImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -57,7 +57,7 @@ public final class JtapiTelephonyFactory
     /**
      * {@inheritDoc}
      */
-    public Telephony createResource()
+    public CallControlImplementation createResource()
         throws NoresourceError {
         return new JtapiTelephony();
     }
@@ -87,7 +87,7 @@ public final class JtapiTelephonyFactory
     /**
      * {@inheritDoc}
      */
-    public Class<Telephony> getResourceType() {
-        return Telephony.class;
+    public Class<CallControlImplementation> getResourceType() {
+        return CallControlImplementation.class;
     }
 }

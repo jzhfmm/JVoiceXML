@@ -37,7 +37,7 @@ import org.jvoicexml.implementation.mobicents.MobicentsSpokenInputFactory;
 /**
  * Demo implementation of a
  * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link org.jvoicexml.implementation.SpokenInput} based on Mobicents 1.0.
+ * {@link org.jvoicexml.implementation.UserInputImplementation} based on Mobicents 1.0.
  *
  * @author Dirk Schnelle
  * @version $Revision$

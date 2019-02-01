@@ -29,7 +29,7 @@ package org.jvoicexml.event.plain.implementation;
 
 import org.jvoicexml.RecognitionResult;
 import org.jvoicexml.event.plain.jvxml.InputEvent;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
  * The user input something, but it was not recognized.
@@ -37,7 +37,7 @@ import org.jvoicexml.implementation.SpokenInput;
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  */
-public final class NomatchEvent extends SpokenInputEvent implements InputEvent {
+public final class NomatchEvent extends UserInputEvent implements InputEvent {
     /** The serial version UID. */
     private static final long serialVersionUID = 776343576316001103L;
 
@@ -57,7 +57,7 @@ public final class NomatchEvent extends SpokenInputEvent implements InputEvent {
      * @param recognitionResult
      *            the recognition result
      */
-    public NomatchEvent(final SpokenInput input, final String sessionId,
+    public NomatchEvent(final UserInputImplementation input, final String sessionId,
             final RecognitionResult recognitionResult) {
         super(input, sessionId);
         result = recognitionResult;

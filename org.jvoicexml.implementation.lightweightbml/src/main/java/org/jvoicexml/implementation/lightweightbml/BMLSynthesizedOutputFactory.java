@@ -29,11 +29,11 @@ import java.net.UnknownHostException;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link org.jvoicexml.implementation.SynthesizedOutput} for LightweightBML and TalkingHead.
+ * for the {@link org.jvoicexml.implementation.SystemOutputOutputImplementation} for LightweightBML and TalkingHead.
  * 
  * @author Matthias Mettel
  * @author Markus Ermuth
@@ -43,7 +43,7 @@ import org.jvoicexml.implementation.SynthesizedOutput;
  * @since 0.7.7
  */
 public final class BMLSynthesizedOutputFactory
-        implements ResourceFactory<SynthesizedOutput> {
+        implements ResourceFactory<SystemOutputOutputImplementation> {
     /** Default port of Avatar. */
     private static final int AVATAR_DEFAULT_PORT = 4010;
 
@@ -144,7 +144,7 @@ public final class BMLSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public SynthesizedOutput createResource() throws NoresourceError {
+    public SystemOutputOutputImplementation createResource() throws NoresourceError {
         final BMLSynthesizedOutput output = new BMLSynthesizedOutput();
         output.setType(type);
         try {
@@ -196,7 +196,7 @@ public final class BMLSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SynthesizedOutput> getResourceType() {
-        return SynthesizedOutput.class;
+    public Class<SystemOutputOutputImplementation> getResourceType() {
+        return SystemOutputOutputImplementation.class;
     }
 }

@@ -24,7 +24,7 @@ package org.jvoicexml.implementation;
 import org.jvoicexml.event.ErrorEvent;
 
 /**
- * Listener for events from the {@link Telephony} implementation.
+ * Listener for events from the {@link CallControlImplementation} implementation.
  * implementation.
  *
  * @author Hugo Monteiro
@@ -32,27 +32,27 @@ import org.jvoicexml.event.ErrorEvent;
  * @author Renato Cassaca
  * @since 0.6
  */
-public interface TelephonyListener {
+public interface CallControlImplementationListener {
     /**
-     * Invoked when the {@link Telephony} implementation triggered a call
+     * Invoked when the {@link CallControlImplementation} implementation triggered a call
      * answered event.
      * 
      * @param event
      *            the event.
      */
-    void telephonyCallAnswered(TelephonyEvent event);
+    void telephonyCallAnswered(CallControlImplementationEvent event);
 
     /**
-     * Invoked when the {@link Telephony} implementation triggered an event that
+     * Invoked when the {@link CallControlImplementation} implementation triggered an event that
      * was associated with media. Examples include start and end of a playback.
      * 
      * @param event
      *            the event.
      */
-    void telephonyMediaEvent(TelephonyEvent event);
+    void telephonyMediaEvent(CallControlImplementationEvent event);
 
     /**
-     * Invoked when the {@link Telephony} implementation recognized a DTMF
+     * Invoked when the {@link CallControlImplementation} implementation recognized a DTMF
      * input.
      * 
      * @param dtmf
@@ -62,22 +62,22 @@ public interface TelephonyListener {
     void dtmfInput(char dtmf);
 
     /**
-     * Invoked when the {@link Telephony} implementation triggered a call hangup
+     * Invoked when the {@link CallControlImplementation} implementation triggered a call hangup
      * event.
      * 
      * @param event
      *            the event.
      */
-    void telephonyCallHungup(TelephonyEvent event);
+    void telephonyCallHungup(CallControlImplementationEvent event);
 
     /**
-     * Invoked when the {@link Telephony} implementation triggered a transfer
+     * Invoked when the {@link CallControlImplementation} implementation triggered a transfer
      * event.
      * 
      * @param event
      *            the event.
      */
-    void telephonyCallTransferred(TelephonyEvent event);
+    void telephonyCallTransferred(CallControlImplementationEvent event);
 
     /**
      * An error occurred while communicating over the telephony.

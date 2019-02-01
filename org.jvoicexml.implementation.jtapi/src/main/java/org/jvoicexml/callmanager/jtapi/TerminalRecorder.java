@@ -37,7 +37,7 @@ import javax.telephony.media.RecorderConstants;
 import net.sourceforge.gjtapi.media.GenericMediaService;
 
 import org.apache.log4j.Logger;
-import org.jvoicexml.implementation.TelephonyEvent;
+import org.jvoicexml.implementation.CallControlImplementationEvent;
 
 /**
  * Thread to record a stream from a given URI.
@@ -94,8 +94,8 @@ class TerminalRecorder extends TerminalMedia {
      * Prepocessing.
      */
     public void onPreProcess() {
-        final TelephonyEvent event = new TelephonyEvent(null,
-                TelephonyEvent.RECORD_STARTED);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(null,
+                CallControlImplementationEvent.RECORD_STARTED);
         terminal.fireMediaEvent(event);
     }
 
@@ -103,8 +103,8 @@ class TerminalRecorder extends TerminalMedia {
      * Postprocessing.
      */
     public void onPostProcess() {
-        final TelephonyEvent event = new TelephonyEvent(null,
-                TelephonyEvent.RECORD_STOPPED);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(null,
+                CallControlImplementationEvent.RECORD_STOPPED);
         terminal.fireMediaEvent(event);
     }
 }

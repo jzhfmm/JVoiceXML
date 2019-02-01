@@ -58,10 +58,10 @@ import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
 import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStoppedEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
 import org.jvoicexml.xml.srgs.SrgsXmlDocument;
@@ -83,7 +83,7 @@ import org.xml.sax.SAXException;
  * @since 0.6
  */
 public final class Jsapi20SpokenInput
-        implements SpokenInput, RecognizerListener {
+        implements UserInputImplementation, RecognizerListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(Jsapi20SpokenInput.class);
@@ -92,7 +92,7 @@ public final class Jsapi20SpokenInput
     private Recognizer recognizer;
 
     /** Listener for user input events. */
-    private final Collection<SpokenInputListener> listeners;
+    private final Collection<UserInputImplementationListener> listeners;
 
     /** The default recognizer mode descriptor. */
     private final RecognizerMode mode;
@@ -120,7 +120,7 @@ public final class Jsapi20SpokenInput
     public Jsapi20SpokenInput(final RecognizerMode defaultDescriptor,
             final InputMediaLocatorFactory mediaLocatorFactory) {
         mode = defaultDescriptor;
-        listeners = new java.util.ArrayList<SpokenInputListener>();
+        listeners = new java.util.ArrayList<UserInputImplementationListener>();
         locatorFactory = mediaLocatorFactory;
         currentResultListener = null;
     }
@@ -201,7 +201,7 @@ public final class Jsapi20SpokenInput
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final SpokenInputListener inputListener) {
+    public void addListener(final UserInputImplementationListener inputListener) {
         synchronized (listeners) {
             listeners.add(inputListener);
         }
@@ -211,7 +211,7 @@ public final class Jsapi20SpokenInput
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final SpokenInputListener inputListener) {
+    public void removeListener(final UserInputImplementationListener inputListener) {
         synchronized (listeners) {
             listeners.remove(inputListener);
         }
@@ -441,7 +441,7 @@ public final class Jsapi20SpokenInput
             throw new NoresourceError(e.getMessage(), e);
         }
 
-        final SpokenInputEvent event = new RecognitionStartedEvent(this, null);
+        final UserInputEvent event = new RecognitionStartedEvent(this, null);
         fireInputEvent(event);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("...recognition started");
@@ -509,7 +509,7 @@ public final class Jsapi20SpokenInput
         }
         recognizer.processGrammars();
 
-        final SpokenInputEvent event = new RecognitionStoppedEvent(this, null);
+        final UserInputEvent event = new RecognitionStoppedEvent(this, null);
         fireInputEvent(event);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("...recognition stopped");
@@ -618,12 +618,12 @@ public final class Jsapi20SpokenInput
      *            the event.
      * @since 0.6
      */
-    void fireInputEvent(final SpokenInputEvent event) {
+    void fireInputEvent(final UserInputEvent event) {
         synchronized (listeners) {
-            final Collection<SpokenInputListener> copy =
-                    new java.util.ArrayList<SpokenInputListener>();
+            final Collection<UserInputImplementationListener> copy =
+                    new java.util.ArrayList<UserInputImplementationListener>();
             copy.addAll(listeners);
-            for (SpokenInputListener current : copy) {
+            for (UserInputImplementationListener current : copy) {
                 current.inputStatusChanged(event);
             }
         }

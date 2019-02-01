@@ -25,13 +25,13 @@ import java.util.List;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.grammar.GrammarParser;
 import org.speechforge.cairo.client.SessionManager;
 
 /**
  * Implementation of a {@link org.jvoicexml.implementation.ResourceFactory} for
- * the {@link SpokenInput} based on MRCPv2.
+ * the {@link UserInputImplementation} based on MRCPv2.
  * 
  * @author Spencer Lord
  * @author Dirk Schnelle-Walka
@@ -39,7 +39,7 @@ import org.speechforge.cairo.client.SessionManager;
  * @since 0.7
  */
 public final class Mrcpv2SpokenInputFactory
-        implements ResourceFactory<SpokenInput> {
+        implements ResourceFactory<UserInputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -68,7 +68,7 @@ public final class Mrcpv2SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public SpokenInput createResource() throws NoresourceError {
+    public UserInputImplementation createResource() throws NoresourceError {
         final Mrcpv2SpokenInput input = new Mrcpv2SpokenInput();
         input.setSessionManager(sessionManager);
         input.setGrammarParsers(parsers);
@@ -103,8 +103,8 @@ public final class Mrcpv2SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SpokenInput> getResourceType() {
-        return SpokenInput.class;
+    public Class<UserInputImplementation> getResourceType() {
+        return UserInputImplementation.class;
     }
 
     /**

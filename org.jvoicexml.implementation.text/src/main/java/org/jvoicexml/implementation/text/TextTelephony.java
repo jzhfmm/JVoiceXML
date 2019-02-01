@@ -39,14 +39,14 @@ import org.jvoicexml.SpeakableText;
 import org.jvoicexml.client.text.TextConnectionInformation;
 import org.jvoicexml.client.text.protobuf.TextMessageOuterClass.TextMessage;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.Telephony;
-import org.jvoicexml.implementation.TelephonyEvent;
-import org.jvoicexml.implementation.TelephonyListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.CallControlImplementationEvent;
+import org.jvoicexml.implementation.CallControlImplementationListener;
 
 /**
- * Text based implementation of {@link Telephony}.
+ * Text based implementation of {@link CallControlImplementation}.
  * 
  * <p>
  * This class provides the basic communication means with a client. System
@@ -59,7 +59,7 @@ import org.jvoicexml.implementation.TelephonyListener;
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-public final class TextTelephony implements Telephony {
+public final class TextTelephony implements CallControlImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
             .getLogger(TextTelephony.class);
@@ -83,7 +83,7 @@ public final class TextTelephony implements Telephony {
     private TextSynthesizedOutput textOutput;
 
     /** Registered call control listeners. */
-    private final Collection<TelephonyListener> listener;
+    private final Collection<CallControlImplementationListener> listener;
 
     /** Messages that are not acknowledged by the client. */
     private final Map<Integer, PendingMessage> pendingMessages;
@@ -95,7 +95,7 @@ public final class TextTelephony implements Telephony {
      * Constructs a new object.
      */
     public TextTelephony() {
-        listener = new java.util.ArrayList<TelephonyListener>();
+        listener = new java.util.ArrayList<CallControlImplementationListener>();
         pendingMessages = new java.util.HashMap<Integer, PendingMessage>();
     }
 
@@ -103,7 +103,7 @@ public final class TextTelephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void play(final SynthesizedOutput output,
+    public void play(final SystemOutputOutputImplementation output,
             final CallControlProperties props)
             throws NoresourceError, IOException {
         if (sentHungup) {
@@ -201,8 +201,8 @@ public final class TextTelephony implements Telephony {
      * Notifies all listeners that play has started.
      */
     private void firePlayStarted() {
-        final TelephonyEvent event =
-            new TelephonyEvent(this, TelephonyEvent.PLAY_STARTED);
+        final CallControlImplementationEvent event =
+            new CallControlImplementationEvent(this, CallControlImplementationEvent.PLAY_STARTED);
         fireTelephonyEvent(event);
     }
 
@@ -210,8 +210,8 @@ public final class TextTelephony implements Telephony {
      * Notifies all listeners that play has stopped.
      */
     private void firePlayStopped() {
-        final TelephonyEvent event =
-            new TelephonyEvent(this, TelephonyEvent.PLAY_STOPPED);
+        final CallControlImplementationEvent event =
+            new CallControlImplementationEvent(this, CallControlImplementationEvent.PLAY_STOPPED);
         fireTelephonyEvent(event);
     }
 
@@ -219,7 +219,7 @@ public final class TextTelephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void record(final SpokenInput input,
+    public void record(final UserInputImplementation input,
             final CallControlProperties props)
             throws NoresourceError, IOException {
         if (sentHungup) {
@@ -258,7 +258,7 @@ public final class TextTelephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void startRecording(final SpokenInput input,
+    public void startRecording(final UserInputImplementation input,
             final OutputStream stream, final CallControlProperties props)
             throws NoresourceError, IOException {
         throw new NoresourceError(
@@ -280,8 +280,8 @@ public final class TextTelephony implements Telephony {
      * Notifies all listeners that play has started.
      */
     private void fireRecordStarted() {
-        final TelephonyEvent event =
-            new TelephonyEvent(this, TelephonyEvent.RECORD_STARTED);
+        final CallControlImplementationEvent event =
+            new CallControlImplementationEvent(this, CallControlImplementationEvent.RECORD_STARTED);
         fireTelephonyEvent(event);
     }
 
@@ -289,8 +289,8 @@ public final class TextTelephony implements Telephony {
      * Notifies all listeners that play has stopped.
      */
     private void fireRecordStopped() {
-        final TelephonyEvent event =
-            new TelephonyEvent(this, TelephonyEvent.RECORD_STOPPED);
+        final CallControlImplementationEvent event =
+            new CallControlImplementationEvent(this, CallControlImplementationEvent.RECORD_STOPPED);
         fireTelephonyEvent(event);
     }
 
@@ -306,8 +306,8 @@ public final class TextTelephony implements Telephony {
         if (textOutput != null) {
             textOutput.disconnected();
         }
-        final TelephonyEvent event =
-            new TelephonyEvent(this, TelephonyEvent.HUNGUP);
+        final CallControlImplementationEvent event =
+            new CallControlImplementationEvent(this, CallControlImplementationEvent.HUNGUP);
         fireTelephonyEvent(event);
     }
 
@@ -544,7 +544,7 @@ public final class TextTelephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final TelephonyListener callListener) {
+    public void addListener(final CallControlImplementationListener callListener) {
         synchronized (listener) {
             listener.add(callListener);
         }
@@ -555,7 +555,7 @@ public final class TextTelephony implements Telephony {
      */
     @Override
     public void removeListener(
-            final TelephonyListener callListener) {
+            final CallControlImplementationListener callListener) {
             synchronized (listener) {
                 listener.remove(callListener);
             }
@@ -565,18 +565,18 @@ public final class TextTelephony implements Telephony {
      * Notifies all registered listeners about the given event.
      * @param event the event.
      */
-    private void fireTelephonyEvent(final TelephonyEvent event) {
-        final Collection<TelephonyListener> copy =
-                new java.util.ArrayList<TelephonyListener>();
+    private void fireTelephonyEvent(final CallControlImplementationEvent event) {
+        final Collection<CallControlImplementationListener> copy =
+                new java.util.ArrayList<CallControlImplementationListener>();
         synchronized (listener) {
             copy.addAll(listener);
         }
-        for (TelephonyListener current : copy) {
+        for (CallControlImplementationListener current : copy) {
             switch(event.getEvent()) {
-            case TelephonyEvent.ANSWERED:
+            case CallControlImplementationEvent.ANSWERED:
                 current.telephonyCallAnswered(event);
                 break;
-            case TelephonyEvent.HUNGUP:
+            case CallControlImplementationEvent.HUNGUP:
                 current.telephonyCallHungup(event);
                 break;
             default:

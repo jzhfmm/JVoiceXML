@@ -29,7 +29,7 @@ package org.jvoicexml.implementation.kinect;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.event.plain.jvxml.InputEvent;
 import org.jvoicexml.mock.implementation.MockSpokenInputListener;
 
@@ -110,7 +110,7 @@ public final class TestKinectRecognizer {
         recognizer.startRecognition();
         LOGGER.info("Say 'FORWARD'!");
         listener.waitSize(1, 10000);
-        final SpokenInputEvent event = listener.get(0);
+        final UserInputEvent event = listener.get(0);
         final InputEvent inputEvent = (InputEvent) event;
         final KinectRecognitionResult result = (KinectRecognitionResult) inputEvent
                 .getInputResult();
@@ -135,7 +135,7 @@ public final class TestKinectRecognizer {
             recognizer.startRecognition();
             LOGGER.info("Say 'one' " + i);
             listener.waitSize(1, 10000);
-            final SpokenInputEvent event = listener.get(0);
+            final UserInputEvent event = listener.get(0);
             final InputEvent inputEvent = (InputEvent) event;
             final KinectRecognitionResult result = (KinectRecognitionResult) inputEvent
                     .getInputResult();

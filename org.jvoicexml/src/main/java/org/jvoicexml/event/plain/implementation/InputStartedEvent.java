@@ -26,7 +26,7 @@
 
 package org.jvoicexml.event.plain.implementation;
 
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
@@ -37,12 +37,12 @@ import org.jvoicexml.xml.srgs.ModeType;
  * @since 0.7.7
  */
 @SuppressWarnings("serial")
-public final class InputStartedEvent extends SpokenInputEvent {
+public final class InputStartedEvent extends UserInputEvent {
     /** The detailing part. */
     public static final String DETAIL = "inputstart";
 
     /** The detail message. */
-    public static final String EVENT_TYPE = SpokenInputEvent.class
+    public static final String EVENT_TYPE = UserInputEvent.class
             .getCanonicalName() + "." + DETAIL;
 
     /** The mode type. */
@@ -64,7 +64,7 @@ public final class InputStartedEvent extends SpokenInputEvent {
      *            the session id
      * @param modeType input mode
      */
-    public InputStartedEvent(final SpokenInput input,
+    public InputStartedEvent(final UserInputImplementation input,
             final String sessionId, final ModeType modeType) {
         super(input, DETAIL, sessionId);
         mode = modeType;

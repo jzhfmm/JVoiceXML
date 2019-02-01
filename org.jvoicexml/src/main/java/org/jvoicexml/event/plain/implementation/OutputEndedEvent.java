@@ -27,7 +27,7 @@
 package org.jvoicexml.event.plain.implementation;
 
 import org.jvoicexml.SpeakableText;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * Notification that the output of a {@link SpeakableText} has ended.
@@ -37,12 +37,12 @@ import org.jvoicexml.implementation.SynthesizedOutput;
  * @since 0.7.1
  */
 @SuppressWarnings("serial")
-public final class OutputEndedEvent extends SynthesizedOutputEvent {
+public final class OutputEndedEvent extends SystemOutputEvent {
     /** The unsupported element. */
     public static final String DETAIL = "end";
 
     /** The detail message. */
-    public static final String EVENT_TYPE = SynthesizedOutputEvent.class
+    public static final String EVENT_TYPE = SystemOutputEvent.class
             .getCanonicalName() + "." + DETAIL;
     
     /** The speakable. */
@@ -65,7 +65,7 @@ public final class OutputEndedEvent extends SynthesizedOutputEvent {
      * @param speakableText
      *            the speakable that has ended
      */
-    public OutputEndedEvent(final SynthesizedOutput output,
+    public OutputEndedEvent(final SystemOutputOutputImplementation output,
             final String sessionId, final SpeakableText speakableText) {
         super(output, DETAIL, sessionId);
         speakable = speakableText;

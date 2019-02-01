@@ -59,10 +59,10 @@ import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
 import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStoppedEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
 import org.jvoicexml.xml.vxml.BargeInType;
@@ -79,7 +79,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @version $Revision$
  */
 public final class Jsapi10SpokenInput
-        implements SpokenInput, StreamableSpokenInput {
+        implements UserInputImplementation, StreamableSpokenInput {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
             .getLogger(Jsapi10SpokenInput.class);
@@ -94,7 +94,7 @@ public final class Jsapi10SpokenInput
     private Recognizer recognizer;
 
     /** Listener for user input events. */
-    private final Collection<SpokenInputListener> listener;
+    private final Collection<UserInputImplementationListener> listener;
 
     /** The default recognizer mode descriptor. */
     private final RecognizerModeDesc desc;
@@ -128,7 +128,7 @@ public final class Jsapi10SpokenInput
      */
     public Jsapi10SpokenInput(final RecognizerModeDesc defaultDescriptor) {
         desc = defaultDescriptor;
-        listener = new java.util.ArrayList<SpokenInputListener>();
+        listener = new java.util.ArrayList<UserInputImplementationListener>();
     }
 
     /**
@@ -186,7 +186,7 @@ public final class Jsapi10SpokenInput
     /**
      * {@inheritDoc}
      */
-    public void addListener(final SpokenInputListener inputListener) {
+    public void addListener(final UserInputImplementationListener inputListener) {
         synchronized (listener) {
             listener.add(inputListener);
         }
@@ -195,7 +195,7 @@ public final class Jsapi10SpokenInput
     /**
      * {@inheritDoc}
      */
-    public void removeListener(final SpokenInputListener inputListener) {
+    public void removeListener(final UserInputImplementationListener inputListener) {
         synchronized (listener) {
             listener.remove(inputListener);
         }
@@ -420,7 +420,7 @@ public final class Jsapi10SpokenInput
         resultListener = new JVoiceXMLRecognitionListener(this);
         recognizer.addResultListener(resultListener);
 
-        final SpokenInputEvent event = new RecognitionStartedEvent(this, null);
+        final UserInputEvent event = new RecognitionStartedEvent(this, null);
         fireInputEvent(event);
 
         if (LOGGER.isDebugEnabled()) {
@@ -459,7 +459,7 @@ public final class Jsapi10SpokenInput
         }
         recognizer.pause();
 
-        final SpokenInputEvent event = new RecognitionStoppedEvent(this, null);
+        final UserInputEvent event = new RecognitionStoppedEvent(this, null);
         fireInputEvent(event);
 
         if (LOGGER.isDebugEnabled()) {
@@ -607,11 +607,11 @@ public final class Jsapi10SpokenInput
      *            the event.
      * @since 0.6
      */
-    void fireInputEvent(final SpokenInputEvent event) {
+    void fireInputEvent(final UserInputEvent event) {
         synchronized (listener) {
-            final Collection<SpokenInputListener> copy = new java.util.ArrayList<SpokenInputListener>();
+            final Collection<UserInputImplementationListener> copy = new java.util.ArrayList<UserInputImplementationListener>();
             copy.addAll(listener);
-            for (SpokenInputListener current : copy) {
+            for (UserInputImplementationListener current : copy) {
                 current.inputStatusChanged(event);
             }
         }

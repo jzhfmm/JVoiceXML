@@ -34,20 +34,20 @@ import org.jvoicexml.CallControlProperties;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.AudioSource;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.Telephony;
-import org.jvoicexml.implementation.TelephonyEvent;
-import org.jvoicexml.implementation.TelephonyListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.CallControlImplementationEvent;
+import org.jvoicexml.implementation.CallControlImplementationListener;
 
 /**
- * Implementation of a {@link Telephony} resource to be used in desktop/like
+ * Implementation of a {@link CallControlImplementation} resource to be used in desktop/like
  * environments.
  *
  * <p>
- * This implementation of a {@link Telephony} resource can be used, if there is
- * no telephony support or if the {@link SpokenInput} and
- * {@link SynthesizedOutput} implementations are able to produced communicate
+ * This implementation of a {@link CallControlImplementation} resource can be used, if there is
+ * no telephony support or if the {@link UserInputImplementation} and
+ * {@link SystemOutputOutputImplementation} implementations are able to produced communicate
  * directly with the user.
  * </p>
  *
@@ -55,7 +55,7 @@ import org.jvoicexml.implementation.TelephonyListener;
  *
  * @since 0.5.5
  */
-public final class DesktopTelephonySupport implements Telephony {
+public final class DesktopTelephonySupport implements CallControlImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(DesktopTelephonySupport.class);
@@ -64,7 +64,7 @@ public final class DesktopTelephonySupport implements Telephony {
     private final AudioFormat recordingAudioFormat;
 
     /** Registered output listener. */
-    private final Collection<TelephonyListener> listener;
+    private final Collection<CallControlImplementationListener> listener;
 
     /** Flag if this device is busy. */
     private boolean busy;
@@ -85,7 +85,7 @@ public final class DesktopTelephonySupport implements Telephony {
      *            the audio format to use for recording
      */
     public DesktopTelephonySupport(final AudioFormat format) {
-        listener = new java.util.ArrayList<TelephonyListener>();
+        listener = new java.util.ArrayList<CallControlImplementationListener>();
         recordingAudioFormat = format;
     }
 
@@ -141,12 +141,12 @@ public final class DesktopTelephonySupport implements Telephony {
     @Override
     public void connect(final ConnectionInformation client) throws IOException {
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.ANSWERED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.ANSWERED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyCallAnswered(event);
             }
         }
@@ -160,12 +160,12 @@ public final class DesktopTelephonySupport implements Telephony {
     public void disconnect(final ConnectionInformation client) {
         active = false;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.HUNGUP);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.HUNGUP);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyCallHungup(event);
             }
         }
@@ -175,7 +175,7 @@ public final class DesktopTelephonySupport implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void play(final SynthesizedOutput output,
+    public void play(final SystemOutputOutputImplementation output,
             final CallControlProperties props)
             throws IOException, NoresourceError {
         if (!active) {
@@ -191,12 +191,12 @@ public final class DesktopTelephonySupport implements Telephony {
         }
         busy = true;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.PLAY_STARTED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.PLAY_STARTED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -240,12 +240,12 @@ public final class DesktopTelephonySupport implements Telephony {
             }
         }
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.PLAY_STOPPED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.PLAY_STOPPED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -255,7 +255,7 @@ public final class DesktopTelephonySupport implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void record(final SpokenInput input,
+    public void record(final UserInputImplementation input,
             final CallControlProperties props)
             throws IOException, NoresourceError {
         if (!active) {
@@ -263,12 +263,12 @@ public final class DesktopTelephonySupport implements Telephony {
         }
         busy = true;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.RECORD_STARTED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.RECORD_STARTED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -286,7 +286,7 @@ public final class DesktopTelephonySupport implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void startRecording(final SpokenInput input,
+    public void startRecording(final UserInputImplementation input,
             final OutputStream stream, final CallControlProperties props)
             throws IOException, NoresourceError {
         if (!active) {
@@ -300,12 +300,12 @@ public final class DesktopTelephonySupport implements Telephony {
             throw new IOException(e.getMessage(), e);
         }
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.RECORD_STARTED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.RECORD_STARTED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -325,12 +325,12 @@ public final class DesktopTelephonySupport implements Telephony {
             recording = null;
         }
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.RECORD_STOPPED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.RECORD_STOPPED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -350,12 +350,12 @@ public final class DesktopTelephonySupport implements Telephony {
     public void hangup() {
         active = false;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.HUNGUP);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.HUNGUP);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyCallHungup(event);
             }
         }
@@ -365,7 +365,7 @@ public final class DesktopTelephonySupport implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final TelephonyListener callListener) {
+    public void addListener(final CallControlImplementationListener callListener) {
         synchronized (listener) {
             listener.add(callListener);
         }
@@ -375,7 +375,7 @@ public final class DesktopTelephonySupport implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final TelephonyListener callListener) {
+    public void removeListener(final CallControlImplementationListener callListener) {
         synchronized (listener) {
             listener.add(callListener);
         }

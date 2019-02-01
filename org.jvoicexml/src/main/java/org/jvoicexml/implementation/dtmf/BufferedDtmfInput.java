@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -38,10 +38,10 @@ import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.implementation.grammar.GrammarEvaluator;
 import org.jvoicexml.implementation.grammar.GrammarParser;
 import org.jvoicexml.interpreter.datamodel.DataModel;
@@ -54,7 +54,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Dirk Schnelle-Walka
  * @since 0.5
  */
-public class BufferedDtmfInput implements DtmfInput, SpokenInput {
+public class BufferedDtmfInput implements DtmfInput, UserInputImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(BufferedDtmfInput.class);
@@ -66,7 +66,7 @@ public class BufferedDtmfInput implements DtmfInput, SpokenInput {
     private volatile List<Character> buffer;
 
     /** Listener for user input events. */
-    private final Collection<SpokenInputListener> listener;
+    private final Collection<UserInputImplementationListener> listener;
 
     /** Active grammars. */
     private volatile Collection<GrammarImplementation<?>> activeGrammars;
@@ -92,7 +92,7 @@ public class BufferedDtmfInput implements DtmfInput, SpokenInput {
     public BufferedDtmfInput() {
         buffer = new java.util.ArrayList<Character>(
                 MAX_DTMF_INPUT);
-        listener = new java.util.ArrayList<SpokenInputListener>();
+        listener = new java.util.ArrayList<UserInputImplementationListener>();
         activeGrammars = new java.util.ArrayList<GrammarImplementation<?>>();
         parsers = new java.util.HashMap<GrammarType, GrammarParser<?>>();
     }
@@ -281,7 +281,7 @@ public class BufferedDtmfInput implements DtmfInput, SpokenInput {
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final SpokenInputListener inputListener) {
+    public void addListener(final UserInputImplementationListener inputListener) {
         synchronized (listener) {
             listener.add(inputListener);
         }
@@ -291,7 +291,7 @@ public class BufferedDtmfInput implements DtmfInput, SpokenInput {
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final SpokenInputListener inputListener) {
+    public void removeListener(final UserInputImplementationListener inputListener) {
         synchronized (listener) {
             listener.remove(inputListener);
         }
@@ -304,13 +304,13 @@ public class BufferedDtmfInput implements DtmfInput, SpokenInput {
      *            the event.
      * @since 0.6
      */
-    public void fireInputEvent(final SpokenInputEvent event) {
-        final Collection<SpokenInputListener> copy =
-                new java.util.ArrayList<SpokenInputListener>();
+    public void fireInputEvent(final UserInputEvent event) {
+        final Collection<UserInputImplementationListener> copy =
+                new java.util.ArrayList<UserInputImplementationListener>();
         synchronized (listener) {
             copy.addAll(listener);
         }
-        for (SpokenInputListener current : copy) {
+        for (UserInputImplementationListener current : copy) {
             current.inputStatusChanged(event);
         }
     }

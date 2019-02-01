@@ -33,15 +33,15 @@ import org.jvoicexml.CallControlProperties;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.UserInput;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputProvider;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputProvider;
-import org.jvoicexml.implementation.Telephony;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationProvider;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationProvider;
+import org.jvoicexml.implementation.CallControlImplementation;
 
 /**
  * Basic wrapper for {@link CallControl}. Method calls are forwarded to
- * the {@link Telephony} implementation.
+ * the {@link CallControlImplementation} implementation.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.6
@@ -52,13 +52,13 @@ final class JVoiceXmlCallControl implements CallControl {
         LogManager.getLogger(JVoiceXmlCallControl.class);
 
     /** The encapsulated telephony object. */
-    private final Telephony telephony;
+    private final CallControlImplementation telephony;
 
     /**
      * Constructs a new object.
      * @param tel encapsulated telephony object.
      */
-    JVoiceXmlCallControl(final Telephony tel) {
+    JVoiceXmlCallControl(final CallControlImplementation tel) {
         telephony = tel;
     }
 
@@ -67,19 +67,19 @@ final class JVoiceXmlCallControl implements CallControl {
      *
      * <p>
      * This implementation expects that the given output implements
-     * {@link SynthesizedOutputProvider} to retrieve the
-     * {@link SynthesizedOutput} that is needed to trigger the
-     * {@link Telephony} implementation.
+     * {@link SystemOutputImplementationProvider} to retrieve the
+     * {@link SystemOutputOutputImplementation} that is needed to trigger the
+     * {@link CallControlImplementation} implementation.
      * </p>
      */
     @Override
     public void play(final SystemOutput output,
             final CallControlProperties props)
             throws NoresourceError, IOException {
-        if (output instanceof SynthesizedOutputProvider) {
-            final SynthesizedOutputProvider provider =
-                (SynthesizedOutputProvider) output;
-            final SynthesizedOutput synthesizer =
+        if (output instanceof SystemOutputImplementationProvider) {
+            final SystemOutputImplementationProvider provider =
+                (SystemOutputImplementationProvider) output;
+            final SystemOutputOutputImplementation synthesizer =
                 provider.getSynthesizedOutput();
             telephony.play(synthesizer, props);
         } else {
@@ -100,19 +100,19 @@ final class JVoiceXmlCallControl implements CallControl {
      *
      * <p>
      * This implementation expects that the given output implements
-     * {@link SpokenInputProvider} to retrieve the
-     * {@link SpokenInput} that is needed to trigger the
-     * {@link Telephony} implementation.
+     * {@link UserInputImplementationProvider} to retrieve the
+     * {@link UserInputImplementation} that is needed to trigger the
+     * {@link CallControlImplementation} implementation.
      * </p>
      */
     @Override
     public void record(final UserInput input,
             final CallControlProperties props)
             throws NoresourceError, IOException {
-        if (input instanceof SpokenInputProvider) {
-            final SpokenInputProvider provider =
-                (SpokenInputProvider) input;
-            final SpokenInput recognizer = provider.getSpokenInput();
+        if (input instanceof UserInputImplementationProvider) {
+            final UserInputImplementationProvider provider =
+                (UserInputImplementationProvider) input;
+            final UserInputImplementation recognizer = provider.getSpokenInput();
             telephony.record(recognizer, props);
         } else {
             LOGGER.warn("unable to retrieve a recognizer output from "
@@ -132,19 +132,19 @@ final class JVoiceXmlCallControl implements CallControl {
      *
      * <p>
      * This implementation expects that the given output implements
-     * {@link SpokenInputProvider} to retrieve the
-     * {@link SpokenInput} that is needed to trigger the
-     * {@link Telephony} implementation.
+     * {@link UserInputImplementationProvider} to retrieve the
+     * {@link UserInputImplementation} that is needed to trigger the
+     * {@link CallControlImplementation} implementation.
      * </p>
      */
     @Override
     public void startRecording(final UserInput input, final OutputStream stream,
             final CallControlProperties props)
             throws NoresourceError, IOException {
-        if (input instanceof SpokenInputProvider) {
-            final SpokenInputProvider provider =
-                (SpokenInputProvider) input;
-            final SpokenInput recognizer = provider.getSpokenInput();
+        if (input instanceof UserInputImplementationProvider) {
+            final UserInputImplementationProvider provider =
+                (UserInputImplementationProvider) input;
+            final UserInputImplementation recognizer = provider.getSpokenInput();
             telephony.startRecording(recognizer, stream, props);
         } else {
             LOGGER.warn("unable to retrieve a recognizer output from "
@@ -172,7 +172,7 @@ final class JVoiceXmlCallControl implements CallControl {
      * Retrieves the encapsulated telephony object.
      * @return the encapsulated telephony object.
      */
-    public Telephony getTelephony() {
+    public CallControlImplementation getTelephony() {
         return telephony;
     }
 

@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2011 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -27,24 +22,23 @@
 package org.jvoicexml.implementation;
 
 import org.jvoicexml.event.ErrorEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 
 /**
- * Listener for events from the {@link SynthesizedOutput} implementation.
+ * Listener for events from the {@link SystemOutputOutputImplementation} implementation.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  *
  * @see org.jvoicexml.SystemOutput
  * @since 0.5
  */
-public interface SynthesizedOutputListener {
+public interface SystemOutputImplementationListener {
     /**
-     * Notification about status changes in the {@link SynthesizedOutput}.
+     * Notification about status changes in the {@link SystemOutputOutputImplementation}.
      * @param event the output event.
      * @since 0.6
      */
-    void outputStatusChanged(final SynthesizedOutputEvent event);
+    void outputStatusChanged(final SystemOutputEvent event);
 
     /**
      * An error occurred while an output processes an output.

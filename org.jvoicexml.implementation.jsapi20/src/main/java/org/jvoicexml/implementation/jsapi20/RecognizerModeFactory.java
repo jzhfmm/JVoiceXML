@@ -29,7 +29,7 @@ import javax.speech.recognition.RecognizerMode;
  *
  * <p>
  * Objects implementing this interface can be used to create a
- * {@link RecognizerMode} for the {@link org.jvoicexml.implementation.SpokenInput}
+ * {@link RecognizerMode} for the {@link org.jvoicexml.implementation.UserInputImplementation}
  * objects that are created by the
  * {@link Jsapi20SynthesizedOutputFactory}.
  * </p>

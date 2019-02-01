@@ -43,10 +43,10 @@ import org.jvoicexml.event.error.jvxml.ExceptionWrapper;
 import org.jvoicexml.event.plain.implementation.InputStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.implementation.grammar.GrammarParser;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
@@ -76,13 +76,13 @@ import net.sourceforge.halef.HalefDbWriter;
  * @since 0.7
  */
 public final class Mrcpv2SpokenInput
-        implements SpokenInput, SpeechEventListener {
+        implements UserInputImplementation, SpeechEventListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(Mrcpv2SpokenInput.class);
 
     /** Listener for user input events. */
-    private final Collection<SpokenInputListener> listeners;
+    private final Collection<UserInputImplementationListener> listeners;
 
     /** The grammar parser to use. */
     private final Map<String, GrammarParser<?>> parsers;
@@ -109,7 +109,7 @@ public final class Mrcpv2SpokenInput
      */
     public Mrcpv2SpokenInput() {
         activeGrammars = new java.util.ArrayList<GrammarImplementation<?>>();
-        listeners = new java.util.ArrayList<SpokenInputListener>();
+        listeners = new java.util.ArrayList<UserInputImplementationListener>();
         parsers = new java.util.HashMap<String, GrammarParser<?>>();
     }
 
@@ -149,7 +149,7 @@ public final class Mrcpv2SpokenInput
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final SpokenInputListener inputListener) {
+    public void addListener(final UserInputImplementationListener inputListener) {
         synchronized (listeners) {
             listeners.add(inputListener);
         }
@@ -159,7 +159,7 @@ public final class Mrcpv2SpokenInput
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final SpokenInputListener inputListener) {
+    public void removeListener(final UserInputImplementationListener inputListener) {
         synchronized (listeners) {
             listeners.remove(inputListener);
         }
@@ -304,7 +304,7 @@ public final class Mrcpv2SpokenInput
             throw new NoresourceError(e);
         }
 
-        final SpokenInputEvent event = new RecognitionStartedEvent(this, null);
+        final UserInputEvent event = new RecognitionStartedEvent(this, null);
         fireInputEvent(event);
         LOGGER.debug("recognition started");
     }
@@ -428,12 +428,12 @@ public final class Mrcpv2SpokenInput
      *            the event.
      * @since 0.6
      */
-    void fireInputEvent(final SpokenInputEvent event) {
+    void fireInputEvent(final UserInputEvent event) {
         synchronized (listeners) {
-            final Collection<SpokenInputListener> copy =
-                    new java.util.ArrayList<SpokenInputListener>();
+            final Collection<UserInputImplementationListener> copy =
+                    new java.util.ArrayList<UserInputImplementationListener>();
             copy.addAll(listeners);
-            for (SpokenInputListener current : copy) {
+            for (UserInputImplementationListener current : copy) {
                 current.inputStatusChanged(event);
             }
         }
@@ -448,10 +448,10 @@ public final class Mrcpv2SpokenInput
      */
     void fireErrorEvent(final ErrorEvent error) {
         synchronized (listeners) {
-            final Collection<SpokenInputListener> copy =
-                    new java.util.ArrayList<SpokenInputListener>();
+            final Collection<UserInputImplementationListener> copy =
+                    new java.util.ArrayList<UserInputImplementationListener>();
             copy.addAll(listeners);
-            for (SpokenInputListener current : copy) {
+            for (UserInputImplementationListener current : copy) {
                 current.inputError(error);
             }
         }
@@ -479,7 +479,7 @@ public final class Mrcpv2SpokenInput
                 return;
             }
 
-            final SpokenInputEvent spokenInputEvent = new InputStartedEvent(
+            final UserInputEvent spokenInputEvent = new InputStartedEvent(
                     this, null, ModeType.VOICE);
             fireInputEvent(spokenInputEvent);
 
@@ -488,7 +488,7 @@ public final class Mrcpv2SpokenInput
             final org.jvoicexml.RecognitionResult recognitionResult =
                     new Mrcpv2RecognitionResult(result);
 
-            final SpokenInputEvent spokenInputEvent = new RecognitionEvent(this,
+            final UserInputEvent spokenInputEvent = new RecognitionEvent(this,
                     null, recognitionResult);
             fireInputEvent(spokenInputEvent);
         }

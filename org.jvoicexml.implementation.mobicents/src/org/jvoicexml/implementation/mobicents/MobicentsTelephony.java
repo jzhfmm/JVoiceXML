@@ -43,11 +43,11 @@ import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.jvxml.RecordingEvent;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.Telephony;
-import org.jvoicexml.implementation.TelephonyEvent;
-import org.jvoicexml.implementation.TelephonyListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.CallControlImplementationEvent;
+import org.jvoicexml.implementation.CallControlImplementationListener;
 import org.jvoicexml.implementation.mobicents.callmanager.MobicentsConnectionInformation;
 import org.jvoicexml.interpreter.EventHandler;
 import org.mobicents.servlet.sip.restcomm.callmanager.mgcp.MgcpCallTerminal;
@@ -57,7 +57,7 @@ import org.mobicents.servlet.sip.restcomm.media.api.CallObserver;
 import org.util.ExLog;
 
 /**
- * JTAPI based implementation of a {@link Telephony}.
+ * JTAPI based implementation of a {@link CallControlImplementation}.
  *
  * <p>
  * Audio output and user input is achieved via URIs.
@@ -69,10 +69,10 @@ import org.util.ExLog;
  * @version $Revision$
  * @since 0.6
  */
-public final class MobicentsTelephony implements Telephony, TelephonyListener,CallObserver {
+public final class MobicentsTelephony implements CallControlImplementation, CallControlImplementationListener,CallObserver {
     private static final Logger LOGGER = Logger.getLogger(MobicentsTelephony.class);
     /** Listener to this call control. */
-    private final Collection<TelephonyListener> callControlListeners;
+    private final Collection<CallControlImplementationListener> callControlListeners;
     /** The SIP MGCP connection. */
     private MgcpCallTerminal terminal;
     
@@ -82,13 +82,13 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
      * Constructs a new object.
      */
     public MobicentsTelephony() {
-        callControlListeners = new java.util.ArrayList<TelephonyListener>();
+        callControlListeners = new java.util.ArrayList<CallControlImplementationListener>();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void addListener(final TelephonyListener listener) {
+    public void addListener(final CallControlImplementationListener listener) {
         synchronized (callControlListeners) {
             callControlListeners.add(listener);
         }
@@ -97,7 +97,7 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
     /**
      * {@inheritDoc}
      */
-    public void removeListener(final TelephonyListener listener) {
+    public void removeListener(final CallControlImplementationListener listener) {
         synchronized (callControlListeners) {
             callControlListeners.remove(listener);
         }
@@ -107,18 +107,18 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
      * {@inheritDoc}
      *
      * This implementation uses
-     * {@link SynthesizedOutput#getUriForNextSynthesisizedOutput()} to obtain
+     * {@link SystemOutputOutputImplementation#getUriForNextSynthesisizedOutput()} to obtain
      * a URI that is being used to stream to the terminal.
      *
      * <p>
      * Although this terminal is the source where to stream the audio this
      * implementation makes no assumptions about the URI. In most cases
-     * this will be related to the {@link SpokenInput} implementation. In
+     * this will be related to the {@link UserInputImplementation} implementation. In
      * the simplest case this implementation <emph>invents</emph> a
      * unique URI.
      * </p>
      */
-    public void play(final SynthesizedOutput output,
+    public void play(final SystemOutputOutputImplementation output,
             final CallControlProperties props)
             throws NoresourceError, IOException {
         try {
@@ -155,11 +155,11 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
      * {@inheritDoc}
      *
      * This implementation uses
-     * {@link SpokenInput#getUriForNextSpokenInput()} to obtain
+     * {@link UserInputImplementation#getUriForNextSpokenInput()} to obtain
      * a URI to stream from the terminal to the spoken input device.
      */
     @Override
-    public void record(final SpokenInput input,
+    public void record(final UserInputImplementation input,
             final CallControlProperties props)
             throws NoresourceError, IOException 
     {
@@ -194,7 +194,7 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
     /**
      * {@inheritDoc}
      */
-    public void startRecording(final SpokenInput input,
+    public void startRecording(final UserInputImplementation input,
             final OutputStream stream, final CallControlProperties props)
             throws NoresourceError, IOException 
     {
@@ -257,93 +257,93 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
     }
 
     /**
-     * Inform the {@link TelephonyListener} about an answered event.
+     * Inform the {@link CallControlImplementationListener} about an answered event.
      */
     protected void fireAnswerEvent() {
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        final TelephonyEvent event = new TelephonyEvent(this,
-                TelephonyEvent.ANSWERED);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                CallControlImplementationEvent.ANSWERED);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyCallAnswered(event);
         }
     }
 
     /**
-     * Inform the {@link TelephonyListener} about a play stopped event.
+     * Inform the {@link CallControlImplementationListener} about a play stopped event.
      * @param uri destination URI of the trasfer.
      */
     protected void fireTransferEvent(final String uri) {
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        final TelephonyEvent event = new TelephonyEvent(this,
-                TelephonyEvent.TRANSFERRED, uri);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                CallControlImplementationEvent.TRANSFERRED, uri);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyCallTransferred(event);
         }
     }
 
     /**
-     * Inform the {@link TelephonyListener} about a play started event.
+     * Inform the {@link CallControlImplementationListener} about a play started event.
      */
     protected void firePlayEvent() {
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        final TelephonyEvent event = new TelephonyEvent(this,
-                TelephonyEvent.PLAY_STARTED);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                CallControlImplementationEvent.PLAY_STARTED);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyMediaEvent(event);
         }
     }
 
     /**
-     * Inform the {@link TelephonyListener} about a play stopped event.
+     * Inform the {@link CallControlImplementationListener} about a play stopped event.
      */
     protected void firePlayStoppedEvent() {
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        final TelephonyEvent event = new TelephonyEvent(this,
-                TelephonyEvent.PLAY_STOPPED);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                CallControlImplementationEvent.PLAY_STOPPED);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyMediaEvent(event);
         }
     }
 
     /**
-     * Inform the {@link TelephonyListener} about a record started event.
+     * Inform the {@link CallControlImplementationListener} about a record started event.
      */
     protected void fireRecordStartedEvent() {
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        final TelephonyEvent event = new TelephonyEvent(this,
-                TelephonyEvent.RECORD_STARTED);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                CallControlImplementationEvent.RECORD_STARTED);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyMediaEvent(event);
         }
     }
 
     /**
-     * Inform the {@link TelephonyListener} about a record stopped event.
+     * Inform the {@link CallControlImplementationListener} about a record stopped event.
      */
     protected void fireRecordStoppedEvent() {
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        final TelephonyEvent event = new TelephonyEvent(this,
-                TelephonyEvent.RECORD_STOPPED);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                CallControlImplementationEvent.RECORD_STOPPED);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyMediaEvent(event);
         }
     }
 
     /**
-     * Inform the {@link TelephonyListener} about a hangup event.
+     * Inform the {@link CallControlImplementationListener} about a hangup event.
      */
     protected void fireHangedUpEvent() {
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        final TelephonyEvent event = new TelephonyEvent(this,
-                TelephonyEvent.HUNGUP);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                CallControlImplementationEvent.HUNGUP);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyCallHungup(event);
         }
     }
@@ -429,12 +429,12 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
     /**
      * {@inheritDoc}
      */
-    public void telephonyCallAnswered(final TelephonyEvent event) 
+    public void telephonyCallAnswered(final CallControlImplementationEvent event) 
     {
         LOGGER.debug("event :"+event);
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyCallAnswered(event);
         }
     }
@@ -442,12 +442,12 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
     /**
      * {@inheritDoc}
      */
-    public void telephonyCallHungup(final TelephonyEvent event) 
+    public void telephonyCallHungup(final CallControlImplementationEvent event) 
     {
         LOGGER.debug("event :"+event);
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyCallHungup(event);
         }
     }
@@ -455,12 +455,12 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
     /**
      * {@inheritDoc}
      */
-    public void telephonyMediaEvent(final TelephonyEvent event) 
+    public void telephonyMediaEvent(final CallControlImplementationEvent event) 
     {
         LOGGER.debug("event :"+event);
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyCallAnswered(event);
         }
     }
@@ -468,7 +468,7 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
     /**
      * {@inheritDoc}
      */
-    public void telephonyCallTransferred(final TelephonyEvent event) {
+    public void telephonyCallTransferred(final CallControlImplementationEvent event) {
         LOGGER.debug("event :"+event);
     }
 
@@ -478,9 +478,9 @@ public final class MobicentsTelephony implements Telephony, TelephonyListener,Ca
     @Override
     public void telephonyError(final ErrorEvent error) {
         LOGGER.debug("ErrorEvent :"+error);
-        final Collection<TelephonyListener> tmp =
-                new java.util.ArrayList<TelephonyListener>(callControlListeners);
-        for (TelephonyListener listener : tmp) {
+        final Collection<CallControlImplementationListener> tmp =
+                new java.util.ArrayList<CallControlImplementationListener>(callControlListeners);
+        for (CallControlImplementationListener listener : tmp) {
             listener.telephonyError(error);
         }
     }

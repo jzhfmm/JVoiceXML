@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.Session;
 import org.jvoicexml.event.JVoiceXMLEvent;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.interpreter.Dialog;
 import org.jvoicexml.interpreter.FormInterpretationAlgorithm;
 import org.jvoicexml.interpreter.VoiceXmlInterpreter;
@@ -151,7 +151,7 @@ public abstract class TagStrategyTestBase {
      *            the listener.
      */
     public final void setSystemOutputListener(
-            final SynthesizedOutputListener listener) {
+            final SystemOutputImplementationListener listener) {
         platform.setSystemOutputListener(listener);
     }
 

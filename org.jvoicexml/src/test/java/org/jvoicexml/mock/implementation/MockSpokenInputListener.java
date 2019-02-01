@@ -26,27 +26,27 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.jvoicexml.event.ErrorEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 
 /**
- * Dummy implementation of a {@link SpokenInputListener}.
+ * Dummy implementation of a {@link UserInputImplementationListener}.
  * @author Dirk Schnelle-Walka
  * @since 0.7.6
  */
-public class MockSpokenInputListener implements SpokenInputListener {
+public class MockSpokenInputListener implements UserInputImplementationListener {
     /** Logger for this class. */
     private static final Logger LOGGER =
             LogManager.getLogger(MockSpokenInputListener.class);
 
     /** Received events. */
-    private final List<SpokenInputEvent> events;
+    private final List<UserInputEvent> events;
 
     /**
      * Constructs a new object.
      */
     public MockSpokenInputListener() {
-        events = new java.util.ArrayList<SpokenInputEvent>();
+        events = new java.util.ArrayList<UserInputEvent>();
     }
 
     /**
@@ -84,7 +84,7 @@ public class MockSpokenInputListener implements SpokenInputListener {
      * @param index the position of the event to retrieve
      * @return event at the given position
      */
-    public SpokenInputEvent get(final int index) {
+    public UserInputEvent get(final int index) {
         return events.get(index);
     }
 
@@ -99,7 +99,7 @@ public class MockSpokenInputListener implements SpokenInputListener {
      * {@inheritDoc}
      */
     @Override
-    public void inputStatusChanged(final SpokenInputEvent event) {
+    public void inputStatusChanged(final UserInputEvent event) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("received: " + event);
         }

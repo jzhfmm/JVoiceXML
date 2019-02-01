@@ -34,7 +34,7 @@ import javax.speech.synthesis.Synthesizer;
 
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 import org.jvoicexml.implementation.mobicents.SynthesizedOutputConnectionHandler;
 
@@ -64,7 +64,7 @@ public final class MobicentsConnectionHandler
         resourceUri=uri;
     }
     public void connect(final ConnectionInformation client,
-            final SynthesizedOutput output, final Synthesizer synthesizer)
+            final SystemOutputOutputImplementation output, final Synthesizer synthesizer)
             throws IOException 
     {
         LOGGER.error("don't support");
@@ -83,7 +83,7 @@ public final class MobicentsConnectionHandler
      * {@inheritDoc}
      */
     public void disconnect(final ConnectionInformation client,
-            final SynthesizedOutput output, final Synthesizer synthesizer) {
+            final SystemOutputOutputImplementation output, final Synthesizer synthesizer) {
     }
 
     /**

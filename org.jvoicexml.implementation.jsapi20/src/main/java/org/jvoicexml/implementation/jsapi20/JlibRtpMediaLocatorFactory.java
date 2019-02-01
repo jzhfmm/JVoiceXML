@@ -29,16 +29,16 @@ package org.jvoicexml.implementation.jsapi20;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * A media locator factory for the <a href="http://www.jlibrtp.org">jlibrtp</a>
  * RTP implementation.
  * <p>
  * Used port numbers are incremented by <code>2</code> for each call to
- * {@link #getSourceMediaLocator(SpokenInput)} or
- * {@link #getSourceMediaLocator(SynthesizedOutput)}.
+ * {@link #getSourceMediaLocator(UserInputImplementation)} or
+ * {@link #getSourceMediaLocator(SystemOutputOutputImplementation)}.
  * </p>
  *
  * @author Dirk Schnelle-Walka
@@ -174,7 +174,7 @@ public final class JlibRtpMediaLocatorFactory
     /**
      * {@inheritDoc}
      */
-    public URI getSourceMediaLocator(final SynthesizedOutput output)
+    public URI getSourceMediaLocator(final SystemOutputOutputImplementation output)
         throws URISyntaxException {
         return getSourceMediaLocator();
     }
@@ -183,7 +183,7 @@ public final class JlibRtpMediaLocatorFactory
      * {@inheritDoc}
      */
     @Override
-    public URI getSourceMediaLocator(final SpokenInput input)
+    public URI getSourceMediaLocator(final UserInputImplementation input)
             throws URISyntaxException {
         return getSourceMediaLocator();
     }
@@ -267,7 +267,7 @@ public final class JlibRtpMediaLocatorFactory
     /**
      * {@inheritDoc}
      */
-    public URI getSinkMediaLocator(final SynthesizedOutput output,
+    public URI getSinkMediaLocator(final SystemOutputOutputImplementation output,
             final URI sourceLocator) throws URISyntaxException {
         return getSinkMediaLoactor(sourceLocator);
     }
@@ -276,7 +276,7 @@ public final class JlibRtpMediaLocatorFactory
      * {@inheritDoc}
      */
     @Override
-    public URI getSinkMediaLocator(final SpokenInput input,
+    public URI getSinkMediaLocator(final UserInputImplementation input,
             final URI sourceLocator)
             throws URISyntaxException {
         return getSinkMediaLoactor(sourceLocator);

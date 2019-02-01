@@ -46,10 +46,10 @@ import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
 import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStoppedEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.implementation.SrgsXmlGrammarImplementation;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
@@ -65,13 +65,13 @@ import org.xml.sax.SAXException;
  * @version $Revision$
  * @since 0.7.6
  */
-public final class KinectSpokenInput implements SpokenInput {
+public final class KinectSpokenInput implements UserInputImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
             .getLogger(KinectSpokenInput.class);
 
     /** Listener for user input events. */
-    private final Collection<SpokenInputListener> listeners;
+    private final Collection<UserInputImplementationListener> listeners;
 
     /** Type of the created resources. */
     private String type;
@@ -83,7 +83,7 @@ public final class KinectSpokenInput implements SpokenInput {
      * Constructs a new object
      */
     public KinectSpokenInput() {
-        listeners = new java.util.ArrayList<SpokenInputListener>();
+        listeners = new java.util.ArrayList<UserInputImplementationListener>();
     }
 
     /**
@@ -233,7 +233,7 @@ public final class KinectSpokenInput implements SpokenInput {
         }
         recognizer.startRecognition();
 
-        final SpokenInputEvent event = new RecognitionStartedEvent(this, null);
+        final UserInputEvent event = new RecognitionStartedEvent(this, null);
         fireInputEvent(event);
         LOGGER.info("kinect recognition started");
     }
@@ -249,7 +249,7 @@ public final class KinectSpokenInput implements SpokenInput {
         } catch (KinectRecognizerException e) {
             LOGGER.warn(e.getMessage(), e);
         } finally {
-            final SpokenInputEvent event = new RecognitionStoppedEvent(this,
+            final UserInputEvent event = new RecognitionStoppedEvent(this,
                     null);
             fireInputEvent(event);
         }
@@ -259,7 +259,7 @@ public final class KinectSpokenInput implements SpokenInput {
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final SpokenInputListener listener) {
+    public void addListener(final UserInputImplementationListener listener) {
         synchronized (listeners) {
             listeners.add(listener);
         }
@@ -269,7 +269,7 @@ public final class KinectSpokenInput implements SpokenInput {
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final SpokenInputListener listener) {
+    public void removeListener(final UserInputImplementationListener listener) {
         synchronized (listeners) {
             listeners.remove(listener);
         }
@@ -358,12 +358,12 @@ public final class KinectSpokenInput implements SpokenInput {
      *            the event.
      * @since 0.6
      */
-    void fireInputEvent(final SpokenInputEvent event) {
+    void fireInputEvent(final UserInputEvent event) {
         synchronized (listeners) {
-            final Collection<SpokenInputListener> copy =
-                    new java.util.ArrayList<SpokenInputListener>();
+            final Collection<UserInputImplementationListener> copy =
+                    new java.util.ArrayList<UserInputImplementationListener>();
             copy.addAll(listeners);
-            for (SpokenInputListener current : copy) {
+            for (UserInputImplementationListener current : copy) {
                 current.inputStatusChanged(event);
             }
         }
@@ -378,10 +378,10 @@ public final class KinectSpokenInput implements SpokenInput {
      */
     void notifyError(final ErrorEvent error) {
         synchronized (listeners) {
-            final Collection<SpokenInputListener> copy =
-                    new java.util.ArrayList<SpokenInputListener>();
+            final Collection<UserInputImplementationListener> copy =
+                    new java.util.ArrayList<UserInputImplementationListener>();
             copy.addAll(listeners);
-            for (SpokenInputListener current : copy) {
+            for (UserInputImplementationListener current : copy) {
                 current.inputError(error);
             }
         }

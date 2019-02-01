@@ -40,7 +40,7 @@ import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.plain.implementation.NomatchEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 
 /**
  * A Kinect Recognizer.
@@ -172,7 +172,7 @@ public final class KinectRecognizer {
             final SmlInterpretationExtractor extractor = parseSml(sml);
             final KinectRecognitionResult kinectResult =
                     new KinectRecognitionResult(extractor);
-            final SpokenInputEvent event;
+            final UserInputEvent event;
             if (kinectResult.isAccepted()) {
                 event = new RecognitionEvent(input, null, kinectResult);
             } else {

@@ -26,7 +26,7 @@
 
 package org.jvoicexml.event.plain.implementation;
 
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
  * Notification that the speech recognition has started.
@@ -36,12 +36,12 @@ import org.jvoicexml.implementation.SpokenInput;
  * @since 0.7.7
  */
 @SuppressWarnings("serial")
-public final class RecognitionStartedEvent extends SpokenInputEvent {
+public final class RecognitionStartedEvent extends UserInputEvent {
     /** The detailing part. */
     public static final String DETAIL = "start";
 
     /** The detail message. */
-    public static final String EVENT_TYPE = SpokenInputEvent.class
+    public static final String EVENT_TYPE = UserInputEvent.class
             .getCanonicalName() + "." + DETAIL;
 
     /**
@@ -59,7 +59,7 @@ public final class RecognitionStartedEvent extends SpokenInputEvent {
      * @param sessionId
      *            the session id
      */
-    public RecognitionStartedEvent(final SpokenInput input,
+    public RecognitionStartedEvent(final UserInputImplementation input,
             final String sessionId) {
         super(input, DETAIL, sessionId);
     }

@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -29,13 +29,8 @@ import javax.sound.sampled.AudioFormat;
 import org.jvoicexml.event.error.NoresourceError;
 
 /**
- * Call control.
- *
- * <p>
  * Objects that implement this interface are able to support making a third
  * party connection through a communications network, such as the telephone.
- * </p>
- *
  *
  * @author Dirk Schnelle-Walka
  */

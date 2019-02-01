@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -25,6 +25,7 @@ import org.jvoicexml.DocumentServer;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
+import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
  * Facade for easy access to the system output as an external resource.
@@ -43,7 +44,7 @@ import org.jvoicexml.event.error.NoresourceError;
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-public interface SynthesizedOutput extends ExternalResource, OutputDevice {
+public interface SystemOutputOutputImplementation extends ExternalResource {
     /**
      * The Speakable object is added to the end of the speaking queue and will
      * be spoken once it reaches the top of the queue.
@@ -87,7 +88,7 @@ public interface SynthesizedOutput extends ExternalResource, OutputDevice {
      * @param listener
      *            the listener to add.
      */
-    void addListener(SynthesizedOutputListener listener);
+    void addListener(SystemOutputImplementationListener listener);
 
     /**
      * Removes the listener for system output events.
@@ -97,5 +98,41 @@ public interface SynthesizedOutput extends ExternalResource, OutputDevice {
      *
      * @since 0.6
      */
-    void removeListener(SynthesizedOutputListener listener);
+    void removeListener(SystemOutputImplementationListener listener);
+    
+    /**
+     * Checks if this device is busy with output.
+     * @return <code>true</code> if the device is busy.
+     */
+    boolean isBusy();
+
+    /**
+     * Checks if this implementation platform supports barge-in.
+     * @return <code>true</code> if barge-in is supported.
+     * @since 0.7.1
+     */
+    boolean supportsBargeIn();
+
+    /**
+     * Cancels the current output from the TTS engine and queued audio
+     * for all entries in the queue that allow barge-in of the given type.
+     * Does nothing if the current output can not be interrupted using barge-in.
+     *
+     * <p>
+     * This method is only called if {@link #supportsBargeIn()} returns
+     * <code>true</code>.
+     * </p>
+     *
+     * <p>
+     * The implementation has to maintain a list of cancelable outputs
+     * depending on the <code>barge-in</code> flag of
+     * {@link org.jvoicexml.xml.vxml.Prompt}.
+     * </p>
+     * @param type the barge in type to cancel
+     * @exception NoresourceError
+     *            The output resource is not available.
+     *
+     * @since 0.5
+     */
+    void cancelOutput(final BargeInType type) throws NoresourceError;
 }

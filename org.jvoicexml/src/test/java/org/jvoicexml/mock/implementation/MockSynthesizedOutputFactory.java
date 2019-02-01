@@ -28,16 +28,16 @@ package org.jvoicexml.mock.implementation;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
- * Demo implementation of a {@link SynthesizedOutput}.
+ * Demo implementation of a {@link SystemOutputOutputImplementation}.
  *
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  */
 public final class MockSynthesizedOutputFactory
-    implements ResourceFactory<SynthesizedOutput> {
+    implements ResourceFactory<SystemOutputOutputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -62,7 +62,7 @@ public final class MockSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public SynthesizedOutput createResource()
+    public SystemOutputOutputImplementation createResource()
         throws NoresourceError {
         return new MockSynthesizedOutput();
     }
@@ -92,7 +92,7 @@ public final class MockSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SynthesizedOutput> getResourceType() {
-        return SynthesizedOutput.class;
+    public Class<SystemOutputOutputImplementation> getResourceType() {
+        return SystemOutputOutputImplementation.class;
     }
 }

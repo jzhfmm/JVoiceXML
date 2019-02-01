@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -36,7 +31,6 @@ package org.jvoicexml.implementation;
  * </p>
  *
  * @author Dirk Schnelle
- * @version $Revision$
  * @since 0.6
  */
 public interface PlatformFactory {
@@ -45,17 +39,17 @@ public interface PlatformFactory {
      * Retrieves the spoken input implementation.
      * @return the spokenInputFactory
      */
-    ResourceFactory<SpokenInput> getSpokeninput();
+    ResourceFactory<UserInputImplementation> getSpokeninput();
 
     /**
      * Retrieves the synthesized output implementation.
      * @return the synthesizedOutputFactory
      */
-    ResourceFactory<SynthesizedOutput> getSynthesizedoutput();
+    ResourceFactory<SystemOutputOutputImplementation> getSynthesizedoutput();
 
     /**
      * Retrieves the telephonyFactory implementation.
      * @return the telephonyFactory
      */
-    ResourceFactory<Telephony> getTelephony();
+    ResourceFactory<CallControlImplementation> getTelephony();
 }

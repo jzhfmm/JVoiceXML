@@ -36,8 +36,8 @@ import org.jvoicexml.DocumentServer;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
@@ -47,7 +47,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Mohamed Ali
  * @since 0.7.4
  */
-public class Red5SynthesizedOutput implements SynthesizedOutput {
+public class Red5SynthesizedOutput implements SystemOutputOutputImplementation {
     /** Type of the created resources. */
     private String type;
 
@@ -152,7 +152,7 @@ public class Red5SynthesizedOutput implements SynthesizedOutput {
      * {@inheritDoc}
      */
     @Override
-    public void addListener(SynthesizedOutputListener listener) {
+    public void addListener(SystemOutputImplementationListener listener) {
         // TODO Auto-generated method stub
 
     }
@@ -161,7 +161,7 @@ public class Red5SynthesizedOutput implements SynthesizedOutput {
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(SynthesizedOutputListener listener) {
+    public void removeListener(SystemOutputImplementationListener listener) {
         // TODO Auto-generated method stub
 
     }

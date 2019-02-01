@@ -30,7 +30,7 @@ import org.jvoicexml.implementation.GrammarImplementation;
 
 /**
  * A <code>&lt;grammar&gt;</code> that has been loaded by the
- * {@link org.jvoicexml.implementation.SpokenInput}. In fact this is a pair of
+ * {@link org.jvoicexml.implementation.UserInputImplementation}. In fact this is a pair of
  * a {@link GrammarDocument} and a {@link GrammarImplementation}.
  *
  * @author Dirk Schnelle-Walka

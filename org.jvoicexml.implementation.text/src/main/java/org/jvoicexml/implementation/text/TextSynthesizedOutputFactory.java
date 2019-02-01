@@ -29,19 +29,19 @@ package org.jvoicexml.implementation.text;
 import org.jvoicexml.client.text.TextConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * Demo implementation of a
  * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link SynthesizedOutput} based on a simple text interface.
+ * {@link SystemOutputOutputImplementation} based on a simple text interface.
  *
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  * @since 0.6
  */
 public final class TextSynthesizedOutputFactory
-    implements ResourceFactory<SynthesizedOutput> {
+    implements ResourceFactory<SystemOutputOutputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -54,7 +54,7 @@ public final class TextSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public SynthesizedOutput createResource()
+    public SystemOutputOutputImplementation createResource()
         throws NoresourceError {
         return new TextSynthesizedOutput();
     }
@@ -84,7 +84,7 @@ public final class TextSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SynthesizedOutput> getResourceType() {
-        return SynthesizedOutput.class;
+    public Class<SystemOutputOutputImplementation> getResourceType() {
+        return SystemOutputOutputImplementation.class;
     }
 }

@@ -50,7 +50,7 @@ import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.mock.TestProperties;
 import org.jvoicexml.mock.implementation.MockSynthesizedOutputListener;
 import org.jvoicexml.xml.ssml.Speak;
@@ -161,15 +161,15 @@ public final class TestJsapi20SynthesizedOutput {
         final int size = 3;
         listener.waitSize(size, TIMEOUT);
         Assert.assertEquals(size, listener.size());
-        SynthesizedOutputEvent start = listener.get(0);
+        SystemOutputEvent start = listener.get(0);
         Assert.assertEquals(OutputStartedEvent.EVENT_TYPE, start.getEventType());
         OutputStartedEvent startedEvent = (OutputStartedEvent) start;
         Assert.assertEquals(speakable, startedEvent.getSpeakable());
-        SynthesizedOutputEvent stop = listener.get(1);
+        SystemOutputEvent stop = listener.get(1);
         Assert.assertEquals(OutputEndedEvent.EVENT_TYPE, stop.getEventType());
         OutputEndedEvent stoppedEvent = (OutputEndedEvent) stop;
         Assert.assertEquals(speakable, stoppedEvent.getSpeakable());
-        SynthesizedOutputEvent empty = listener.get(2);
+        SystemOutputEvent empty = listener.get(2);
         Assert.assertEquals(QueueEmptyEvent.EVENT_TYPE, empty.getEventType());
         Assert.assertTrue(empty instanceof QueueEmptyEvent);
     }
@@ -221,7 +221,7 @@ public final class TestJsapi20SynthesizedOutput {
         int ended = 0;
         int emptied = 0;
         for (int i = 0; i < listener.size(); i++) {
-            final SynthesizedOutputEvent event = listener.get(i);
+            final SystemOutputEvent event = listener.get(i);
             if (event.isType(OutputStartedEvent.EVENT_TYPE)) {
                 ++started;
             } else if (event.isType(OutputEndedEvent.EVENT_TYPE)) {
@@ -262,11 +262,11 @@ public final class TestJsapi20SynthesizedOutput {
         final int size = 2;
         listener.waitSize(size, TIMEOUT);
         Assert.assertEquals(size, listener.size());
-        SynthesizedOutputEvent start = listener.get(0);
+        SystemOutputEvent start = listener.get(0);
         Assert.assertEquals(OutputStartedEvent.EVENT_TYPE, start.getEventType());
         OutputStartedEvent startedEvent = (OutputStartedEvent) start;
         Assert.assertEquals(speakable1, startedEvent.getSpeakable());
-        SynthesizedOutputEvent empty = listener.get(1);
+        SystemOutputEvent empty = listener.get(1);
         Assert.assertEquals(QueueEmptyEvent.EVENT_TYPE, empty.getEventType());
     }
     
@@ -301,17 +301,17 @@ public final class TestJsapi20SynthesizedOutput {
         final int size = 4;
         listener.waitSize(size, TIMEOUT);
         Assert.assertEquals(size, listener.size());
-        SynthesizedOutputEvent start1 = listener.get(0);
+        SystemOutputEvent start1 = listener.get(0);
         Assert.assertEquals(OutputStartedEvent.EVENT_TYPE, start1.getEventType());
         OutputStartedEvent started1Event = (OutputStartedEvent) start1;
         Assert.assertEquals(speakable1, started1Event.getSpeakable());
-        SynthesizedOutputEvent start2 = listener.get(1);
+        SystemOutputEvent start2 = listener.get(1);
         Assert.assertEquals(OutputStartedEvent.EVENT_TYPE, start2.getEventType());
         OutputStartedEvent started2Event = (OutputStartedEvent) start2;
         Assert.assertEquals(speakable2, started2Event.getSpeakable());
-        SynthesizedOutputEvent end2 = listener.get(2);
+        SystemOutputEvent end2 = listener.get(2);
         Assert.assertEquals(OutputEndedEvent.EVENT_TYPE, end2.getEventType());
-        SynthesizedOutputEvent empty = listener.get(3);
+        SystemOutputEvent empty = listener.get(3);
         Assert.assertEquals(QueueEmptyEvent.EVENT_TYPE, empty.getEventType());
         output.waitQueueEmpty();
     }

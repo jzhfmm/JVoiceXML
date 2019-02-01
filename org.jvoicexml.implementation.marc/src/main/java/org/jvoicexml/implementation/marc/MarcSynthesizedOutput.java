@@ -48,9 +48,9 @@ import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.Text;
 import org.jvoicexml.xml.ssml.Speak;
 import org.jvoicexml.xml.ssml.SsmlDocument;
@@ -66,7 +66,7 @@ import org.w3c.dom.NodeList;
  * @since 0.7.5
  */
 public final class MarcSynthesizedOutput
-    implements SynthesizedOutput, MarcClient {
+    implements SystemOutputOutputImplementation, MarcClient {
     /** Logger for this class. */
     private static final Logger LOGGER =
             Logger.getLogger(MarcSynthesizedOutput.class);
@@ -96,7 +96,7 @@ public final class MarcSynthesizedOutput
     private MarcFeedback feedback;
 
     /** Known synthesized output listeners. */
-    private final Collection<SynthesizedOutputListener> listeners;
+    private final Collection<SystemOutputImplementationListener> listeners;
 
     /** The queued speakables. */
     private final SpeakableQueue speakables;
@@ -120,7 +120,7 @@ public final class MarcSynthesizedOutput
      * Constructs a new object.
      */
     public MarcSynthesizedOutput() {
-        listeners = new java.util.ArrayList<SynthesizedOutputListener>();
+        listeners = new java.util.ArrayList<SystemOutputImplementationListener>();
         speakables = new SpeakableQueue();
     }
 
@@ -374,7 +374,7 @@ public final class MarcSynthesizedOutput
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final SynthesizedOutputListener listener) {
+    public void addListener(final SystemOutputImplementationListener listener) {
         synchronized (listeners) {
             listeners.add(listener);
         }
@@ -384,7 +384,7 @@ public final class MarcSynthesizedOutput
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final SynthesizedOutputListener listener) {
+    public void removeListener(final SystemOutputImplementationListener listener) {
         synchronized (listeners) {
             listeners.remove(listener);
         }
@@ -442,7 +442,7 @@ public final class MarcSynthesizedOutput
         }
         if (error != null) {
             synchronized (listeners) {
-                for (SynthesizedOutputListener listener : listeners) {
+                for (SystemOutputImplementationListener listener : listeners) {
                     listener.outputError(error);
                 }
             }
@@ -594,20 +594,20 @@ public final class MarcSynthesizedOutput
                 return;
             }
             final SpeakableText speakable = queuedSpeakable.getSpeakable();
-            final SynthesizedOutputEvent event = new OutputEndedEvent(this,
+            final SystemOutputEvent event = new OutputEndedEvent(this,
                     sessionId, speakable);
             synchronized (listeners) {
-                for (SynthesizedOutputListener listener : listeners) {
+                for (SystemOutputImplementationListener listener : listeners) {
                     listener.outputStatusChanged(event);
                 }
             }
     
             if (speakables.isEmpty()) {
                 LOGGER.info("MARC queue is empty");
-                final SynthesizedOutputEvent emptyEvent = new QueueEmptyEvent(
+                final SystemOutputEvent emptyEvent = new QueueEmptyEvent(
                         this, sessionId);
                 synchronized (listeners) {
-                    for (SynthesizedOutputListener listener : listeners) {
+                    for (SystemOutputImplementationListener listener : listeners) {
                         listener.outputStatusChanged(emptyEvent);
                     }
                 }

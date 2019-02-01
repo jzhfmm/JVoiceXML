@@ -43,8 +43,8 @@ import org.jvoicexml.event.error.SemanticError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.ModeType;
 import org.mozilla.javascript.ScriptableObject;
@@ -204,7 +204,7 @@ public class XmlExtensionNotificationDataConverter
      * {@inheritDoc}
      */
     @Override
-    public Object convertSynthesizedOutputEvent(SynthesizedOutputEvent output)
+    public Object convertSynthesizedOutputEvent(SystemOutputEvent output)
             throws ConversionException {
 
         final DocumentBuilderFactory factory = DocumentBuilderFactory
@@ -242,7 +242,7 @@ public class XmlExtensionNotificationDataConverter
      *            the received event
      * @return the speakable if the events knows about it, {@code null} else
      */
-    private SpeakableText getSpeakable(final SynthesizedOutputEvent output) {
+    private SpeakableText getSpeakable(final SystemOutputEvent output) {
         if (output instanceof OutputStartedEvent) {
             final OutputStartedEvent started = (OutputStartedEvent) output;
             return started.getSpeakable();
@@ -282,7 +282,7 @@ public class XmlExtensionNotificationDataConverter
      * {@inheritDoc}
      */
     @Override
-    public Object convertSpokenInputEvent(final SpokenInputEvent input)
+    public Object convertSpokenInputEvent(final UserInputEvent input)
             throws ConversionException {
         return null;
     }

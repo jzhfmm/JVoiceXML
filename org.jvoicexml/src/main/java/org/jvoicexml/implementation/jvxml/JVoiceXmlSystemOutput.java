@@ -29,9 +29,9 @@ import org.jvoicexml.SpeakableText;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
-import org.jvoicexml.implementation.SynthesizedOutputProvider;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
+import org.jvoicexml.implementation.SystemOutputImplementationProvider;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
@@ -39,7 +39,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  *
  * <p>
  * The {@link JVoiceXmlSystemOutput} encapsulates two external resources, the
- * {@link SynthesizedOutput} and the {@link AudioFileOutput}. Both resources
+ * {@link SystemOutputOutputImplementation} and the {@link AudioFileOutput}. Both resources
  * are obtained from a pool using the same type.
  * </p>
  *
@@ -47,20 +47,20 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @since 0.6
  */
 final class JVoiceXmlSystemOutput
-    implements SystemOutput, SynthesizedOutputProvider {
+    implements SystemOutput, SystemOutputImplementationProvider {
     /** Logger for this class. */
     private static final Logger LOGGER =
         LogManager.getLogger(JVoiceXmlSystemOutput.class);
 
     /** The synthesizer output device. */
-    private final SynthesizedOutput synthesizedOutput;
+    private final SystemOutputOutputImplementation synthesizedOutput;
 
     /**
      * Constructs a new object.
      * @param synthesizer the synthesizer output device.
      * @param currentSession the current session.
      */
-    JVoiceXmlSystemOutput(final SynthesizedOutput synthesizer,
+    JVoiceXmlSystemOutput(final SystemOutputOutputImplementation synthesizer,
             final Session currentSession) {
         synthesizedOutput = synthesizer;
     }
@@ -69,7 +69,7 @@ final class JVoiceXmlSystemOutput
      * Retrieves the synthesized output resource.
      * @return the synthesized output resource.
      */
-    public SynthesizedOutput getSynthesizedOutput() {
+    public SystemOutputOutputImplementation getSynthesizedOutput() {
         return synthesizedOutput;
     }
 
@@ -99,7 +99,7 @@ final class JVoiceXmlSystemOutput
      * Adds the given listener for output events.
      * @param listener the listener to add
      */
-    public void addListener(final SynthesizedOutputListener listener) {
+    public void addListener(final SystemOutputImplementationListener listener) {
         synthesizedOutput.addListener(listener);
     }
 
@@ -108,7 +108,7 @@ final class JVoiceXmlSystemOutput
      * @param listener the listener to remove
      */
     public void removeListener(
-            final SynthesizedOutputListener listener) {
+            final SystemOutputImplementationListener listener) {
         synthesizedOutput.removeListener(listener);
     }
 

@@ -25,17 +25,17 @@ import javax.sound.sampled.AudioFormat;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.Telephony;
+import org.jvoicexml.implementation.CallControlImplementation;
 
 /**
  * Implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link Telephony} interface for desktop/like environments.
+ * for the {@link CallControlImplementation} interface for desktop/like environments.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.5.5
  */
 public final class DesktopTelephonySupportFactory
-        implements ResourceFactory<Telephony> {
+        implements ResourceFactory<CallControlImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -51,7 +51,7 @@ public final class DesktopTelephonySupportFactory
     /**
      * {@inheritDoc}
      */
-    public Telephony createResource() throws NoresourceError {
+    public CallControlImplementation createResource() throws NoresourceError {
         return new DesktopTelephonySupport(recordingAudioFormat);
     }
 
@@ -96,7 +96,7 @@ public final class DesktopTelephonySupportFactory
      * {@inheritDoc}
      */
     @Override
-    public Class<Telephony> getResourceType() {
-        return Telephony.class;
+    public Class<CallControlImplementation> getResourceType() {
+        return CallControlImplementation.class;
     }
 }

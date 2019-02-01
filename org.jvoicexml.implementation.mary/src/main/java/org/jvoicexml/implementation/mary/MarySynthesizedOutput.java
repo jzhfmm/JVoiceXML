@@ -33,28 +33,28 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 import marytts.client.MaryClient;
 
 /**
- * An implementation of the {@link SynthesizedOutput} for the Mary TTS System.
+ * An implementation of the {@link SystemOutputOutputImplementation} for the Mary TTS System.
  * 
  * @author Dirk Schnelle-Walka
  * @author Giannis Assiouras
  * @since 0.7.3
  */
 public final class MarySynthesizedOutput
-        implements SynthesizedOutput, SynthesizedOutputListener {
+        implements SystemOutputOutputImplementation, SystemOutputImplementationListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(MarySynthesizedOutput.class);
 
     /** The system output listener. */
-    private final Collection<SynthesizedOutputListener> listener;
+    private final Collection<SystemOutputImplementationListener> listener;
 
     /** Type of this resources. */
     private String type;
@@ -96,7 +96,7 @@ public final class MarySynthesizedOutput
      * Constructs a new MarySynthesizedOutput object.
      */
     public MarySynthesizedOutput() {
-        listener = new java.util.ArrayList<SynthesizedOutputListener>();
+        listener = new java.util.ArrayList<SystemOutputImplementationListener>();
         emptyLock = new Object();
         maryRequestParameters = new java.util.HashMap<String, String>();
     }
@@ -241,7 +241,7 @@ public final class MarySynthesizedOutput
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final SynthesizedOutputListener outputListener) {
+    public void addListener(final SystemOutputImplementationListener outputListener) {
         synchronized (listener) {
             listener.add(outputListener);
         }
@@ -251,7 +251,7 @@ public final class MarySynthesizedOutput
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final SynthesizedOutputListener outputListener) {
+    public void removeListener(final SystemOutputImplementationListener outputListener) {
         synchronized (listener) {
             listener.remove(outputListener);
         }
@@ -264,7 +264,7 @@ public final class MarySynthesizedOutput
      *            the current speakable.
      */
     private void fireOutputStarted(final SpeakableText speakable) {
-        final SynthesizedOutputEvent event = new OutputStartedEvent(this, null,
+        final SystemOutputEvent event = new OutputStartedEvent(this, null,
                 speakable);
         fireOutputEvent(event);
     }
@@ -276,7 +276,7 @@ public final class MarySynthesizedOutput
      *            the current speakable.
      */
     private void fireOutputEnded(final SpeakableText speakable) {
-        final SynthesizedOutputEvent event = new OutputEndedEvent(this, null,
+        final SystemOutputEvent event = new OutputEndedEvent(this, null,
                 speakable);
         fireOutputEvent(event);
     }
@@ -289,7 +289,7 @@ public final class MarySynthesizedOutput
             LOGGER.debug("Queue empty event fired to Implementation Platform");
         }
 
-        final SynthesizedOutputEvent event = new QueueEmptyEvent(this, null);
+        final SystemOutputEvent event = new QueueEmptyEvent(this, null);
         fireOutputEvent(event);
     }
 
@@ -300,12 +300,12 @@ public final class MarySynthesizedOutput
      *            the event.
      * @since 0.6
      */
-    private void fireOutputEvent(final SynthesizedOutputEvent event) {
+    private void fireOutputEvent(final SystemOutputEvent event) {
         synchronized (listener) {
-            final Collection<SynthesizedOutputListener> copy =
-                    new java.util.ArrayList<SynthesizedOutputListener>();
+            final Collection<SystemOutputImplementationListener> copy =
+                    new java.util.ArrayList<SystemOutputImplementationListener>();
             copy.addAll(listener);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputStatusChanged(event);
             }
         }
@@ -328,7 +328,7 @@ public final class MarySynthesizedOutput
      * @param event
      *            the event.
      */
-    public void outputStatusChanged(final SynthesizedOutputEvent event) {
+    public void outputStatusChanged(final SystemOutputEvent event) {
         if (event.isType(OutputStartedEvent.EVENT_TYPE)) {
             final OutputStartedEvent outputStartedEvent =
                     (OutputStartedEvent) event;
@@ -432,10 +432,10 @@ public final class MarySynthesizedOutput
     @Override
     public void outputError(final ErrorEvent error) {
         synchronized (listener) {
-            final Collection<SynthesizedOutputListener> copy =
-                    new java.util.ArrayList<SynthesizedOutputListener>();
+            final Collection<SystemOutputImplementationListener> copy =
+                    new java.util.ArrayList<SystemOutputImplementationListener>();
             copy.addAll(listener);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputError(error);
             }
         }

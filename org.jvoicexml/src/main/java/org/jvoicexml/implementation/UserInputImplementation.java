@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -25,10 +25,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 
+import org.jvoicexml.DtmfRecognizerProperties;
+import org.jvoicexml.SpeechRecognizerProperties;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
+import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
@@ -56,7 +59,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Dirk Schnelle-Walka
  * @since 0.5
  */
-public interface SpokenInput extends ExternalResource, InputDevice {
+public interface UserInputImplementation extends ExternalResource {
     /**
      * Retrieves the grammar types that are supported by this implementation.
      * 
@@ -167,7 +170,7 @@ public interface SpokenInput extends ExternalResource, InputDevice {
      *            The listener.
      * @since 0.5
      */
-    void addListener(SpokenInputListener listener);
+    void addListener(UserInputImplementationListener listener);
 
     /**
      * Removes a listener for user input events.
@@ -176,5 +179,29 @@ public interface SpokenInput extends ExternalResource, InputDevice {
      *            The listener.
      * @since 0.6
      */
-    void removeListener(SpokenInputListener listener);
+    void removeListener(UserInputImplementationListener listener);
+    
+    /**
+     * Detects and reports character and/or spoken input simultaneously.
+     *
+     * @param model the data model to use for generating a semantic
+     *          interpretation
+     * @param speech the speech recognizer properties to use
+     * @param dtmf the DTMF recognizer properties to use
+     * @exception NoresourceError
+     * The input resource is not available.
+     * @exception BadFetchError
+     * The active grammar contains some errors.
+     */
+    void startRecognition(DataModel model,
+            SpeechRecognizerProperties speech,
+            DtmfRecognizerProperties dtmf)
+            throws NoresourceError, BadFetchError;
+
+    /**
+     * Stops a previously started recognition.
+     *
+     * @see #startRecognition
+     */
+    void stopRecognition();
 }

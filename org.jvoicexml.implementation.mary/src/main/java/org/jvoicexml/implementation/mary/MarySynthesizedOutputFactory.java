@@ -26,18 +26,18 @@ package org.jvoicexml.implementation.mary;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * implementation of a. {@link org.jvoicexml.implementation.ResourceFactory} for
- * the {@link SynthesizedOutput} based on MaryTTS
+ * the {@link SystemOutputOutputImplementation} based on MaryTTS
  * 
  * @author Dirk Schnelle-Walka
  * @author Giannis Assiouras
  */
 
 public class MarySynthesizedOutputFactory
-        implements ResourceFactory<SynthesizedOutput> {
+        implements ResourceFactory<SystemOutputOutputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -54,7 +54,7 @@ public class MarySynthesizedOutputFactory
      * {@inheritDoc}
      */
     @Override
-    public final SynthesizedOutput createResource() throws NoresourceError {
+    public final SystemOutputOutputImplementation createResource() throws NoresourceError {
         final MarySynthesizedOutput output = new MarySynthesizedOutput();
         output.setType(type);
         output.setAudioType(audioType);
@@ -63,8 +63,8 @@ public class MarySynthesizedOutputFactory
     }
 
     @Override
-    public final Class<SynthesizedOutput> getResourceType() {
-        return SynthesizedOutput.class;
+    public final Class<SystemOutputOutputImplementation> getResourceType() {
+        return SystemOutputOutputImplementation.class;
     }
 
     @Override

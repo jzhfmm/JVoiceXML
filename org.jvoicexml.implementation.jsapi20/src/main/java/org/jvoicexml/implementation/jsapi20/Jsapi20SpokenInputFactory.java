@@ -32,17 +32,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link SpokenInput} based on JSAPI 2.0.
+ * for the {@link UserInputImplementation} based on JSAPI 2.0.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.5.5
  */
 public final class Jsapi20SpokenInputFactory
-    implements ResourceFactory<SpokenInput> {
+    implements ResourceFactory<UserInputImplementation> {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(Jsapi20SpokenInputFactory.class);
@@ -102,7 +102,7 @@ public final class Jsapi20SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public SpokenInput createResource() throws NoresourceError {
+    public UserInputImplementation createResource() throws NoresourceError {
         final RecognizerMode mode = getEngineMode();
         final Jsapi20SpokenInput input = new Jsapi20SpokenInput(mode,
                 locatorFactory);
@@ -169,7 +169,7 @@ public final class Jsapi20SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SpokenInput> getResourceType() {
-        return SpokenInput.class;
+    public Class<UserInputImplementation> getResourceType() {
+        return UserInputImplementation.class;
     }
 }

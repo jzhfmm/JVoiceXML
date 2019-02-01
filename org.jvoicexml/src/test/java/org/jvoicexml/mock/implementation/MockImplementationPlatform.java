@@ -41,7 +41,7 @@ import org.jvoicexml.event.EventBus;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 
 /**
  * This class provides a dummy {@link ImplementationPlatform} for testing
@@ -60,7 +60,7 @@ public final class MockImplementationPlatform
     private SystemOutput output;
 
     /** Output listener to add once the system output is obtained. */
-    private SynthesizedOutputListener outputListener;
+    private SystemOutputImplementationListener outputListener;
 
     /** Borrowed call control. */
     private CallControl call;
@@ -103,7 +103,7 @@ public final class MockImplementationPlatform
      * @param listener the listener.
      */
     public void setSystemOutputListener(
-            final SynthesizedOutputListener listener) {
+            final SystemOutputImplementationListener listener) {
         outputListener = listener;
     }
 

@@ -55,17 +55,17 @@ import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStoppedEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.event.plain.jvxml.TransferEvent;
 import org.jvoicexml.implementation.ExternalResource;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
-import org.jvoicexml.implementation.Telephony;
-import org.jvoicexml.implementation.TelephonyEvent;
-import org.jvoicexml.implementation.TelephonyListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
+import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.CallControlImplementationEvent;
+import org.jvoicexml.implementation.CallControlImplementationListener;
 import org.jvoicexml.implementation.dtmf.BufferedDtmfInput;
 import org.jvoicexml.implementation.pool.KeyedResourcePool;
 import org.jvoicexml.xml.srgs.ModeType;
@@ -89,8 +89,8 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Dirk Schnelle-Walka
  */
 public final class JVoiceXmlImplementationPlatform
-        implements SpokenInputListener, SynthesizedOutputListener,
-        TelephonyListener, ImplementationPlatform, Configurable {
+        implements UserInputImplementationListener, SystemOutputImplementationListener,
+        CallControlImplementationListener, ImplementationPlatform, Configurable {
 
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
@@ -100,19 +100,19 @@ public final class JVoiceXmlImplementationPlatform
     private static final int BUSY_WAIT_TIMEOUT = 1000;
 
     /** Pool of synthesizer output resource factories. */
-    private final KeyedResourcePool<SynthesizedOutput> synthesizerPool;
+    private final KeyedResourcePool<SystemOutputOutputImplementation> synthesizerPool;
 
     /** Lock for the synthesizer pool. */
     private final Object synthesizerPoolLock;
     
     /** Pool of user input resource factories. */
-    private final KeyedResourcePool<SpokenInput> recognizerPool;
+    private final KeyedResourcePool<UserInputImplementation> recognizerPool;
 
     /** Lock for the recognizer pool. */
     private final Object recognizerPoolLock;
     
     /** Pool of user calling resource factories. */
-    private final KeyedResourcePool<Telephony> telephonyPool;
+    private final KeyedResourcePool<CallControlImplementation> telephonyPool;
 
     /** Lock for the telephony pool. */
     private final Object telephonyPoolLock;
@@ -186,9 +186,9 @@ public final class JVoiceXmlImplementationPlatform
      * @see org.jvoicexml.Session
      */
     JVoiceXmlImplementationPlatform(
-            final KeyedResourcePool<Telephony> telePool,
-            final KeyedResourcePool<SynthesizedOutput> synthesizedOutputPool,
-            final KeyedResourcePool<SpokenInput> spokenInputPool,
+            final KeyedResourcePool<CallControlImplementation> telePool,
+            final KeyedResourcePool<SystemOutputOutputImplementation> synthesizedOutputPool,
+            final KeyedResourcePool<UserInputImplementation> spokenInputPool,
             final ConnectionInformation connectionInformation) {
         this(telePool, synthesizedOutputPool, spokenInputPool,
                 new BufferedDtmfInput(), connectionInformation);
@@ -216,9 +216,9 @@ public final class JVoiceXmlImplementationPlatform
      * @see org.jvoicexml.Session
      */
     JVoiceXmlImplementationPlatform(
-            final KeyedResourcePool<Telephony> telePool,
-            final KeyedResourcePool<SynthesizedOutput> synthesizedOutputPool,
-            final KeyedResourcePool<SpokenInput> spokenInputPool,
+            final KeyedResourcePool<CallControlImplementation> telePool,
+            final KeyedResourcePool<SystemOutputOutputImplementation> synthesizedOutputPool,
+            final KeyedResourcePool<UserInputImplementation> spokenInputPool,
             final BufferedDtmfInput bufferedCharacterInput,
             final ConnectionInformation connectionInformation) {
         info = connectionInformation;
@@ -259,7 +259,7 @@ public final class JVoiceXmlImplementationPlatform
         final String type = info.getSystemOutput();
         synchronized (synthesizerPoolLock) {
             if (output == null) {
-                final SynthesizedOutput synthesizer =
+                final SystemOutputOutputImplementation synthesizer =
                         getExternalResourceFromPool(synthesizerPool, type);
                 output = new JVoiceXmlSystemOutput(synthesizer, session);
                 output.addListener(this);
@@ -296,7 +296,7 @@ public final class JVoiceXmlImplementationPlatform
                 }
                 systemOutput.removeListener(this);
 
-                final SynthesizedOutput synthesizedOutput = systemOutput
+                final SystemOutputOutputImplementation synthesizedOutput = systemOutput
                         .getSynthesizedOutput();
                 returnExternalResourceToPool(synthesizerPool,
                         synthesizedOutput);
@@ -341,7 +341,7 @@ public final class JVoiceXmlImplementationPlatform
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("waiting for empty output queue...");
         }
-        final SynthesizedOutput synthesizedOutput = output
+        final SystemOutputOutputImplementation synthesizedOutput = output
                 .getSynthesizedOutput();
         synthesizedOutput.waitQueueEmpty();
         if (LOGGER.isDebugEnabled()) {
@@ -359,7 +359,7 @@ public final class JVoiceXmlImplementationPlatform
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("waiting for non-barge-in played...");
         }
-        final SynthesizedOutput synthesizedOutput = output
+        final SystemOutputOutputImplementation synthesizedOutput = output
                 .getSynthesizedOutput();
         synthesizedOutput.waitNonBargeInPlayed();
         if (LOGGER.isDebugEnabled()) {
@@ -385,7 +385,7 @@ public final class JVoiceXmlImplementationPlatform
         final String type = info.getUserInput();
         synchronized (recognizerPoolLock) {
             if (input == null) {
-                final SpokenInput spokenInput = getExternalResourceFromPool(
+                final UserInputImplementation spokenInput = getExternalResourceFromPool(
                         recognizerPool, type);
                 input = new JVoiceXmlUserInput(spokenInput, dtmfInput);
                 input.addListener(this);
@@ -430,7 +430,7 @@ public final class JVoiceXmlImplementationPlatform
                 }
                 userInput.removeListener(this);
 
-                final SpokenInput spokenInput = userInput.getSpokenInput();
+                final UserInputImplementation spokenInput = userInput.getSpokenInput();
                 returnExternalResourceToPool(recognizerPool, spokenInput);
 
                 LOGGER.info("returned user input of type '" + type + "'");
@@ -476,7 +476,7 @@ public final class JVoiceXmlImplementationPlatform
         final String type = info.getCallControl();
         synchronized (telephonyPoolLock) {
             if (call == null) {
-                final Telephony telephony = getExternalResourceFromPool(
+                final CallControlImplementation telephony = getExternalResourceFromPool(
                         telephonyPool, type);
                 telephony.addListener(this);
                 call = new JVoiceXmlCallControl(telephony);
@@ -514,7 +514,7 @@ public final class JVoiceXmlImplementationPlatform
                             + "'...");
                 }
 
-                final Telephony telephony = callControl.getTelephony();
+                final CallControlImplementation telephony = callControl.getTelephony();
                 returnExternalResourceToPool(telephonyPool, telephony);
 
                 LOGGER.info("returned call control of type '" + type + "'");
@@ -767,7 +767,7 @@ public final class JVoiceXmlImplementationPlatform
      * {@inheritDoc}
      */
     @Override
-    public void inputStatusChanged(final SpokenInputEvent event) {
+    public void inputStatusChanged(final UserInputEvent event) {
         if (event.isType(RecognitionStartedEvent.EVENT_TYPE)) {
             // Start the timer with a default timeout if there were no
             // prompts to queue.
@@ -841,7 +841,7 @@ public final class JVoiceXmlImplementationPlatform
      * {@inheritDoc}
      */
     @Override
-    public void telephonyCallAnswered(final TelephonyEvent event) {
+    public void telephonyCallAnswered(final CallControlImplementationEvent event) {
     }
 
     /**
@@ -856,7 +856,7 @@ public final class JVoiceXmlImplementationPlatform
      * {@inheritDoc}
      */
     @Override
-    public void telephonyCallHungup(final TelephonyEvent event) {
+    public void telephonyCallHungup(final CallControlImplementationEvent event) {
         synchronized (this) {
             // Ignore the event if we are already closing the connection
             if (hungup) {
@@ -884,7 +884,7 @@ public final class JVoiceXmlImplementationPlatform
     /**
      * {@inheritDoc}
      */
-    public void telephonyCallTransferred(final TelephonyEvent event) {
+    public void telephonyCallTransferred(final CallControlImplementationEvent event) {
         LOGGER.info("call transfered to '" + event.getParam() + "'");
         if (eventbus != null) {
             final String uri = (String) event.getParam();
@@ -897,14 +897,14 @@ public final class JVoiceXmlImplementationPlatform
      * {@inheritDoc}
      */
     @Override
-    public void telephonyMediaEvent(final TelephonyEvent event) {
+    public void telephonyMediaEvent(final CallControlImplementationEvent event) {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void outputStatusChanged(final SynthesizedOutputEvent event) {
+    public void outputStatusChanged(final SystemOutputEvent event) {
         // Forward this to the event bus
         if (eventbus != null) {
             eventbus.publish(event);

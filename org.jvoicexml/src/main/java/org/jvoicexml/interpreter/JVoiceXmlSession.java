@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -46,8 +46,8 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.error.jvxml.ExceptionWrapper;
 import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
 import org.jvoicexml.event.plain.implementation.NomatchEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.interpreter.datamodel.Connection;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.interpreter.scope.Scope;
@@ -331,8 +331,8 @@ public class JVoiceXmlSession extends Thread
 
         // Subscribe to the event bus.
         final EventBus eventbus = context.getEventBus();
-        eventbus.subscribe(SynthesizedOutputEvent.EVENT_TYPE, this);
-        eventbus.subscribe(SpokenInputEvent.EVENT_TYPE, this);
+        eventbus.subscribe(SystemOutputEvent.EVENT_TYPE, this);
+        eventbus.subscribe(UserInputEvent.EVENT_TYPE, this);
         eventbus.subscribe(NomatchEvent.EVENT_TYPE, this);
 
         // initialize the profile

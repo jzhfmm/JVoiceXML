@@ -42,10 +42,10 @@ import org.jvoicexml.event.plain.implementation.NomatchEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStoppedEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.implementation.grammar.GrammarEvaluator;
 import org.jvoicexml.implementation.grammar.GrammarParser;
 import org.jvoicexml.interpreter.datamodel.DataModel;
@@ -54,7 +54,7 @@ import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
- * Text based implementation for a {@link SpokenInput}.
+ * Text based implementation for a {@link UserInputImplementation}.
  * 
  * <p>
  * This implementation is more or less a bridge that receives its input from
@@ -64,7 +64,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-final class TextSpokenInput implements SpokenInput {
+final class TextSpokenInput implements UserInputImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
             .getLogger(TextSpokenInput.class);
@@ -88,7 +88,7 @@ final class TextSpokenInput implements SpokenInput {
     }
 
     /** Registered listener for input events. */
-    private final Collection<SpokenInputListener> listener;
+    private final Collection<UserInputImplementationListener> listener;
 
     /** Flag, if recognition is turned on. */
     private boolean recognizing;
@@ -99,7 +99,7 @@ final class TextSpokenInput implements SpokenInput {
     TextSpokenInput() {
         activeGrammars = new java.util.ArrayList<GrammarImplementation<?>>();
         parsers = new java.util.HashMap<String, GrammarParser<?>>();
-        listener = new java.util.ArrayList<SpokenInputListener>();
+        listener = new java.util.ArrayList<UserInputImplementationListener>();
     }
 
     /**
@@ -249,7 +249,7 @@ final class TextSpokenInput implements SpokenInput {
             BadFetchError {
         model = dataModel;
         recognizing = true;
-        final SpokenInputEvent event = new RecognitionStartedEvent(this, null);
+        final UserInputEvent event = new RecognitionStartedEvent(this, null);
         fireInputEvent(event);
     }
 
@@ -259,7 +259,7 @@ final class TextSpokenInput implements SpokenInput {
     @Override
     public void stopRecognition() {
         recognizing = false;
-        final SpokenInputEvent event = new RecognitionStoppedEvent(this, null);
+        final UserInputEvent event = new RecognitionStoppedEvent(this, null);
         fireInputEvent(event);
     }
 
@@ -267,7 +267,7 @@ final class TextSpokenInput implements SpokenInput {
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final SpokenInputListener inputListener) {
+    public void addListener(final UserInputImplementationListener inputListener) {
         synchronized (listener) {
             listener.add(inputListener);
         }
@@ -277,7 +277,7 @@ final class TextSpokenInput implements SpokenInput {
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final SpokenInputListener inputListener) {
+    public void removeListener(final UserInputImplementationListener inputListener) {
         synchronized (listener) {
             listener.remove(inputListener);
         }
@@ -296,7 +296,7 @@ final class TextSpokenInput implements SpokenInput {
 
         LOGGER.info("received utterance '" + text + "'");
 
-        final SpokenInputEvent inputStartedEvent = new InputStartedEvent(this,
+        final UserInputEvent inputStartedEvent = new InputStartedEvent(this,
                 null, ModeType.VOICE);
         fireInputEvent(inputStartedEvent);
 
@@ -314,11 +314,11 @@ final class TextSpokenInput implements SpokenInput {
         final RecognitionResult result = new TextRecognitionResult(text,
                 interpretation);
         if (result.isAccepted()) {
-            final SpokenInputEvent acceptedEvent = new RecognitionEvent(this,
+            final UserInputEvent acceptedEvent = new RecognitionEvent(this,
                     null, result);
             fireInputEvent(acceptedEvent);
         } else {
-            final SpokenInputEvent rejectedEvent = new NomatchEvent(this, null,
+            final UserInputEvent rejectedEvent = new NomatchEvent(this, null,
                     result);
             fireInputEvent(rejectedEvent);
         }
@@ -339,12 +339,12 @@ final class TextSpokenInput implements SpokenInput {
      *            the event.
      * @since 0.6
      */
-    private void fireInputEvent(final SpokenInputEvent event) {
+    private void fireInputEvent(final UserInputEvent event) {
         synchronized (listener) {
-            final Collection<SpokenInputListener> copy =
-                    new java.util.ArrayList<SpokenInputListener>();
+            final Collection<UserInputImplementationListener> copy =
+                    new java.util.ArrayList<UserInputImplementationListener>();
             copy.addAll(listener);
-            for (SpokenInputListener current : copy) {
+            for (UserInputImplementationListener current : copy) {
                 current.inputStatusChanged(event);
             }
         }

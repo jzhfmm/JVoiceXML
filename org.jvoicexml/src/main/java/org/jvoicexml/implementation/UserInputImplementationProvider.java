@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2009 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -30,19 +25,18 @@ import org.jvoicexml.event.error.NoresourceError;
 
 /**
  * Objects that implement this class have an association to a
- * {@link SynthesizedOutput} device which can be retrieved by the corresponding
- * method.
- * *
+ * {@link UserInputImplementation} device which can be retrieved by the
+ * corresponding method.
+ *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.6
  */
-public interface SynthesizedOutputProvider {
+public interface UserInputImplementationProvider {
     /**
-     * Retrieves the synthesized output device.
-     * @return the synthesized output device.
+     * Retrieves the spoken input device.
+     * @return the spoken input device.
      * @throws NoresourceError
      *         Error obtaining the device.
      */
-    SynthesizedOutput getSynthesizedOutput() throws NoresourceError;
+    UserInputImplementation getSpokenInput() throws NoresourceError;
 }

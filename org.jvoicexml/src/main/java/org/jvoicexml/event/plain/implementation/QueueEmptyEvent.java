@@ -26,7 +26,7 @@
 
 package org.jvoicexml.event.plain.implementation;
 
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * Notification that the output queue is empty.
@@ -36,12 +36,12 @@ import org.jvoicexml.implementation.SynthesizedOutput;
  * @since 0.7.1
  */
 @SuppressWarnings("serial")
-public final class QueueEmptyEvent extends SynthesizedOutputEvent {
+public final class QueueEmptyEvent extends SystemOutputEvent {
     /** The unsupported element. */
     public static final String DETAIL = "emptyqueue";
 
     /** The detail message. */
-    public static final String EVENT_TYPE = SynthesizedOutputEvent.class
+    public static final String EVENT_TYPE = SystemOutputEvent.class
             .getCanonicalName() + "." + DETAIL;
 
     /**
@@ -59,7 +59,7 @@ public final class QueueEmptyEvent extends SynthesizedOutputEvent {
      * @param sessionId
      *            the session id
      */
-    public QueueEmptyEvent(final SynthesizedOutput output,
+    public QueueEmptyEvent(final SystemOutputOutputImplementation output,
             final String sessionId) {
         super(output, DETAIL, sessionId);
     }

@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -40,7 +40,7 @@ import org.jvoicexml.event.error.NoresourceError;
  *
  * <p>
  * In fact this is a bridge to use speech synthesis (via
- * {@link SynthesizedOutput} and spoken input (via {@link SpokenInput} on a
+ * {@link SystemOutputOutputImplementation} and spoken input (via {@link UserInputImplementation} on a
  * client, which may be a PBX. Hence, it is able to handle the communication
  * between the client and the JVoiceXML server. The architecture is kept open at
  * this point so that it is also possible to hook other clients, like the
@@ -55,7 +55,7 @@ import org.jvoicexml.event.error.NoresourceError;
  *
  * @author Dirk Schnelle-Walka
  */
-public interface Telephony extends ExternalResource {
+public interface CallControlImplementation extends ExternalResource {
     /**
      * Plays a stream from the given output device.
      * This method gets called
@@ -79,7 +79,7 @@ public interface Telephony extends ExternalResource {
      *                Error accessing the given URI.
      * @since 0.6
      */
-    void play(SynthesizedOutput output, CallControlProperties props)
+    void play(SystemOutputOutputImplementation output, CallControlProperties props)
             throws NoresourceError, IOException;
 
     /**
@@ -94,10 +94,10 @@ public interface Telephony extends ExternalResource {
     /**
      * Starts recording to the given input device. This method gets called
      *  prior to calling
-     * {@link SpokenInput#startRecognition(org.jvoicexml.interpreter.datamodel.DataModel, org.jvoicexml.SpeechRecognizerProperties, org.jvoicexml.DtmfRecognizerProperties)}
+     * {@link UserInputImplementation#startRecognition(org.jvoicexml.interpreter.datamodel.DataModel, org.jvoicexml.SpeechRecognizerProperties, org.jvoicexml.DtmfRecognizerProperties)}
      * to prepare streaming to the recognizer. Implementations may use this, 
      * method, e.g., to propagate {@link java.io.InputStream}s to the
-     * {@link SpokenInput} implementation. 
+     * {@link UserInputImplementation} implementation. 
      * 
      * @param input
      *            input device to use for recording.
@@ -109,7 +109,7 @@ public interface Telephony extends ExternalResource {
      *                Error accessing the given URI.
      * @since 0.6
      */
-    void record(SpokenInput input, CallControlProperties props)
+    void record(UserInputImplementation input, CallControlProperties props)
             throws NoresourceError, IOException;
 
     /**
@@ -135,7 +135,7 @@ public interface Telephony extends ExternalResource {
      *                Error accessing the given URI.
      * @since 0.6
      */
-    void startRecording(SpokenInput input, OutputStream stream,
+    void startRecording(UserInputImplementation input, OutputStream stream,
             CallControlProperties props) throws NoresourceError, IOException;
 
     /**
@@ -178,7 +178,7 @@ public interface Telephony extends ExternalResource {
      * @param listener
      *            TelephonyListener
      */
-    void addListener(TelephonyListener listener);
+    void addListener(CallControlImplementationListener listener);
 
     /**
      * Removes the given listener from the list of known listeners.
@@ -186,5 +186,5 @@ public interface Telephony extends ExternalResource {
      * @param listener
      *            TelephonyListener
      */
-    void removeListener(TelephonyListener listener);
+    void removeListener(CallControlImplementationListener listener);
 }

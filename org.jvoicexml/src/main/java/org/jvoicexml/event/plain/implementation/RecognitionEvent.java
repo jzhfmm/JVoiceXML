@@ -28,7 +28,7 @@ package org.jvoicexml.event.plain.implementation;
 
 import org.jvoicexml.RecognitionResult;
 import org.jvoicexml.event.plain.jvxml.InputEvent;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
  * The user has responded within the timeout interval.
@@ -38,7 +38,7 @@ import org.jvoicexml.implementation.SpokenInput;
  */
 @SuppressWarnings("serial")
 public final class RecognitionEvent
-        extends SpokenInputEvent implements InputEvent {
+        extends UserInputEvent implements InputEvent {
 
     /** The unsupported element. */
     public static final String DETAIL = "accepted";
@@ -57,7 +57,7 @@ public final class RecognitionEvent
      * @param recognitionResult
      *        Result of the recognition process.
      */
-    public RecognitionEvent(final SpokenInput input,
+    public RecognitionEvent(final UserInputImplementation input,
             final String sessionId, final RecognitionResult recognitionResult) {
         super(input, sessionId, DETAIL);
 

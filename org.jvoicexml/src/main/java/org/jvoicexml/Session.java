@@ -97,7 +97,7 @@ public interface Session {
      * Since this method returns immediately, it offers no means to monitor the
      * call processing and catch exceptions. Therefore clients are requested
      * to use the {@link #waitSessionEnd()} method to monitor the session.
-     * Another way can be via the {@link org.jvoicexml.implementation.Telephony}
+     * Another way can be via the {@link org.jvoicexml.implementation.CallControlImplementation}
      * interface and calling {@link #getLastError()}. However, the latter
      * option relies on the concrete implementation.
      * </p>

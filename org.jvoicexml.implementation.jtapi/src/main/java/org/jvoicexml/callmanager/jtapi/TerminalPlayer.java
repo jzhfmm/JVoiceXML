@@ -37,7 +37,7 @@ import javax.telephony.media.RTC;
 import net.sourceforge.gjtapi.media.GenericMediaService;
 
 import org.apache.log4j.Logger;
-import org.jvoicexml.implementation.TelephonyEvent;
+import org.jvoicexml.implementation.CallControlImplementationEvent;
 
 /**
  * Thread to play a stream from a given URI.
@@ -97,8 +97,8 @@ class TerminalPlayer extends TerminalMedia {
      * Prepocessing.
      */
     public void onPreProcess() {
-        final TelephonyEvent event = new TelephonyEvent(null,
-                TelephonyEvent.PLAY_STARTED);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(null,
+                CallControlImplementationEvent.PLAY_STARTED);
         terminal.fireMediaEvent(event);
     }
 
@@ -106,8 +106,8 @@ class TerminalPlayer extends TerminalMedia {
      * Postprocessing.
      */
     public void onPostProcess() {
-        final TelephonyEvent event = new TelephonyEvent(null,
-                TelephonyEvent.PLAY_STOPPED);
+        final CallControlImplementationEvent event = new CallControlImplementationEvent(null,
+                CallControlImplementationEvent.PLAY_STOPPED);
         terminal.fireMediaEvent(event);
     }
 }

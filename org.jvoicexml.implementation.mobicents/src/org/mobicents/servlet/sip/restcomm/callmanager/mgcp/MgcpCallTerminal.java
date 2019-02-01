@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.jvoicexml.callmanager.Terminal;
 import org.jvoicexml.implementation.ObservableTelephony;
-import org.jvoicexml.implementation.TelephonyListener;
+import org.jvoicexml.implementation.CallControlImplementationListener;
 import org.jvoicexml.implementation.mobicents.VAppCfg;
 import org.jvoicexml.implementation.mobicents.broadcast.BrcastObjState;
 import org.jvoicexml.implementation.mobicents.broadcast.BroadcastObj;
@@ -130,7 +130,7 @@ public final class MgcpCallTerminal extends FiniteStateMachine
     private volatile boolean muted;
     //for jvxml
     /** CallControl Listeners. */
-    private final List<TelephonyListener> callControlListeners;
+    private final List<CallControlImplementationListener> callControlListeners;
     //current URIs playing
     List<URI> currentAnnouncements=null;
     //
@@ -160,7 +160,7 @@ public final class MgcpCallTerminal extends FiniteStateMachine
         this.observers = new ArrayList<CallObserver>();
         this.dateCreated = DateTime.now();
         this.direction = Direction.INBOUND;
-        callControlListeners = new ArrayList<TelephonyListener>();
+        callControlListeners = new ArrayList<CallControlImplementationListener>();
         callID = "";
         
     }
@@ -1027,7 +1027,7 @@ public final class MgcpCallTerminal extends FiniteStateMachine
     /**
      * {@inheritDoc}
      */
-    public void addListener(final TelephonyListener callControlListener) {
+    public void addListener(final CallControlImplementationListener callControlListener) {
         synchronized (callControlListeners) {
             callControlListeners.add(callControlListener);
         }
@@ -1036,7 +1036,7 @@ public final class MgcpCallTerminal extends FiniteStateMachine
     /**
      * {@inheritDoc}
      */
-    public void removeListener(final TelephonyListener callControlListener) {
+    public void removeListener(final CallControlImplementationListener callControlListener) {
         synchronized (callControlListeners) {
             callControlListeners.remove(callControlListener);
         }

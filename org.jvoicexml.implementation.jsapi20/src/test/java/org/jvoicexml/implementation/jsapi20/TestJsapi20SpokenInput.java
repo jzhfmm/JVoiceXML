@@ -46,9 +46,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.JVoiceXMLEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.mock.TestProperties;
 import org.jvoicexml.xml.srgs.Grammar;
 import org.jvoicexml.xml.srgs.GrammarType;
@@ -61,7 +61,7 @@ import org.jvoicexml.xml.srgs.SrgsXmlDocument;
  * @version $Revision$
  * @since 0.7.4
  */
-public final class TestJsapi20SpokenInput implements SpokenInputListener {
+public final class TestJsapi20SpokenInput implements UserInputImplementationListener {
     /** The test object. */
     private Jsapi20SpokenInput input;
 
@@ -190,7 +190,7 @@ public final class TestJsapi20SpokenInput implements SpokenInputListener {
      * {@inheritDoc}
      */
     @Override
-    public void inputStatusChanged(final SpokenInputEvent event) {
+    public void inputStatusChanged(final UserInputEvent event) {
         synchronized (monitor) {
             monitor.notifyAll();
         }

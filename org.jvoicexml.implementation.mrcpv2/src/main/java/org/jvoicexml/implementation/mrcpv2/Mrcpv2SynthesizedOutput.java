@@ -46,9 +46,9 @@ import org.jvoicexml.event.plain.implementation.MarkerReachedEvent;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
 import org.mrcp4j.client.MrcpInvocationException;
@@ -78,14 +78,14 @@ import net.sourceforge.halef.HalefDbWriter;
  * @since 0.7
  */
 public final class Mrcpv2SynthesizedOutput
-        implements SynthesizedOutput, SpeechEventListener {
+        implements SystemOutputOutputImplementation, SpeechEventListener {
     // SpeakableListener, SynthesizerListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(Mrcpv2SynthesizedOutput.class);
 
     /** The system output listener. */
-    private final Collection<SynthesizedOutputListener> listeners;
+    private final Collection<SystemOutputImplementationListener> listeners;
 
     /** Type of this resources. */
     private String type;
@@ -114,7 +114,7 @@ public final class Mrcpv2SynthesizedOutput
      * Constructs a object.
      */
     public Mrcpv2SynthesizedOutput() {
-        listeners = new java.util.ArrayList<SynthesizedOutputListener>();
+        listeners = new java.util.ArrayList<SystemOutputImplementationListener>();
         lock = new Object();
         // TODO Should there be a queue here on the client side too? There is
         // one on the server.
@@ -139,7 +139,7 @@ public final class Mrcpv2SynthesizedOutput
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final SynthesizedOutputListener outputListener) {
+    public void addListener(final SystemOutputImplementationListener outputListener) {
         synchronized (listeners) {
             listeners.add(outputListener);
         }
@@ -149,7 +149,7 @@ public final class Mrcpv2SynthesizedOutput
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final SynthesizedOutputListener outputListener) {
+    public void removeListener(final SystemOutputImplementationListener outputListener) {
         synchronized (listeners) {
             listeners.remove(outputListener);
         }
@@ -259,13 +259,13 @@ public final class Mrcpv2SynthesizedOutput
      *            the current speakable.
      */
     private void fireOutputStarted(final SpeakableText speakable) {
-        final SynthesizedOutputEvent event = new OutputStartedEvent(this, null,
+        final SystemOutputEvent event = new OutputStartedEvent(this, null,
                 speakable);
 
         synchronized (listeners) {
-            final Collection<SynthesizedOutputListener> copy = new java.util.ArrayList<SynthesizedOutputListener>(
+            final Collection<SystemOutputImplementationListener> copy = new java.util.ArrayList<SystemOutputImplementationListener>(
                     listeners);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputStatusChanged(event);
             }
         }
@@ -278,13 +278,13 @@ public final class Mrcpv2SynthesizedOutput
      *            the reached marker.
      */
     private void fireMarkerReached(final String mark) {
-        final SynthesizedOutputEvent event = new MarkerReachedEvent(this, null,
+        final SystemOutputEvent event = new MarkerReachedEvent(this, null,
                 mark);
 
         synchronized (listeners) {
-            final Collection<SynthesizedOutputListener> copy = new java.util.ArrayList<SynthesizedOutputListener>(
+            final Collection<SystemOutputImplementationListener> copy = new java.util.ArrayList<SystemOutputImplementationListener>(
                     listeners);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputStatusChanged(event);
             }
         }
@@ -297,13 +297,13 @@ public final class Mrcpv2SynthesizedOutput
      *            the current speakable.
      */
     private void fireOutputEnded(final SpeakableText speakable) {
-        final SynthesizedOutputEvent event = new OutputEndedEvent(this, null,
+        final SystemOutputEvent event = new OutputEndedEvent(this, null,
                 speakable);
 
         synchronized (listeners) {
-            final Collection<SynthesizedOutputListener> copy = new java.util.ArrayList<SynthesizedOutputListener>(
+            final Collection<SystemOutputImplementationListener> copy = new java.util.ArrayList<SystemOutputImplementationListener>(
                     listeners);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputStatusChanged(event);
             }
         }
@@ -313,12 +313,12 @@ public final class Mrcpv2SynthesizedOutput
      * Notifies all listeners that output queue us empty.
      */
     private void fireQueueEmpty() {
-        final SynthesizedOutputEvent event = new QueueEmptyEvent(this, null);
+        final SystemOutputEvent event = new QueueEmptyEvent(this, null);
 
         synchronized (listeners) {
-            final Collection<SynthesizedOutputListener> copy = new java.util.ArrayList<SynthesizedOutputListener>(
+            final Collection<SystemOutputImplementationListener> copy = new java.util.ArrayList<SystemOutputImplementationListener>(
                     listeners);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputStatusChanged(event);
             }
         }

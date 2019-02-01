@@ -26,19 +26,19 @@ import java.util.List;
 import org.jvoicexml.client.text.TextConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.grammar.GrammarParser;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link SpokenInput} based on a simple text interface.
+ * for the {@link UserInputImplementation} based on a simple text interface.
  *
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  * @since 0.6
  */
 public final class TextSpokenInputFactory
-        implements ResourceFactory<SpokenInput> {
+        implements ResourceFactory<UserInputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -66,7 +66,7 @@ public final class TextSpokenInputFactory
      * {@inheritDoc}
      */
     @Override
-    public SpokenInput createResource() throws NoresourceError {
+    public UserInputImplementation createResource() throws NoresourceError {
         final TextSpokenInput input = new TextSpokenInput();
         input.setGrammarParsers(parsers);
         return input;
@@ -102,7 +102,7 @@ public final class TextSpokenInputFactory
      * {@inheritDoc}
      */
     @Override
-    public Class<SpokenInput> getResourceType() {
-        return SpokenInput.class;
+    public Class<UserInputImplementation> getResourceType() {
+        return UserInputImplementation.class;
     }
 }

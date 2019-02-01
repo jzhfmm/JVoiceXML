@@ -30,7 +30,7 @@ import java.io.IOException;
 
 /**
  * Facility to support audio streaming to any
- * {@link org.jvoicexml.implementation.Telephony} that can handle streams.
+ * {@link org.jvoicexml.implementation.CallControlImplementation} that can handle streams.
  *
  * @author Dirk Schnelle-Walka
  * @version $Revision$

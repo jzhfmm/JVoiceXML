@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -27,7 +27,7 @@ import org.jvoicexml.DtmfRecognizerProperties;
 import org.jvoicexml.event.plain.implementation.InputStartedEvent;
 import org.jvoicexml.event.plain.implementation.NomatchEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
@@ -109,7 +109,7 @@ class DtmfInputThread extends Thread {
      * @since 0.7.5
      */
     private void notifyStartEvent() {
-        final SpokenInputEvent startedEvent = new InputStartedEvent(input,
+        final UserInputEvent startedEvent = new InputStartedEvent(input,
                 null, ModeType.DTMF);
         input.fireInputEvent(startedEvent);
     }
@@ -126,7 +126,7 @@ class DtmfInputThread extends Thread {
                 utterance);
         final boolean accepted = input.isAccepted(result);
         result.setAccepted(accepted);
-        final SpokenInputEvent event;
+        final UserInputEvent event;
         if (accepted) {
             event = new RecognitionEvent(input, null, result);
         } else {

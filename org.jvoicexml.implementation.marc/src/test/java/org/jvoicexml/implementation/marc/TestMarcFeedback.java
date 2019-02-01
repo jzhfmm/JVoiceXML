@@ -34,8 +34,8 @@ import org.jvoicexml.SpeakableText;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 
 /**
  * Test cases for {@link MarcFeedback}.
@@ -43,12 +43,12 @@ import org.jvoicexml.implementation.SynthesizedOutputListener;
  * @author Dirk Schnelle-Walka
  * @since 0.7.5
  */
-public final class TestMarcFeedback implements SynthesizedOutputListener {
+public final class TestMarcFeedback implements SystemOutputImplementationListener {
     /** Locking for the notification mechanism. */
     private final Object lock;
 
     /** the last received synthesized output event. */
-    private SynthesizedOutputEvent event;
+    private SystemOutputEvent event;
 
     /**
      * Constructs a new object.
@@ -102,7 +102,7 @@ public final class TestMarcFeedback implements SynthesizedOutputListener {
      * {@inheritDoc}
      */
     @Override
-    public void outputStatusChanged(final SynthesizedOutputEvent outputEvent) {
+    public void outputStatusChanged(final SystemOutputEvent outputEvent) {
         if (outputEvent instanceof OutputEndedEvent) {
             event = outputEvent;
             synchronized (lock) {

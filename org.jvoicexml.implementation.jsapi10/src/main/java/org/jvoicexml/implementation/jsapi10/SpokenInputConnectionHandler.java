@@ -33,7 +33,7 @@ import javax.speech.recognition.Recognizer;
 
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
  * JSAPI 1.0 does not know how to stream audio from a client to a server.
@@ -63,7 +63,7 @@ public interface SpokenInputConnectionHandler {
      * @throws IOException
      *         error establishing the connection.
      */
-    void connect(final ConnectionInformation client, final SpokenInput input,
+    void connect(final ConnectionInformation client, final UserInputImplementation input,
             final Recognizer recognizer)
         throws IOException;
 
@@ -73,12 +73,12 @@ public interface SpokenInputConnectionHandler {
      * @param input the current spoken input.
      * @param recognizer the current recognizer.
      */
-    void disconnect(final ConnectionInformation client, final SpokenInput input,
+    void disconnect(final ConnectionInformation client, final UserInputImplementation input,
             final Recognizer recognizer);
 
     /**
      * Delegate from
-     * {@link org.jvoicexml.implementation.SpokenInput#getUriForNextSpokenInput()}.
+     * {@link org.jvoicexml.implementation.UserInputImplementation#getUriForNextSpokenInput()}.
      * .
      * @param client data container with connection relevant data.
      * @return URI of the input source, maybe <code>null</code> if the

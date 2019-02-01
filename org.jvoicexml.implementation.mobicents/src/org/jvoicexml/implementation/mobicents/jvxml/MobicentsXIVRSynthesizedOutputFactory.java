@@ -36,7 +36,7 @@ import org.jvoicexml.implementation.mobicents.MobicentsSynthesizedOutputFactory;
 
 /**
  * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link org.jvoicexml.implementation.SynthesizedOutput} based on
+ * {@link org.jvoicexml.implementation.SystemOutputOutputImplementation} based on
  * <a href="http://freetts.sourceforge.net">FreeTTS.</a>.
  *
  * @author Dirk Schnelle

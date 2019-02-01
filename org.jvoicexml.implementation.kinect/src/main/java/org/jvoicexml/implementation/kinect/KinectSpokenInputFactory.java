@@ -28,7 +28,7 @@ package org.jvoicexml.implementation.kinect;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
  * A resource factory to produce {@link KinectSpokenInput} objects.
@@ -37,7 +37,7 @@ import org.jvoicexml.implementation.SpokenInput;
  * @since 0.7.6
  *
  */
-public final class KinectSpokenInputFactory implements ResourceFactory<SpokenInput> {
+public final class KinectSpokenInputFactory implements ResourceFactory<UserInputImplementation> {
     /** Type of the created resources. */
     private String type;
 
@@ -52,15 +52,15 @@ public final class KinectSpokenInputFactory implements ResourceFactory<SpokenInp
      * {@inheritDoc}
      */
     @Override
-    public Class<SpokenInput> getResourceType() {
-        return SpokenInput.class;
+    public Class<UserInputImplementation> getResourceType() {
+        return UserInputImplementation.class;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public SpokenInput createResource() throws NoresourceError {
+    public UserInputImplementation createResource() throws NoresourceError {
         final KinectSpokenInput input = new KinectSpokenInput();
         input.setType(type);
         return input;

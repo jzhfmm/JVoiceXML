@@ -23,7 +23,7 @@ package org.jvoicexml.implementation.mrcpv2;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 import org.speechforge.cairo.client.SessionManager;
 
 /**
@@ -36,7 +36,7 @@ import org.speechforge.cairo.client.SessionManager;
  * @since 0.7
  */
 public final class Mrcpv2SynthesizedOutputFactory
-        implements ResourceFactory<SynthesizedOutput> {
+        implements ResourceFactory<SystemOutputOutputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -62,7 +62,7 @@ public final class Mrcpv2SynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public SynthesizedOutput createResource() throws NoresourceError {
+    public SystemOutputOutputImplementation createResource() throws NoresourceError {
         final Mrcpv2SynthesizedOutput output = new Mrcpv2SynthesizedOutput();
         output.setType(type);
         output.setSessionManager(sessionManager);
@@ -99,8 +99,8 @@ public final class Mrcpv2SynthesizedOutputFactory
      * {@inheritDoc}
      */
     @Override
-    public Class<SynthesizedOutput> getResourceType() {
-        return SynthesizedOutput.class;
+    public Class<SystemOutputOutputImplementation> getResourceType() {
+        return SystemOutputOutputImplementation.class;
     }
 
     /**

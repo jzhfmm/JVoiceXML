@@ -35,9 +35,9 @@ import org.jvoicexml.SpeakableText;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.UserInput;
 import org.jvoicexml.event.JVoiceXMLEvent;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.Telephony;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.pool.KeyedResourcePool;
 import org.jvoicexml.mock.MockConnectionInformation;
 import org.jvoicexml.mock.implementation.MockSpokenInputFactory;
@@ -55,13 +55,13 @@ public final class TestJVoiceXmlImplementationPlatform {
     private JVoiceXmlImplementationPlatform platform;
 
     /** The synthesizer pool. */
-    private KeyedResourcePool<SynthesizedOutput> synthesizerPool;
+    private KeyedResourcePool<SystemOutputOutputImplementation> synthesizerPool;
 
     /** The telephony pool. */
-    private KeyedResourcePool<Telephony> telephonyPool;
+    private KeyedResourcePool<CallControlImplementation> telephonyPool;
 
     /** The recognizer pool. */
-    private KeyedResourcePool<SpokenInput> recognizerPool;
+    private KeyedResourcePool<UserInputImplementation> recognizerPool;
 
     /** The connection information to use. */
     private ConnectionInformation info;
@@ -71,17 +71,17 @@ public final class TestJVoiceXmlImplementationPlatform {
      */
     @Before
     public void setUp() throws Exception {
-        synthesizerPool = new KeyedResourcePool<SynthesizedOutput>();
+        synthesizerPool = new KeyedResourcePool<SystemOutputOutputImplementation>();
         final MockSynthesizedOutputFactory synthesizedOutputFactory =
             new MockSynthesizedOutputFactory();
         synthesizedOutputFactory.setInstances(1);
         synthesizerPool.addResourceFactory(synthesizedOutputFactory);
-        telephonyPool = new KeyedResourcePool<Telephony>();
+        telephonyPool = new KeyedResourcePool<CallControlImplementation>();
         final DesktopTelephonySupportFactory telephonyFactory =
             new DesktopTelephonySupportFactory();
         telephonyFactory.setInstances(1);
         telephonyPool.addResourceFactory(telephonyFactory);
-        recognizerPool = new KeyedResourcePool<SpokenInput>();
+        recognizerPool = new KeyedResourcePool<UserInputImplementation>();
         final MockSpokenInputFactory spokenInputFactory =
             new MockSpokenInputFactory();
         spokenInputFactory.setInstances(1);

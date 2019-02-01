@@ -39,16 +39,16 @@ import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
 import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStoppedEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
- * This class provides a dummy {@link SpokenInput} for testing
+ * This class provides a dummy {@link UserInputImplementation} for testing
  * purposes.
  *
  * @author Dirk Schnelle-Walka
@@ -56,9 +56,9 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @since 0.6
  */
 public final class MockSpokenInput
-    implements SpokenInput {
+    implements UserInputImplementation {
     /** Registered output listener. */
-    private final Collection<SpokenInputListener> listener;
+    private final Collection<UserInputImplementationListener> listener;
 
     /** Flag, if recognition is turned on. */
     private boolean recognizing;
@@ -67,7 +67,7 @@ public final class MockSpokenInput
      * Constructs a new object.
      */
     public MockSpokenInput() {
-        listener = new java.util.ArrayList<SpokenInputListener>();
+        listener = new java.util.ArrayList<UserInputImplementationListener>();
     }
 
     /**
@@ -167,7 +167,7 @@ public final class MockSpokenInput
             final DtmfRecognizerProperties dtmf)
         throws NoresourceError, BadFetchError {
         recognizing = true;
-        final SpokenInputEvent event =
+        final UserInputEvent event =
             new RecognitionStartedEvent(this, null);
         fireInputEvent(event);
     }
@@ -177,7 +177,7 @@ public final class MockSpokenInput
      */
     public void stopRecognition() {
         recognizing = false;
-        final SpokenInputEvent event =
+        final UserInputEvent event =
             new RecognitionStoppedEvent(this, null);
         fireInputEvent(event);
     }
@@ -193,7 +193,7 @@ public final class MockSpokenInput
      * {@inheritDoc}
      */
     public void addListener(
-            final SpokenInputListener inputListener) {
+            final UserInputImplementationListener inputListener) {
        synchronized (listener) {
            listener.add(inputListener);
        }
@@ -203,7 +203,7 @@ public final class MockSpokenInput
      * {@inheritDoc}
      */
     public void removeListener(
-            final SpokenInputListener inputListener) {
+            final UserInputImplementationListener inputListener) {
         synchronized (listener) {
             listener.remove(inputListener);
         }
@@ -214,12 +214,12 @@ public final class MockSpokenInput
      * @param event the event.
      * @since 0.6
      */
-    void fireInputEvent(final SpokenInputEvent event) {
+    void fireInputEvent(final UserInputEvent event) {
         synchronized (listener) {
-            final Collection<SpokenInputListener> copy =
-                new java.util.ArrayList<SpokenInputListener>();
+            final Collection<UserInputImplementationListener> copy =
+                new java.util.ArrayList<UserInputImplementationListener>();
             copy.addAll(listener);
-            for (SpokenInputListener current : copy) {
+            for (UserInputImplementationListener current : copy) {
                 current.inputStatusChanged(event);
             }
         }

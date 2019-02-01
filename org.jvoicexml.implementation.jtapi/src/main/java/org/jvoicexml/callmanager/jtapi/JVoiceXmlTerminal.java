@@ -55,8 +55,8 @@ import net.sourceforge.gjtapi.media.GenericMediaService;
 import org.apache.log4j.Logger;
 import org.jvoicexml.callmanager.CallParameters;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.TelephonyEvent;
-import org.jvoicexml.implementation.TelephonyListener;
+import org.jvoicexml.implementation.CallControlImplementationEvent;
+import org.jvoicexml.implementation.CallControlImplementationListener;
 
 /**
  * A connection to a JTAPI terminal.
@@ -94,7 +94,7 @@ public final class JVoiceXmlTerminal
     private CallControlCall currentCall;
 
     /** CallControl Listeners. */
-    private final List<TelephonyListener> callControlListeners;
+    private final List<CallControlImplementationListener> callControlListeners;
 
     /**
      * Constructs a new object.
@@ -111,7 +111,7 @@ public final class JVoiceXmlTerminal
         currentCall = null;
         final Terminal terminal = mediaService.getTerminal();
         terminalName = terminal.getName();
-        callControlListeners = new ArrayList<TelephonyListener>();
+        callControlListeners = new ArrayList<CallControlImplementationListener>();
         terminalPlayer = new TerminalPlayer(this, mediaService);
         terminalRecorder = new TerminalRecorder(this, mediaService);
     }
@@ -165,8 +165,8 @@ public final class JVoiceXmlTerminal
         LOGGER.info("call connected from " + callingAddress.getName()
                     + " to " + calledAddress.getName());
 
-        final TelephonyEvent telephonyEvent = new TelephonyEvent(null,
-                TelephonyEvent.ANSWERED);
+        final CallControlImplementationEvent telephonyEvent = new CallControlImplementationEvent(null,
+                CallControlImplementationEvent.ANSWERED);
         fireCallAnsweredEvent(telephonyEvent);
 
         final CallParameters parameters = new CallParameters();
@@ -216,8 +216,8 @@ public final class JVoiceXmlTerminal
     public void connectionDisconnected(final ConnectionEvent event) {
         LOGGER.info("connection disconnected");
         try {
-            final TelephonyEvent telephonyEvent = new TelephonyEvent(null,
-                    TelephonyEvent.HUNGUP);
+            final CallControlImplementationEvent telephonyEvent = new CallControlImplementationEvent(null,
+                    CallControlImplementationEvent.HUNGUP);
             fireCallHungup(telephonyEvent);
 
             currentCall = null;
@@ -477,7 +477,7 @@ public final class JVoiceXmlTerminal
     /**
      * {@inheritDoc}
      */
-    public void addListener(final TelephonyListener
+    public void addListener(final CallControlImplementationListener
                                        callControlListener) {
         synchronized (callControlListeners) {
             callControlListeners.add(callControlListener);
@@ -487,7 +487,7 @@ public final class JVoiceXmlTerminal
     /**
      * {@inheritDoc}
      */
-    public void removeListener(final TelephonyListener
+    public void removeListener(final CallControlImplementationListener
                                           callControlListener) {
         synchronized (callControlListeners) {
             callControlListeners.remove(callControlListener);
@@ -498,12 +498,12 @@ public final class JVoiceXmlTerminal
      * Notifies all listeners about the given media event.
      * @param event the event to publish.
      */
-    private void fireCallAnsweredEvent(final TelephonyEvent event) {
+    private void fireCallAnsweredEvent(final CallControlImplementationEvent event) {
         synchronized (callControlListeners) {
-            final Collection<TelephonyListener> copy =
-                new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(callControlListeners);
-            for (TelephonyListener current : copy) {
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyCallAnswered(event);
             }
         }
@@ -513,12 +513,12 @@ public final class JVoiceXmlTerminal
      * Notifies all listeners about the given media event.
      * @param event the event to publish.
      */
-    void fireMediaEvent(final TelephonyEvent event) {
+    void fireMediaEvent(final CallControlImplementationEvent event) {
         synchronized (callControlListeners) {
-            final Collection<TelephonyListener> copy =
-                new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(callControlListeners);
-            for (TelephonyListener current : copy) {
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -528,12 +528,12 @@ public final class JVoiceXmlTerminal
      * Notifies all listeners about the given media event.
      * @param event the event to publish.
      */
-    private void fireCallHungup(final TelephonyEvent event) {
+    private void fireCallHungup(final CallControlImplementationEvent event) {
         synchronized (callControlListeners) {
-            final Collection<TelephonyListener> copy =
-                new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(callControlListeners);
-            for (TelephonyListener current : copy) {
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyCallHungup(event);
             }
         }

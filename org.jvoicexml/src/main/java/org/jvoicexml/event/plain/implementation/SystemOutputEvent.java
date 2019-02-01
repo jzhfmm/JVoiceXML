@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -22,41 +22,27 @@
 package org.jvoicexml.event.plain.implementation;
 
 import org.jvoicexml.event.JVoiceXMLEvent;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
- * Event generated from the {@link SpokenInput} implementation.
+ * Event generated from the {@link SystemOutputOutputImplementation} implementation. Events are
+ * associated to a dedicated event source, i.e. the system output device, and a
+ * session.
  * 
  * @author Dirk Schnelle-Walka
- * @version $Revision$
- * 
+ * @since 0.6
  */
 @SuppressWarnings("serial")
-public class SpokenInputEvent extends JVoiceXMLEvent {
+public class SystemOutputEvent extends JVoiceXMLEvent {
     /** The detail message. */
-    public static final String EVENT_TYPE = SpokenInputEvent.class
+    public static final String EVENT_TYPE = SystemOutputEvent.class
             .getCanonicalName();
-
-    /** The recognition process has been started. */
-    public static final int RECOGNITION_STARTED = 1;
-
-    /** The recognition process has ended. */
-    public static final int RECOGNITION_STOPPED = RECOGNITION_STARTED << 1;
-
-    /** The user has started to speak. */
-    public static final int INPUT_STARTED = RECOGNITION_STOPPED << 1;
-
-    /** The user made an utterance that matched an active grammar. */
-    public static final int RESULT_ACCEPTED = INPUT_STARTED << 1;
-
-    /** The user made an utterance that did not match an active grammar. */
-    public static final int RESULT_REJECTED = RESULT_ACCEPTED << 1;
 
     /** The detailing of this event. */
     private final String detail;
 
     /** Object that caused the event. */
-    private final SpokenInput source;
+    private final SystemOutputOutputImplementation source;
 
     /** The id of the related session. */
     private final String sessionId;
@@ -67,13 +53,13 @@ public class SpokenInputEvent extends JVoiceXMLEvent {
      * @param output
      *            object that caused the event.
      * @param detailedType
-     *            detailed message
+     *            the detailed message
      * @param id
      *            the session id
      * @exception IllegalArgumentException
      *                if an illegal event type is passed.
      */
-    public SpokenInputEvent(final SpokenInput output,
+    public SystemOutputEvent(final SystemOutputOutputImplementation output,
             final String detailedType, final String id)
             throws IllegalArgumentException {
         source = output;
@@ -82,28 +68,11 @@ public class SpokenInputEvent extends JVoiceXMLEvent {
     }
 
     /**
-     * Constructs a new object.
-     * 
-     * @param output
-     *            object that caused the event.
-     * @param id
-     *            the session id
-     * @exception IllegalArgumentException
-     *                if an illegal event type is passed.
-     */
-    public SpokenInputEvent(final SpokenInput output, final String id)
-            throws IllegalArgumentException {
-        source = output;
-        detail = null;
-        sessionId = id;
-    }
-
-    /**
      * Retrieves the object that caused the event.
      * 
      * @return the source object.
      */
-    public final SpokenInput getSource() {
+    public final SystemOutputOutputImplementation getSource() {
         return source;
     }
 
@@ -111,7 +80,7 @@ public class SpokenInputEvent extends JVoiceXMLEvent {
      * Retrieves the session id.
      * 
      * @return the session id
-     * @since 0.7.7
+     * @since 0.7.5
      */
     public final String getSessionId() {
         return sessionId;

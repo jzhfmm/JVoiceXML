@@ -35,7 +35,7 @@ import org.jvoicexml.RecognitionResult;
 import org.jvoicexml.event.plain.implementation.InputStartedEvent;
 import org.jvoicexml.event.plain.implementation.NomatchEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
@@ -127,7 +127,7 @@ public final class JVoiceXMLRecognitionListener implements ResultListener {
 		final RecognitionResult recognitionResult = new MobicentsRecognitionResult(
 				result);
 
-		final SpokenInputEvent event = new RecognitionEvent(input, null,
+		final UserInputEvent event = new RecognitionEvent(input, null,
 				recognitionResult);
 		input.fireInputEvent(event);
 	}
@@ -141,7 +141,7 @@ public final class JVoiceXMLRecognitionListener implements ResultListener {
 	 *            ResultEvent
 	 */
 	public void resultCreated(final ResultEvent resultEvent) {
-		final SpokenInputEvent event = new InputStartedEvent(input, null,
+		final UserInputEvent event = new InputStartedEvent(input, null,
 				ModeType.VOICE);
 		input.fireInputEvent(event);
 	}
@@ -163,7 +163,7 @@ public final class JVoiceXMLRecognitionListener implements ResultListener {
 		final RecognitionResult recognitionResult = new MobicentsRecognitionResult(
 				result);
 
-		final SpokenInputEvent event = new NomatchEvent(input, null,
+		final UserInputEvent event = new NomatchEvent(input, null,
 				recognitionResult);
 		input.fireInputEvent(event);
 	}

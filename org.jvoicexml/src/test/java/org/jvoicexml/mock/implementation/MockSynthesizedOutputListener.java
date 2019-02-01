@@ -27,35 +27,35 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.jvoicexml.event.ErrorEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 
 /**
- * {@link SynthesizedOutputListener} for test purposes.
+ * {@link SystemOutputImplementationListener} for test purposes.
  * @author Dirk Schnelle-Walka
  * @since 0.7
  */
 public final class MockSynthesizedOutputListener
-        implements SynthesizedOutputListener {
+        implements SystemOutputImplementationListener {
     /** Logger for this class. */
     private static final Logger LOGGER =
             LogManager.getLogger(MockSynthesizedOutputListener.class);
 
     /** Collected events. */
-    private final List<SynthesizedOutputEvent> occur;
+    private final List<SystemOutputEvent> occur;
 
     /**
      * Constructs a new object.
      */
     public MockSynthesizedOutputListener() {
-        occur = new java.util.ArrayList<SynthesizedOutputEvent>();
+        occur = new java.util.ArrayList<SystemOutputEvent>();
     }
 
     /**
      * Retrieves the caught events.
      * @return caught events.
      */
-    public List<SynthesizedOutputEvent> events() {
+    public List<SystemOutputEvent> events() {
         return occur;
     }
 
@@ -84,7 +84,7 @@ public final class MockSynthesizedOutputListener
                 if (size < occur.size() || (now - start > timeout)) {
                     LOGGER.error(size + " not reached within " + timeout
                             + "msec (current: " + occur.size() + ")");
-                    for (SynthesizedOutputEvent event : occur) {
+                    for (SystemOutputEvent event : occur) {
                         LOGGER.error("- " + event);
                     }
                     Assert.fail(size + " not reached within " + timeout
@@ -99,7 +99,7 @@ public final class MockSynthesizedOutputListener
      * @param index the position of the event to retrieve
      * @return event at the given position
      */
-    public SynthesizedOutputEvent get(final int index) {
+    public SystemOutputEvent get(final int index) {
         return occur.get(index);
     }
 
@@ -113,7 +113,7 @@ public final class MockSynthesizedOutputListener
     /**
      * {@inheritDoc}
      */
-    public void outputStatusChanged(final SynthesizedOutputEvent event) {
+    public void outputStatusChanged(final SystemOutputEvent event) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(event);
         }

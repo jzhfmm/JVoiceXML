@@ -41,8 +41,8 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
 import org.jvoicexml.xml.vxml.BargeInType;
@@ -54,7 +54,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Mohamed Ali
  * @since 0.7.4
  */
-public final class Red5SpokenInput implements SpokenInput {
+public final class Red5SpokenInput implements UserInputImplementation {
     /** Type of the created resources. */
     private String type;
 
@@ -162,7 +162,7 @@ public final class Red5SpokenInput implements SpokenInput {
      * {@inheritDoc}
      */
     @Override
-    public void addListener(SpokenInputListener listener) {
+    public void addListener(UserInputImplementationListener listener) {
         // TODO Auto-generated method stub
 
     }
@@ -171,7 +171,7 @@ public final class Red5SpokenInput implements SpokenInput {
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(SpokenInputListener listener) {
+    public void removeListener(UserInputImplementationListener listener) {
         // TODO Auto-generated method stub
 
     }

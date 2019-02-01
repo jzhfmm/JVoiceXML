@@ -39,8 +39,8 @@ import org.jvoicexml.client.text.TextServer;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
-import org.jvoicexml.implementation.SpokenInputListener;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
+import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.xml.srgs.SrgsXmlDocument;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 
@@ -51,7 +51,7 @@ import org.jvoicexml.xml.ssml.SsmlDocument;
  * @since 0.6
  */
 public final class TestTextTelephony
-        implements TextListener, SpokenInputListener {
+        implements TextListener, UserInputImplementationListener {
     /** Maximal number of milliseconds to wait for a receipt. */
     private static final int MAX_WAIT = 1000;
 
@@ -219,7 +219,7 @@ public final class TestTextTelephony
      * {@inheritDoc}
      */
     @Override
-    public void inputStatusChanged(final SpokenInputEvent event) {
+    public void inputStatusChanged(final UserInputEvent event) {
         final String type = event.getEventType();
         if (type.equals(RecognitionEvent.EVENT_TYPE)) {
             final RecognitionEvent recEvent = (RecognitionEvent) event;

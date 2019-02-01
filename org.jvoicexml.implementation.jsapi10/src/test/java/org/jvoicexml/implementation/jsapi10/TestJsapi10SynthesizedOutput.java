@@ -48,7 +48,7 @@ import org.jvoicexml.event.plain.implementation.MarkerReachedEvent;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.mock.implementation.MockSynthesizedOutputListener;
 import org.jvoicexml.xml.ssml.Audio;
 import org.jvoicexml.xml.ssml.Break;
@@ -149,15 +149,15 @@ public final class TestJsapi10SynthesizedOutput {
         final int size = 3;
         listener.waitSize(size, TIMEOUT);
         Assert.assertEquals(size, listener.size());
-        SynthesizedOutputEvent start = listener.get(0);
+        SystemOutputEvent start = listener.get(0);
         Assert.assertEquals(OutputStartedEvent.EVENT_TYPE, start.getEventType());
         OutputStartedEvent startedEvent = (OutputStartedEvent) start;
         Assert.assertEquals(speakable1, startedEvent.getSpeakable());
-        SynthesizedOutputEvent stop = listener.get(1);
+        SystemOutputEvent stop = listener.get(1);
         Assert.assertEquals(OutputEndedEvent.EVENT_TYPE, start.getEventType());
         OutputEndedEvent stoppedEvent = (OutputEndedEvent) stop;
         Assert.assertEquals(speakable1, stoppedEvent.getSpeakable());
-        SynthesizedOutputEvent empty = listener.get(2);
+        SystemOutputEvent empty = listener.get(2);
         Assert.assertEquals(QueueEmptyEvent.EVENT_TYPE, start.getEventType());
         Assert.assertTrue(empty instanceof QueueEmptyEvent);
     }
@@ -192,7 +192,7 @@ public final class TestJsapi10SynthesizedOutput {
         int ended = 0;
         int emptied = 0;
         for (int i = 0; i < listener.size(); i++) {
-            SynthesizedOutputEvent event = listener.get(i);
+            SystemOutputEvent event = listener.get(i);
             if (event.isType(OutputStartedEvent.EVENT_TYPE)) {
                 ++started;
             } else if (event.isType(OutputEndedEvent.EVENT_TYPE)) {
@@ -259,19 +259,19 @@ public final class TestJsapi10SynthesizedOutput {
         listener.waitSize(size, size * size * TIMEOUT);
         Assert.assertEquals(size, listener.size());
         int pos = 0;
-        SynthesizedOutputEvent start = listener.get(pos);
+        SystemOutputEvent start = listener.get(pos);
         Assert.assertEquals(OutputStartedEvent.EVENT_TYPE, start.getEventType());
         OutputStartedEvent startedEvent = (OutputStartedEvent) start;
         Assert.assertEquals(speakable, startedEvent.getSpeakable());
-        SynthesizedOutputEvent markEvent = listener.get(++pos);
+        SystemOutputEvent markEvent = listener.get(++pos);
         Assert.assertEquals(MarkerReachedEvent.EVENT_TYPE, markEvent.getEventType());
         MarkerReachedEvent markReachedEvent = (MarkerReachedEvent) markEvent;
         Assert.assertEquals(mark.getName(), markReachedEvent.getMark());
-        SynthesizedOutputEvent stop = listener.get(++pos);
+        SystemOutputEvent stop = listener.get(++pos);
         Assert.assertEquals(OutputEndedEvent.EVENT_TYPE, stop.getEventType());
         OutputEndedEvent endedEvent = (OutputEndedEvent) stop;
         Assert.assertEquals(speakable, endedEvent.getSpeakable());
-        SynthesizedOutputEvent empty = listener.get(++pos);
+        SystemOutputEvent empty = listener.get(++pos);
         Assert.assertEquals(QueueEmptyEvent.EVENT_TYPE, empty.getEventType());
         Assert.assertTrue(empty instanceof QueueEmptyEvent);
     }

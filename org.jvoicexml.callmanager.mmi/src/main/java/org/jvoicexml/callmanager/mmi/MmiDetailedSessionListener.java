@@ -39,8 +39,8 @@ import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStoppedEvent;
 import org.jvoicexml.event.plain.implementation.RecordingStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecordingStoppedEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.interpreter.DetailedSessionListener;
 import org.jvoicexml.interpreter.JVoiceXmlSession;
 import org.jvoicexml.interpreter.datamodel.DataModel;
@@ -173,9 +173,9 @@ public final class MmiDetailedSessionListener
         }
         notification.setName(name);
         Object data = null;
-        if (event instanceof SynthesizedOutputEvent) {
-            final SynthesizedOutputEvent output =
-                    (SynthesizedOutputEvent) event;
+        if (event instanceof SystemOutputEvent) {
+            final SystemOutputEvent output =
+                    (SystemOutputEvent) event;
             try {
                 data = converter.convertSynthesizedOutputEvent(output);
             } catch (ConversionException e) {
@@ -189,8 +189,8 @@ public final class MmiDetailedSessionListener
                 LOGGER.error(e.getMessage(), e);
                 return null;
             }
-        } else if (event instanceof SpokenInputEvent) {
-            final SpokenInputEvent input = (SpokenInputEvent) event;
+        } else if (event instanceof UserInputEvent) {
+            final UserInputEvent input = (UserInputEvent) event;
             try {
                 data = converter.convertSpokenInputEvent(input);
             } catch (ConversionException e) {

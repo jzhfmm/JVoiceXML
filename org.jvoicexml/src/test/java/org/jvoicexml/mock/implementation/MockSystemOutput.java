@@ -30,9 +30,9 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
@@ -44,13 +44,13 @@ import org.jvoicexml.xml.vxml.BargeInType;
  */
 public final class MockSystemOutput implements SystemOutput {
     /** Registered output listener. */
-    private final Collection<SynthesizedOutputListener> listener;
+    private final Collection<SystemOutputImplementationListener> listener;
 
     /** The current speakable. */
     private SpeakableText speakable;
 
     /** The encapsulated synthesized output. */
-    private final SynthesizedOutput output;
+    private final SystemOutputOutputImplementation output;
 
     /** the session id. */
     private String sessionId;
@@ -66,8 +66,8 @@ public final class MockSystemOutput implements SystemOutput {
      * Constructs a new object.
      * @param synthesizedOutput the encapsulated synthesized output.
      */
-    public MockSystemOutput(final SynthesizedOutput synthesizedOutput) {
-        listener = new java.util.ArrayList<SynthesizedOutputListener>();
+    public MockSystemOutput(final SystemOutputOutputImplementation synthesizedOutput) {
+        listener = new java.util.ArrayList<SystemOutputImplementationListener>();
         output = synthesizedOutput;
     }
 
@@ -87,7 +87,7 @@ public final class MockSystemOutput implements SystemOutput {
         throws NoresourceError, BadFetchError {
         speakable = speakableText;
         sessionId = id;
-        final SynthesizedOutputEvent event =
+        final SystemOutputEvent event =
             new OutputStartedEvent(null, sessionId, speakable);
         fireOutputEvent(event);
     }
@@ -96,11 +96,11 @@ public final class MockSystemOutput implements SystemOutput {
      * Simulates the end of an output.
      */
     public void outputEnded() {
-        final SynthesizedOutputEvent endedEvent =
+        final SystemOutputEvent endedEvent =
             new OutputEndedEvent(null, sessionId, speakable);
         fireOutputEvent(endedEvent);
         speakable = null;
-        final SynthesizedOutputEvent emptyEvent =
+        final SystemOutputEvent emptyEvent =
             new QueueEmptyEvent(null, sessionId);
         fireOutputEvent(emptyEvent);
     }
@@ -109,7 +109,7 @@ public final class MockSystemOutput implements SystemOutput {
      * {@inheritDoc}
      */
     public void addListener(
-            final SynthesizedOutputListener outputListener) {
+            final SystemOutputImplementationListener outputListener) {
         if (outputListener == null) {
             return;
         }
@@ -122,7 +122,7 @@ public final class MockSystemOutput implements SystemOutput {
      * {@inheritDoc}
      */
     public void removeListener(
-            final SynthesizedOutputListener outputListener) {
+            final SystemOutputImplementationListener outputListener) {
         synchronized (listener) {
             listener.remove(outputListener);
         }
@@ -133,12 +133,12 @@ public final class MockSystemOutput implements SystemOutput {
      * @param event the event.
      * @since 0.6
      */
-    private void fireOutputEvent(final SynthesizedOutputEvent event) {
+    private void fireOutputEvent(final SystemOutputEvent event) {
         synchronized (listener) {
-            final Collection<SynthesizedOutputListener> copy =
-                new java.util.ArrayList<SynthesizedOutputListener>();
+            final Collection<SystemOutputImplementationListener> copy =
+                new java.util.ArrayList<SystemOutputImplementationListener>();
             copy.addAll(listener);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputStatusChanged(event);
             }
         }
@@ -147,7 +147,7 @@ public final class MockSystemOutput implements SystemOutput {
     /**
      * {@inheritDoc}
      */
-    public SynthesizedOutput getSynthesizedOutput() throws NoresourceError {
+    public SystemOutputOutputImplementation getSynthesizedOutput() throws NoresourceError {
         return output;
     }
 }

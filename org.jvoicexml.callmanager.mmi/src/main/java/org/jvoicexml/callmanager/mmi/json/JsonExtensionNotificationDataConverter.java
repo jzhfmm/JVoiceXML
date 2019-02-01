@@ -38,8 +38,8 @@ import org.jvoicexml.event.error.SemanticError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
@@ -110,7 +110,7 @@ public class JsonExtensionNotificationDataConverter
      */
     @Override
     public Object convertSynthesizedOutputEvent(
-            final SynthesizedOutputEvent event) throws ConversionException {
+            final SystemOutputEvent event) throws ConversionException {
         if (event instanceof OutputStartedEvent) {
             final OutputStartedEvent started = (OutputStartedEvent) event;
             final SpeakableText speakable = started.getSpeakable();
@@ -154,7 +154,7 @@ public class JsonExtensionNotificationDataConverter
      * Does nothing since no data is required
      */
     @Override
-    public Object convertSpokenInputEvent(final SpokenInputEvent input)
+    public Object convertSpokenInputEvent(final UserInputEvent input)
             throws ConversionException {
         return null;
     }

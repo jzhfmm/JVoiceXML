@@ -33,12 +33,12 @@ import javax.speech.synthesis.SynthesizerModeDesc;
 import org.apache.log4j.Logger;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * Demo implementation of a
  * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link SynthesizedOutput} based on Mobicents 1.0.
+ * {@link SystemOutputOutputImplementation} based on Mobicents 1.0.
  *
  * <p>
  * Custom implementations are expected to override
@@ -63,7 +63,7 @@ import org.jvoicexml.implementation.SynthesizedOutput;
  * @since 0.6
  */
 public class MobicentsSynthesizedOutputFactory
-    implements ResourceFactory<SynthesizedOutput> {
+    implements ResourceFactory<SystemOutputOutputImplementation> {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
             .getLogger(MobicentsSynthesizedOutputFactory.class);
@@ -109,7 +109,7 @@ public class MobicentsSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public final SynthesizedOutput createResource() throws NoresourceError 
+    public final SystemOutputOutputImplementation createResource() throws NoresourceError 
     {
         LOGGER.debug(".. handler:"+handler + " type:"+type);
         final SynthesizerModeDesc desc = getDescriptor();
@@ -210,7 +210,7 @@ public class MobicentsSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public final Class<SynthesizedOutput> getResourceType() {
-        return SynthesizedOutput.class;
+    public final Class<SystemOutputOutputImplementation> getResourceType() {
+        return SystemOutputOutputImplementation.class;
     }
 }

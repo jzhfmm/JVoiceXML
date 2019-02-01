@@ -32,12 +32,12 @@ import javax.speech.recognition.RecognizerModeDesc;
 import org.apache.log4j.Logger;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
  * Demo implementation of a
  * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link SpokenInput} based on Mobicents 1.0.
+ * {@link UserInputImplementation} based on Mobicents 1.0.
  *
  * <p>
  * Custom implementations are expected to override
@@ -62,7 +62,7 @@ import org.jvoicexml.implementation.SpokenInput;
  * @since 0.6
  */
 public class MobicentsSpokenInputFactory
-    implements ResourceFactory<SpokenInput> {
+    implements ResourceFactory<UserInputImplementation> {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
             .getLogger(MobicentsSpokenInputFactory.class);
@@ -108,7 +108,7 @@ public class MobicentsSpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public final SpokenInput createResource() throws NoresourceError {
+    public final UserInputImplementation createResource() throws NoresourceError {
         final RecognizerModeDesc desc = getDescriptor();
         final MobicentsSpokenInput input = new MobicentsSpokenInput(desc);
 
@@ -206,7 +206,7 @@ public class MobicentsSpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public final Class<SpokenInput> getResourceType() {
-        return SpokenInput.class;
+    public final Class<UserInputImplementation> getResourceType() {
+        return UserInputImplementation.class;
     }
 }

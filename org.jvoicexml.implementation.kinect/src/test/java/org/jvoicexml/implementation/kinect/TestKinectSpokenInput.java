@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
-import org.jvoicexml.event.plain.implementation.SpokenInputEvent;
+import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.mock.implementation.MockSpokenInputListener;
 
 /**
@@ -109,12 +109,12 @@ public class TestKinectSpokenInput {
         input.startRecognition(null, null, null);
         Assert.assertTrue(input.isBusy());
         listener.waitSize(1, 10000);
-        final SpokenInputEvent event1 = listener.get(0);
+        final UserInputEvent event1 = listener.get(0);
         Assert.assertEquals(RecognitionStartedEvent.EVENT_TYPE,
                 event1.getEventType());
         LOGGER.info("Say something!");
         listener.waitSize(2, 10000);
-        final SpokenInputEvent event2 = listener.get(1);
+        final UserInputEvent event2 = listener.get(1);
         Assert.assertEquals(RecognitionEvent.EVENT_TYPE, event2.getEventType());
         input.passivate();
     }
@@ -138,7 +138,7 @@ public class TestKinectSpokenInput {
         input.activate();
         input.startRecognition(null, null, null);
         listener.waitSize(1, 10000);
-        final SpokenInputEvent event1 = listener.get(0);
+        final UserInputEvent event1 = listener.get(0);
         Assert.assertEquals(RecognitionEvent.EVENT_TYPE, event1.getEventType());
         LOGGER.info("Say nothing");
         Thread.sleep(5000);

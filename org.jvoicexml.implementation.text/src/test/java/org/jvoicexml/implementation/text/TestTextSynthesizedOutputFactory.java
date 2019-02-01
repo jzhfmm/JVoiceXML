@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * Test cases for {@link TextSynthesizedOutputFactory}.
@@ -59,7 +59,7 @@ public final class TestTextSynthesizedOutputFactory {
     @Test
     public void testCreateResource() throws Exception, NoresourceError {
         for (int i = 0; i < INSTANCES; i++) {
-            SynthesizedOutput output = factory.createResource();
+            SystemOutputOutputImplementation output = factory.createResource();
             Assert.assertEquals("text", output.getType());
         }
     }

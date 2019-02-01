@@ -28,18 +28,18 @@ package org.jvoicexml.implementation.red5;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link SpokenInput} based on JSAPI 2.0.
+ * for the {@link UserInputImplementation} based on JSAPI 2.0.
  *
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  * @since 0.7.4
  */
 public final class Red5SpokenInputFactory
-    implements ResourceFactory<SpokenInput> {
+    implements ResourceFactory<UserInputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -56,7 +56,7 @@ public final class Red5SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public SpokenInput createResource() throws NoresourceError {
+    public UserInputImplementation createResource() throws NoresourceError {
         final Red5SpokenInput input = new Red5SpokenInput();
         input.setType(type);
         return input;
@@ -96,7 +96,7 @@ public final class Red5SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SpokenInput> getResourceType() {
-        return SpokenInput.class;
+    public Class<UserInputImplementation> getResourceType() {
+        return UserInputImplementation.class;
     }
 }

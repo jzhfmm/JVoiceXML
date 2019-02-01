@@ -37,9 +37,9 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SpokenInputListener;
-import org.jvoicexml.implementation.SpokenInputProvider;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.UserInputImplementationListener;
+import org.jvoicexml.implementation.UserInputImplementationProvider;
 import org.jvoicexml.implementation.dtmf.BufferedDtmfInput;
 import org.jvoicexml.implementation.grammar.GrammarCache;
 import org.jvoicexml.implementation.grammar.LoadedGrammar;
@@ -62,7 +62,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Dirk Schnelle-Walka
  * @since 0.5
  */
-final class JVoiceXmlUserInput implements UserInput, SpokenInputProvider {
+final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProvider {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(JVoiceXmlUserInput.class);
@@ -71,7 +71,7 @@ final class JVoiceXmlUserInput implements UserInput, SpokenInputProvider {
     private final BufferedDtmfInput dtmfInput;
 
     /** The spoken input device. */
-    private final SpokenInput spokenInput;
+    private final UserInputImplementation spokenInput;
 
     /** The cache of already processed grammars. */
     private final GrammarCache cache;
@@ -84,7 +84,7 @@ final class JVoiceXmlUserInput implements UserInput, SpokenInputProvider {
      * @param dtmf
      *            the buffered character input.
      */
-    JVoiceXmlUserInput(final SpokenInput input, final BufferedDtmfInput dtmf) {
+    JVoiceXmlUserInput(final UserInputImplementation input, final BufferedDtmfInput dtmf) {
         spokenInput = input;
         dtmfInput = dtmf;
         cache = new GrammarCache();
@@ -98,7 +98,7 @@ final class JVoiceXmlUserInput implements UserInput, SpokenInputProvider {
      * @since 0.5.5
      */
     @Override
-    public SpokenInput getSpokenInput() {
+    public UserInputImplementation getSpokenInput() {
         return spokenInput;
     }
 
@@ -257,7 +257,7 @@ final class JVoiceXmlUserInput implements UserInput, SpokenInputProvider {
     /**
      * {@inheritDoc}
      */
-    public void addListener(final SpokenInputListener listener) {
+    public void addListener(final UserInputImplementationListener listener) {
         spokenInput.addListener(listener);
         if (dtmfInput != null) {
             dtmfInput.addListener(listener);
@@ -267,7 +267,7 @@ final class JVoiceXmlUserInput implements UserInput, SpokenInputProvider {
     /**
      * {@inheritDoc}
      */
-    public void removeListener(final SpokenInputListener listener) {
+    public void removeListener(final UserInputImplementationListener listener) {
         spokenInput.removeListener(listener);
         if (dtmfInput != null) {
             dtmfInput.removeListener(listener);

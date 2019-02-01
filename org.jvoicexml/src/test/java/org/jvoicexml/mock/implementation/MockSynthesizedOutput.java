@@ -33,25 +33,25 @@ import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
- * This class provides a dummy {@link SynthesizedOutput} for testing
+ * This class provides a dummy {@link SystemOutputOutputImplementation} for testing
  * purposes.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-public final class MockSynthesizedOutput implements SynthesizedOutput {
+public final class MockSynthesizedOutput implements SystemOutputOutputImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER =
         LogManager.getLogger(MockSynthesizedOutput.class);
 
     /** Registered output listener. */
-    private final Collection<SynthesizedOutputListener> listener;
+    private final Collection<SystemOutputImplementationListener> listener;
 
     /** The queued speakables. */
     private final Queue<SpeakableText> speakables;
@@ -66,7 +66,7 @@ public final class MockSynthesizedOutput implements SynthesizedOutput {
      * Constructs a new object.
      */
     public MockSynthesizedOutput() {
-        listener = new java.util.ArrayList<SynthesizedOutputListener>();
+        listener = new java.util.ArrayList<SystemOutputImplementationListener>();
         speakables = new java.util.LinkedList<SpeakableText>();
         thread = new SpeechThread(this);
         thread.setDaemon(true);
@@ -160,7 +160,7 @@ public final class MockSynthesizedOutput implements SynthesizedOutput {
      * {@inheritDoc}
      */
     public void addListener(
-            final SynthesizedOutputListener outputListener) {
+            final SystemOutputImplementationListener outputListener) {
         synchronized (listener) {
             listener.add(outputListener);
         }
@@ -170,7 +170,7 @@ public final class MockSynthesizedOutput implements SynthesizedOutput {
      * {@inheritDoc}
      */
     public void removeListener(
-            final SynthesizedOutputListener outputListener) {
+            final SystemOutputImplementationListener outputListener) {
         synchronized (listener) {
             listener.remove(outputListener);
         }
@@ -181,12 +181,12 @@ public final class MockSynthesizedOutput implements SynthesizedOutput {
      * @param event the event.
      * @since 0.6
      */
-    private void fireOutputEvent(final SynthesizedOutputEvent event) {
+    private void fireOutputEvent(final SystemOutputEvent event) {
         synchronized (listener) {
-            final Collection<SynthesizedOutputListener> copy =
-                new java.util.ArrayList<SynthesizedOutputListener>();
+            final Collection<SystemOutputImplementationListener> copy =
+                new java.util.ArrayList<SystemOutputImplementationListener>();
             copy.addAll(listener);
-            for (SynthesizedOutputListener current : copy) {
+            for (SystemOutputImplementationListener current : copy) {
                 current.outputStatusChanged(event);
             }
         }
@@ -236,13 +236,13 @@ public final class MockSynthesizedOutput implements SynthesizedOutput {
 
     private class SpeechThread extends Thread {
         /** Reference to the container. */
-        private final SynthesizedOutput observable;
+        private final SystemOutputOutputImplementation observable;
 
         /**
          * Constructs a new object.
          * @param obs reference to the container.
          */
-        public SpeechThread(final SynthesizedOutput obs) {
+        public SpeechThread(final SystemOutputOutputImplementation obs) {
             observable = obs;
         }
 
@@ -261,7 +261,7 @@ public final class MockSynthesizedOutput implements SynthesizedOutput {
                 }
                 while (!speakables.isEmpty()) {
                     final SpeakableText speakable = speakables.peek();
-                    final SynthesizedOutputEvent start =
+                    final SystemOutputEvent start =
                         new OutputStartedEvent(observable, id, speakable);
                     fireOutputEvent(start);
                     try {
@@ -270,7 +270,7 @@ public final class MockSynthesizedOutput implements SynthesizedOutput {
                         return;
                     }
                     speakables.poll();
-                    final SynthesizedOutputEvent end =
+                    final SystemOutputEvent end =
                         new OutputEndedEvent(observable, id, speakable);
                     fireOutputEvent(end);
                 }

@@ -34,9 +34,9 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ExternalResource;
 import org.jvoicexml.implementation.PlatformFactory;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.Telephony;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.dtmf.BufferedDtmfInput;
 import org.jvoicexml.implementation.pool.KeyedResourcePool;
 
@@ -62,13 +62,13 @@ public final class JVoiceXmlImplementationPlatformFactory
             .getLogger(JVoiceXmlImplementationPlatformFactory.class);
 
     /** Pool of synthesizer output resource factories. */
-    private final KeyedResourcePool<SynthesizedOutput> synthesizerPool;
+    private final KeyedResourcePool<SystemOutputOutputImplementation> synthesizerPool;
 
     /** Pool of user input resource factories. */
-    private final KeyedResourcePool<SpokenInput> spokenInputPool;
+    private final KeyedResourcePool<UserInputImplementation> spokenInputPool;
 
     /** Pool of user calling resource factories. */
-    private final KeyedResourcePool<Telephony> telephonyPool;
+    private final KeyedResourcePool<CallControlImplementation> telephonyPool;
 
     /** The JVoiceXML configuration. */
     private Configuration configuration;
@@ -84,9 +84,9 @@ public final class JVoiceXmlImplementationPlatformFactory
      * @see org.jvoicexml.JVoiceXml
      */
     public JVoiceXmlImplementationPlatformFactory() {
-        synthesizerPool = new KeyedResourcePool<SynthesizedOutput>();
-        spokenInputPool = new KeyedResourcePool<SpokenInput>();
-        telephonyPool = new KeyedResourcePool<Telephony>();
+        synthesizerPool = new KeyedResourcePool<SystemOutputOutputImplementation>();
+        spokenInputPool = new KeyedResourcePool<UserInputImplementation>();
+        telephonyPool = new KeyedResourcePool<CallControlImplementation>();
     }
 
     /**
@@ -114,11 +114,11 @@ public final class JVoiceXmlImplementationPlatformFactory
             for (ResourceFactory resourceFactory : resourceFactories) {
                 final Class<ExternalResource> clazz = resourceFactory
                         .getResourceType();
-                if (clazz.equals(SpokenInput.class)) {
+                if (clazz.equals(UserInputImplementation.class)) {
                     addSpokenInputFactory(resourceFactory);
-                } else if (clazz.equals(SynthesizedOutput.class)) {
+                } else if (clazz.equals(SystemOutputOutputImplementation.class)) {
                     addSynthesizedOutputFactory(resourceFactory);
-                } else if (clazz.equals(Telephony.class)) {
+                } else if (clazz.equals(CallControlImplementation.class)) {
                     addTelephonyFactory(resourceFactory);
                 }
             }
@@ -184,17 +184,17 @@ public final class JVoiceXmlImplementationPlatformFactory
      * @since 0.7
      */
     public void addPlatform(final PlatformFactory platform) throws Exception {
-        final ResourceFactory<SynthesizedOutput> synthesizedOutputFactory =
+        final ResourceFactory<SystemOutputOutputImplementation> synthesizedOutputFactory =
                 platform.getSynthesizedoutput();
         if (synthesizedOutputFactory != null) {
             addSynthesizedOutputFactory(synthesizedOutputFactory);
         }
-        final ResourceFactory<SpokenInput> spokenInputFactory = platform
+        final ResourceFactory<UserInputImplementation> spokenInputFactory = platform
                 .getSpokeninput();
         if (spokenInputFactory != null) {
             addSpokenInputFactory(spokenInputFactory);
         }
-        final ResourceFactory<Telephony> telephonyFactory = platform
+        final ResourceFactory<CallControlImplementation> telephonyFactory = platform
                 .getTelephony();
         if (telephonyFactory != null) {
             addTelephonyFactory(telephonyFactory);
@@ -202,7 +202,7 @@ public final class JVoiceXmlImplementationPlatformFactory
     }
 
     /**
-     * Adds the given {@link ResourceFactory} for {@link SynthesizedOutput} to
+     * Adds the given {@link ResourceFactory} for {@link SystemOutputOutputImplementation} to
      * the list of know factories.
      * 
      * @param factory
@@ -212,7 +212,7 @@ public final class JVoiceXmlImplementationPlatformFactory
      * @since 0.6
      */
     private void addSynthesizedOutputFactory(
-            final ResourceFactory<SynthesizedOutput> factory) throws Exception {
+            final ResourceFactory<SystemOutputOutputImplementation> factory) throws Exception {
         final String type = factory.getType();
         synthesizerPool.addResourceFactory(factory);
 
@@ -221,7 +221,7 @@ public final class JVoiceXmlImplementationPlatformFactory
     }
 
     /**
-     * Adds the given {@link ResourceFactory} for {@link SpokenInput} to the
+     * Adds the given {@link ResourceFactory} for {@link UserInputImplementation} to the
      * list of know factories.
      * 
      * @param factory
@@ -231,7 +231,7 @@ public final class JVoiceXmlImplementationPlatformFactory
      * @since 0.6
      */
     public void addSpokenInputFactory(
-            final ResourceFactory<SpokenInput> factory)
+            final ResourceFactory<UserInputImplementation> factory)
             throws Exception {
         final String type = factory.getType();
         spokenInputPool.addResourceFactory(factory);
@@ -241,7 +241,7 @@ public final class JVoiceXmlImplementationPlatformFactory
     }
 
     /**
-     * Adds the given {@link ResourceFactory} for {@link Telephony} to the list
+     * Adds the given {@link ResourceFactory} for {@link CallControlImplementation} to the list
      * of know factories.
      * 
      * @param factory
@@ -250,7 +250,7 @@ public final class JVoiceXmlImplementationPlatformFactory
      *                error adding the factory
      * @since 0.6
      */
-    public void addTelephonyFactory(final ResourceFactory<Telephony> factory)
+    public void addTelephonyFactory(final ResourceFactory<CallControlImplementation> factory)
             throws Exception {
         final String type = factory.getType();
         telephonyPool.addResourceFactory(factory);

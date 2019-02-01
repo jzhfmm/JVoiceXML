@@ -28,16 +28,16 @@ package org.jvoicexml.mock.implementation;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
- * Demo implementation of a {@link SpokenInput}.
+ * Demo implementation of a {@link UserInputImplementation}.
  *
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  */
 public final class MockSpokenInputFactory
-    implements ResourceFactory<SpokenInput> {
+    implements ResourceFactory<UserInputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -50,7 +50,7 @@ public final class MockSpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public SpokenInput createResource()
+    public UserInputImplementation createResource()
         throws NoresourceError {
         return new MockSpokenInput();
     }
@@ -80,7 +80,7 @@ public final class MockSpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SpokenInput> getResourceType() {
-        return SpokenInput.class;
+    public Class<UserInputImplementation> getResourceType() {
+        return UserInputImplementation.class;
     }
 }

@@ -24,8 +24,8 @@ package org.jvoicexml.implementation.jsapi20;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SynthesizedOutput;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 
 /**
  * A media locator factory to convert audio format.
@@ -134,7 +134,7 @@ public final class FormatMediaLocatorFactory
     /**
      * {@inheritDoc}
      */
-    public URI getSourceMediaLocator(final SynthesizedOutput output)
+    public URI getSourceMediaLocator(final SystemOutputOutputImplementation output)
             throws URISyntaxException {
         return getSourceMediaLocator();
     }
@@ -143,7 +143,7 @@ public final class FormatMediaLocatorFactory
      * {@inheritDoc}
      */
     @Override
-    public URI getSourceMediaLocator(final SpokenInput input)
+    public URI getSourceMediaLocator(final UserInputImplementation input)
             throws URISyntaxException {
         return getSourceMediaLocator();
     }
@@ -236,7 +236,7 @@ public final class FormatMediaLocatorFactory
     /**
      * {@inheritDoc}
      */
-    public URI getSinkMediaLocator(final SynthesizedOutput output,
+    public URI getSinkMediaLocator(final SystemOutputOutputImplementation output,
             final URI sourceLocator) throws URISyntaxException {
         return getSinkMediaLoactor(sourceLocator);
     }
@@ -245,7 +245,7 @@ public final class FormatMediaLocatorFactory
      * {@inheritDoc}
      */
     @Override
-    public URI getSinkMediaLocator(final SpokenInput input,
+    public URI getSinkMediaLocator(final UserInputImplementation input,
             final URI sourceLocator) throws URISyntaxException {
         return getSinkMediaLoactor(sourceLocator);
     }

@@ -29,19 +29,19 @@ package org.jvoicexml.implementation.mobicents;
 import org.apache.log4j.Logger;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.Telephony;
+import org.jvoicexml.implementation.CallControlImplementation;
 
 /**
  * Demo implementation of a
  * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link Telephony} based on JTAPI 1.3.1.
+ * {@link CallControlImplementation} based on JTAPI 1.3.1.
  *
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  * @since 0.6
  */
 public final class MobicentsTelephonyFactory
-    implements ResourceFactory<Telephony> {
+    implements ResourceFactory<CallControlImplementation> {
     private static final Logger LOGGER = Logger
             .getLogger(MobicentsTelephonyFactory.class);
     /** Number of instances that this factory will create. */
@@ -60,7 +60,7 @@ public final class MobicentsTelephonyFactory
     /**
      * {@inheritDoc}
      */
-    public Telephony createResource()
+    public CallControlImplementation createResource()
         throws NoresourceError {
         return new MobicentsTelephony();
     }
@@ -92,7 +92,7 @@ public final class MobicentsTelephonyFactory
     /**
      * {@inheritDoc}
      */
-    public Class<Telephony> getResourceType() {
-        return Telephony.class;
+    public Class<CallControlImplementation> getResourceType() {
+        return CallControlImplementation.class;
     }
 }

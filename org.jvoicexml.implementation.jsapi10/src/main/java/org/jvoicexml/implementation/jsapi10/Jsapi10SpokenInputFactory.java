@@ -32,12 +32,12 @@ import javax.speech.recognition.RecognizerModeDesc;
 import org.apache.log4j.Logger;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 
 /**
  * Demo implementation of a
  * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link SpokenInput} based on JSAPI 1.0.
+ * {@link UserInputImplementation} based on JSAPI 1.0.
  *
  * <p>
  * Custom implementations are expected to override
@@ -62,7 +62,7 @@ import org.jvoicexml.implementation.SpokenInput;
  * @since 0.6
  */
 public class Jsapi10SpokenInputFactory
-    implements ResourceFactory<SpokenInput> {
+    implements ResourceFactory<UserInputImplementation> {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
             .getLogger(Jsapi10SpokenInputFactory.class);
@@ -108,7 +108,7 @@ public class Jsapi10SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public final SpokenInput createResource() throws NoresourceError {
+    public final UserInputImplementation createResource() throws NoresourceError {
         final RecognizerModeDesc desc = getDescriptor();
         final Jsapi10SpokenInput input = new Jsapi10SpokenInput(desc);
 
@@ -203,7 +203,7 @@ public class Jsapi10SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public final Class<SpokenInput> getResourceType() {
-        return SpokenInput.class;
+    public final Class<UserInputImplementation> getResourceType() {
+        return UserInputImplementation.class;
     }
 }

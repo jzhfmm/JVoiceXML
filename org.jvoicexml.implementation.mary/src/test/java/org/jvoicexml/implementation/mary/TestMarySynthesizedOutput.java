@@ -38,8 +38,8 @@ import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
-import org.jvoicexml.event.plain.implementation.SynthesizedOutputEvent;
-import org.jvoicexml.implementation.SynthesizedOutputListener;
+import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.mock.TestProperties;
 import org.jvoicexml.xml.ssml.Speak;
 import org.jvoicexml.xml.ssml.SsmlDocument;
@@ -54,7 +54,7 @@ import marytts.client.MaryClient;
  * @since 0.7.3
  */
 public final class TestMarySynthesizedOutput
-        implements SynthesizedOutputListener {
+        implements SystemOutputImplementationListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(TestMarySynthesizedOutput.class);
@@ -406,7 +406,7 @@ public final class TestMarySynthesizedOutput
      * {@inheritDoc}
      */
     @Override
-    public void outputStatusChanged(final SynthesizedOutputEvent event) {
+    public void outputStatusChanged(final SystemOutputEvent event) {
         if (event instanceof OutputEndedEvent) {
             synchronized (outputEndedLock) {
                 outputEnded = true;

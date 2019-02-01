@@ -35,7 +35,7 @@ import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
 import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.SpokenInput;
+import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
 import org.jvoicexml.xml.srgs.ModeType;
@@ -57,7 +57,7 @@ public class MockUserInput implements UserInput {
     private static final Collection<GrammarType> SUPPORTED_GRAMMAR_TYPES;
 
     /** The encapsulated spoken input. */
-    private final SpokenInput input;
+    private final UserInputImplementation input;
 
     /** All active grammars. */
     private final Set<GrammarDocument> activeGrammars;
@@ -87,7 +87,7 @@ public class MockUserInput implements UserInput {
      * @param spokenInput
      *            the encapsulated spoken input.
      */
-    public MockUserInput(final SpokenInput spokenInput) {
+    public MockUserInput(final UserInputImplementation spokenInput) {
         input = spokenInput;
         activeGrammars = new java.util.HashSet<GrammarDocument>();
         recognitionStartedLock = new Object();
