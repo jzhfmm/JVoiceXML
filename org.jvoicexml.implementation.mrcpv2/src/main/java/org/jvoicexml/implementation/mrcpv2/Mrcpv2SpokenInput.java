@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2009-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2009-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -111,6 +111,14 @@ public final class Mrcpv2SpokenInput
         activeGrammars = new java.util.ArrayList<GrammarImplementation<?>>();
         listeners = new java.util.ArrayList<UserInputImplementationListener>();
         parsers = new java.util.HashMap<String, GrammarParser<?>>();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 
     /**

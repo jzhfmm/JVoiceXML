@@ -23,6 +23,7 @@ package org.jvoicexml.implementation.jvxml;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -702,34 +703,41 @@ public final class JVoiceXmlImplementationPlatform
      * 
      * @since 0.5.5
      */
-    private <T extends ExternalResource> T getExternalResourceFromPool(
+    private <T extends ExternalResource> Map<ModeType, T> getExternalResourceFromPool(
             final KeyedResourcePool<T> pool, final String key)
             throws NoresourceError {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("obtaining resource '" + key + "' from pool...");
+            LOGGER.debug("obtaining resources '" + key + "' from pool");
         }
 
-        final T resource = pool.borrowObject(key);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("connecting external resource ("
-                    + resource.getClass().getCanonicalName() + ").");
-        }
+        final Map<ModeType, T> resources = pool.borrowObjects(key);
+        final Collection<T> connectedResources = new java.util.ArrayList<T>();
         try {
-            resource.connect(info);
-        } catch (IOException ioe) {
+            for (T resource : resources.values()) {
+                LOGGER.info("connecting external resource ("
+                            + resource.getClass().getCanonicalName() + ")");
+                resource.connect(info);
+                connectedResources.add(resource);
+            }
+        } catch(IOException e) {
+            LOGGER.error("error connecting to resource "
+                        + e.getMessage(), e);
+            for (T resource : connectedResources) {
+                resource.disconnect(info);
+                LOGGER.info("discconnected external resource ("
+                        + resource.getClass().getCanonicalName() + ").");
+            }
             try {
-                pool.returnObject(key, resource);
-            } catch (Exception e) {
-                LOGGER.error("error returning resource to pool", e);
+                pool.returnObjects(key, resources);
+            } catch (Exception ex) {
+                LOGGER.error("error returning resources to pool", ex);
             }
             throw new NoresourceError("error connecting to resource: "
-                    + ioe.getMessage(), ioe);
-        }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("...connected");
+                    + e.getMessage(), e);
+            
         }
 
-        return resource;
+        return resources;
     }
 
     /**
@@ -743,26 +751,26 @@ public final class JVoiceXmlImplementationPlatform
      *            type of the resource.
      */
     private <T extends ExternalResource> void returnExternalResourceToPool(
-            final KeyedResourcePool<T> pool, final T resource) {
-        final String type = resource.getType();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("returning external resource '" + type + "' ("
-                    + resource.getClass().getCanonicalName() + ") to pool...");
-            LOGGER.debug("disconnecting external resource.");
+            final KeyedResourcePool<T> pool, final Map<ModeType, T> resources) {
+        String type = null;
+        for (T resource : resources.values()) {
+            LOGGER.info("disconnecting external resource ("
+                    + resource.getClass().getCanonicalName() + ")");
+            if (type != null) {
+                type = resource.getType();
+            }
+            resource.disconnect(info);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("...disconnected");
+            }
         }
-        resource.disconnect(info);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("...disconnected");
-        }
-
         try {
-            pool.returnObject(type, resource);
+            pool.returnObjects(type, resources);
         } catch (NoresourceError e) {
             LOGGER.error("error returning external resource to pool", e);
         }
 
-        LOGGER.info("returned external resource '" + type + "' ("
-                + resource.getClass().getCanonicalName() + ") to pool");
+        LOGGER.info("returned external resource '" + type + "' to pool");
     }
 
     /**

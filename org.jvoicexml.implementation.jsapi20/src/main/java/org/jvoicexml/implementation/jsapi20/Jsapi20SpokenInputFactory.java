@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
@@ -76,6 +77,14 @@ public final class Jsapi20SpokenInputFactory
         } catch (EngineException e) {
             LOGGER.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -100,6 +100,14 @@ final class TextSpokenInput implements UserInputImplementation {
         activeGrammars = new java.util.ArrayList<GrammarImplementation<?>>();
         parsers = new java.util.HashMap<String, GrammarParser<?>>();
         listener = new java.util.ArrayList<UserInputImplementationListener>();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 
     /**

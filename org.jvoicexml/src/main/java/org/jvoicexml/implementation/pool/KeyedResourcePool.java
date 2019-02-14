@@ -23,7 +23,6 @@ package org.jvoicexml.implementation.pool;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.PoolableObjectFactory;
@@ -33,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ExternalResource;
 import org.jvoicexml.implementation.ResourceFactory;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Pool to hold all instantiated resources of type <code>T</code>.
@@ -55,14 +55,14 @@ public final class KeyedResourcePool<T extends ExternalResource> {
         LogManager.getLogger(KeyedResourcePool.class);
 
     /** Known pools. */
-    private final Map<String, ObjectPool<T>> pools;
+    private final Map<String, Map<ModeType, ObjectPool<T>>> pools;
 
     /**
      * Constructs a new object.
      */
     public KeyedResourcePool() {
         super();
-        pools = new java.util.HashMap<String, ObjectPool<T>>();
+        pools = new java.util.HashMap<String, Map<ModeType, ObjectPool<T>>>();
     }
 
     /**
@@ -81,9 +81,15 @@ public final class KeyedResourcePool<T extends ExternalResource> {
         pool.setMaxIdle(instances);
         pool.setWhenExhaustedAction(GenericObjectPool.WHEN_EXHAUSTED_FAIL);
         final String type = resourceFactory.getType();
-        pools.put(type, pool);
+        Map<ModeType, ObjectPool<T>> modePools = pools.get(type);
+        if (modePools == null) {
+            modePools = new java.util.HashMap<ModeType, ObjectPool<T>>();
+            pools.put(type, modePools);
+        }
+        final ModeType mode = resourceFactory.getModeType();
+        modePools.put(mode, pool);
         LOGGER.info("loading " + instances + " instance(s) of type '" + type
-                + "'");
+                + "' for mode '" + mode + "'");
         for (int i = 0; i < instances; i++) {
             pool.addObject();
         }
@@ -93,40 +99,56 @@ public final class KeyedResourcePool<T extends ExternalResource> {
     }
 
     /**
+     * Retrieves the known pools for the given key 
+     * @param key the key to look for
+     * @return known pools, never {@code null}
+     * @throws NoresourceError
+     *          if there are no pools for the given key
+     * @since 0.7.9
+     */
+    private Map<ModeType, ObjectPool<T>> getPools(final Object key)
+            throws NoresourceError {
+        final Map<ModeType, ObjectPool<T>> modePools = pools.get(key);
+        if (modePools == null) {
+            throw new NoresourceError("Pool of type '" + key + "' is unknown!");
+        }
+        return modePools;
+    }
+
+    /**
      * Type safe return of the object to borrow from the pool.
      * @param key the type of the object to borrow from the pool
      * @return borrowed object
      * @exception NoresourceError
      *            the object could not be borrowed
      */
-    public synchronized T borrowObject(final Object key)
+    public synchronized Map<ModeType, T> borrowObjects(final Object key)
         throws NoresourceError {
-        final ObjectPool<T> pool = pools.get(key);
-        if (pool == null) {
-            throw new NoresourceError("Pool of type '" + key + "' is unknown!");
-        }
-        T resource;
-        try {
-            resource = pool.borrowObject();
-        } catch (NoSuchElementException e) {
-            throw new NoresourceError(e.getMessage(), e);
-        } catch (IllegalStateException e) {
-            throw new NoresourceError(e.getMessage(), e);
-        } catch (Exception e) {
-            throw new NoresourceError(e.getMessage(), e);
-        }
-        LOGGER.info("borrowed object of type '" + key + "' ("
-                + resource.getClass().getCanonicalName() + ")");
-        if (LOGGER.isDebugEnabled()) {
-            final int active = pool.getNumActive();
-            final int idle = pool.getNumIdle();
-            LOGGER.debug("pool has now " + active
-                         + " active/" + idle + " idle for key '" + key
-                         + "' (" + resource.getClass().getCanonicalName()
-                         + ") after borrow");
+        final Map<ModeType, ObjectPool<T>> modePools = getPools(key);
+        final Map<ModeType, T> resources = new java.util.HashMap<ModeType, T>();
+        for (ModeType mode : modePools.keySet()) {
+            T resource;
+            final ObjectPool<T> pool = modePools.get(mode);
+            try {
+                resource = pool.borrowObject();
+            } catch (Exception e) {
+                returnObjects(key.toString(), resources);
+                throw new NoresourceError(e.getMessage(), e);
+            }
+            LOGGER.info("borrowed object of type '" + key + "' ("
+                    + resource.getClass().getCanonicalName() + ")");
+            if (LOGGER.isDebugEnabled()) {
+                final int active = pool.getNumActive();
+                final int idle = pool.getNumIdle();
+                LOGGER.debug("pool has now " + active
+                             + " active/" + idle + " idle for key '" + key
+                             + "', mode '" + mode 
+                             + "' (" + resource.getClass().getCanonicalName()
+                             + ") after borrow");
+            }
         }
 
-        return resource;
+        return resources;
     }
 
     /**
@@ -137,27 +159,29 @@ public final class KeyedResourcePool<T extends ExternalResource> {
      *         Error returning the object to the pool.
      * @since 0.6
      */
-    public synchronized void returnObject(final String key,
-            final T resource) throws NoresourceError {
-        final ObjectPool<T> pool = pools.get(key);
-        if (pool == null) {
-            throw new NoresourceError("Pool of type '" + key + "' is unknown!");
-        }
-        try {
-            pool.returnObject(resource);
-        } catch (Exception e) {
-            throw new NoresourceError(e.getMessage(), e);
-        }
-        LOGGER.info("returned object of type '" + key + "' ("
-                + resource.getClass().getCanonicalName() + ")");
-
-        if (LOGGER.isDebugEnabled()) {
-            final int active = pool.getNumActive();
-            final int idle = pool.getNumIdle();
-            LOGGER.debug("pool has now " + active
-                         + " active/" + idle + " idle for key '" + key
-                         + "' (" + resource.getClass().getCanonicalName()
-                         + ") after return");
+    public synchronized void returnObjects(final String key,
+            final Map<ModeType, T> resources) throws NoresourceError {
+        final Map<ModeType, ObjectPool<T>> modePools = getPools(key);
+        for (ModeType mode : modePools.keySet()) {
+            final ObjectPool<T> pool = modePools.get(mode);
+            final T resource = resources.get(mode);
+            try {
+                pool.returnObject(resource);
+            } catch (Exception e) {
+                throw new NoresourceError(e.getMessage(), e);
+            }
+            LOGGER.info("returned object of type '" + key + "' ("
+                    + resource.getClass().getCanonicalName() + ")");
+    
+            if (LOGGER.isDebugEnabled()) {
+                final int active = pool.getNumActive();
+                final int idle = pool.getNumIdle();
+                LOGGER.debug("pool has now " + active
+                             + " active/" + idle + " idle for key '" + key
+                             + "', mode '" + mode 
+                             + "' (" + resource.getClass().getCanonicalName()
+                             + ") after return");
+            }
         }
     }
 
@@ -168,22 +192,30 @@ public final class KeyedResourcePool<T extends ExternalResource> {
      */
     public synchronized int getNumActive() {
         int active = 0;
-        final Collection<ObjectPool<T>> col = pools.values();
-        for (ObjectPool<T> pool : col) {
-            active += pool.getNumActive();
+        for (Map<ModeType, ObjectPool<T>> modePools : pools.values()) {
+            final Collection<ObjectPool<T>> col = modePools.values();
+            for (ObjectPool<T> pool : col) {
+                active += pool.getNumActive();
+            }
         }
         return active;
     }
 
     /**
-     * Retrieves the number of active resources in the pool for the given key.
+     * Retrieves the number of active resources for all modes in the pool for
+     * the given key.
      * @param key the key
      * @return number of active resources
      * @since 0.7.3
      */
     public synchronized int getNumActive(final String key) {
-        final ObjectPool<T> pool = pools.get(key);
-        return pool.getNumActive();
+        final Map<ModeType, ObjectPool<T>> modePools = pools.get(key);
+        final Collection<ObjectPool<T>> col = modePools.values();
+        int active = 0;
+        for (ObjectPool<T> pool : col) {
+            active += pool.getNumActive();
+        }
+        return active;
     }
 
     /**
@@ -193,9 +225,11 @@ public final class KeyedResourcePool<T extends ExternalResource> {
      */
     public synchronized int getNumIdle() {
         int idle = 0;
-        final Collection<ObjectPool<T>> col = pools.values();
-        for (ObjectPool<T> pool : col) {
-            idle += pool.getNumIdle();
+        for (Map<ModeType, ObjectPool<T>> modePools : pools.values()) {
+            final Collection<ObjectPool<T>> col = modePools.values();
+            for (ObjectPool<T> pool : col) {
+                idle += pool.getNumIdle();
+            }
         }
         return idle;
     }
@@ -208,11 +242,13 @@ public final class KeyedResourcePool<T extends ExternalResource> {
      * @since 0.7.3
      */
     public synchronized int getNumIdle(final String key) {
-        final ObjectPool<T> pool = pools.get(key);
-        if (pool == null) {
-            return -1;
+        final Map<ModeType, ObjectPool<T>> modePools = pools.get(key);
+        final Collection<ObjectPool<T>> col = modePools.values();
+        int idle = 0;
+        for (ObjectPool<T> pool : col) {
+            idle += pool.getNumIdle();
         }
-        return pool.getNumIdle();
+        return idle;
     }
 
     /**
@@ -231,9 +267,11 @@ public final class KeyedResourcePool<T extends ExternalResource> {
      * @since 0.7.3
      */
     public synchronized void close() throws Exception {
-        final Collection<ObjectPool<T>> col = pools.values();
-        for (ObjectPool<T> pool : col) {
-            pool.close();
+        for (Map<ModeType, ObjectPool<T>> modePools : pools.values()) {
+            final Collection<ObjectPool<T>> col = modePools.values();
+            for (ObjectPool<T> pool : col) {
+                pool.close();
+            }
         }
     }
 }

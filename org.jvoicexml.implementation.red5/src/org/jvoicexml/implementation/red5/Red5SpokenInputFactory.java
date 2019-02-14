@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $LastChangedDate$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -29,13 +24,13 @@ package org.jvoicexml.implementation.red5;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
  * for the {@link UserInputImplementation} based on JSAPI 2.0.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.7.4
  */
 public final class Red5SpokenInputFactory
@@ -51,6 +46,14 @@ public final class Red5SpokenInputFactory
      */
     public Red5SpokenInputFactory() {
         type = "red5";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 
     /**

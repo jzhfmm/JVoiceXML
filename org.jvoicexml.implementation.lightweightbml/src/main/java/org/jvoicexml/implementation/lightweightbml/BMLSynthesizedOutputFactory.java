@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2014-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2014-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -30,6 +25,7 @@ import java.net.UnknownHostException;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
@@ -39,7 +35,6 @@ import org.jvoicexml.implementation.SystemOutputOutputImplementation;
  * @author Markus Ermuth
  * @author Alex Krause
  * 
- * @version $LastChangedRevision$
  * @since 0.7.7
  */
 public final class BMLSynthesizedOutputFactory
@@ -81,6 +76,14 @@ public final class BMLSynthesizedOutputFactory
         type = "bml";
         port = AVATAR_DEFAULT_PORT;
         feedbackPort = AVATAR_DEFAULT_FEEDBACK_PORT;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 
     /**

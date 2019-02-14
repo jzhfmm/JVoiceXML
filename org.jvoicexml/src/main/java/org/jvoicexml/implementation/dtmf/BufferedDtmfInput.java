@@ -46,6 +46,7 @@ import org.jvoicexml.implementation.grammar.GrammarEvaluator;
 import org.jvoicexml.implementation.grammar.GrammarParser;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
@@ -97,6 +98,14 @@ public class BufferedDtmfInput implements DtmfInput, UserInputImplementation {
         parsers = new java.util.HashMap<GrammarType, GrammarParser<?>>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.DTMF;
+    }
+    
     /**
      * Sets the grammar parsers to use.
      * 

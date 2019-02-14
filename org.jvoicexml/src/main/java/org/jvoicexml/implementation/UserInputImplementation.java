@@ -33,6 +33,7 @@ import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
@@ -60,6 +61,13 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @since 0.5
  */
 public interface UserInputImplementation extends ExternalResource {
+    /**
+     * Retrieves the mode type for this user input implementation.
+     * @return the mode type
+     * @since 0.7.9
+     */
+    ModeType getModeType();
+    
     /**
      * Retrieves the grammar types that are supported by this implementation.
      * 

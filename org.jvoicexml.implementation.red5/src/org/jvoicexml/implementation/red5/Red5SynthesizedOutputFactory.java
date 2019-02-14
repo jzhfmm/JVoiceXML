@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2010 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  * The JVoiceXML group hereby disclaims all copyright interest in the
  * library `JVoiceXML' (a free VoiceXML implementation).
  * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
@@ -32,6 +27,7 @@ package org.jvoicexml.implementation.red5;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
@@ -39,7 +35,6 @@ import org.jvoicexml.implementation.SystemOutputOutputImplementation;
  * JSAPI 2.0.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.5.5
  */
 public final class Red5SynthesizedOutputFactory
@@ -56,6 +51,14 @@ public final class Red5SynthesizedOutputFactory
      */
     public Red5SynthesizedOutputFactory() {
         type = "red5";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 
     /**

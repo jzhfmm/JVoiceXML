@@ -6,7 +6,7 @@
  *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2012-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2012-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -29,7 +29,6 @@ package org.jvoicexml.implementation.kinect;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 
@@ -48,11 +47,12 @@ import org.jvoicexml.event.plain.implementation.RecognitionStartedEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionStoppedEvent;
 import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.implementation.GrammarImplementation;
+import org.jvoicexml.implementation.SrgsXmlGrammarImplementation;
 import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.UserInputImplementationListener;
-import org.jvoicexml.implementation.SrgsXmlGrammarImplementation;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.srgs.SrgsXmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
 import org.xml.sax.InputSource;
@@ -62,7 +62,6 @@ import org.xml.sax.SAXException;
  * A spoken input implementation for the use of the Microsoft Kinect.
  * 
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.7.6
  */
 public final class KinectSpokenInput implements UserInputImplementation {
@@ -84,6 +83,14 @@ public final class KinectSpokenInput implements UserInputImplementation {
      */
     public KinectSpokenInput() {
         listeners = new java.util.ArrayList<UserInputImplementationListener>();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 
     /**

@@ -24,8 +24,9 @@ package org.jvoicexml.implementation.jvxml;
 import javax.sound.sampled.AudioFormat;
 
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.ResourceFactory;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
@@ -46,6 +47,14 @@ public final class DesktopTelephonySupportFactory
      * Constructs a new object.
      */
     public DesktopTelephonySupportFactory() {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.DTMF;
     }
 
     /**

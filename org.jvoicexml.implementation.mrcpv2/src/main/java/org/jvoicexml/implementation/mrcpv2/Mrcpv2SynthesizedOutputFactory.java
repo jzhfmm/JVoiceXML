@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -24,6 +24,7 @@ package org.jvoicexml.implementation.mrcpv2;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.speechforge.cairo.client.SessionManager;
 
 /**
@@ -57,6 +58,14 @@ public final class Mrcpv2SynthesizedOutputFactory
      */
     public Mrcpv2SynthesizedOutputFactory() {
         type = "mrcpv2";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 
     /**

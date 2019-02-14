@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $LastChangedDate$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2013 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -28,8 +23,9 @@ package org.jvoicexml.implementation.text;
 
 import org.jvoicexml.client.text.TextConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.ResourceFactory;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a
@@ -37,7 +33,6 @@ import org.jvoicexml.implementation.CallControlImplementation;
  * {@link CallControlImplementation} based on a simple text interface.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.6
  */
 public final class TextTelephonyFactory
@@ -57,6 +52,14 @@ public final class TextTelephonyFactory
     public CallControlImplementation createResource()
         throws NoresourceError {
         return new TextTelephony();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 
     /**

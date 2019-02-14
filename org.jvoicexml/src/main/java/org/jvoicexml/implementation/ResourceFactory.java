@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $LastChangedDate $
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2007 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -27,6 +22,7 @@
 package org.jvoicexml.implementation;
 
 import org.jvoicexml.event.error.NoresourceError;
+import org.jvoicexml.xml.srgs.ModeType;
 
 
 /**
@@ -37,7 +33,6 @@ import org.jvoicexml.event.error.NoresourceError;
  * factory.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.5.5
  */
 public interface ResourceFactory<T extends ExternalResource> {
@@ -65,9 +60,20 @@ public interface ResourceFactory<T extends ExternalResource> {
 
     /**
      * Retrieves the type of the resources that are created by this
-     * factory.
+     * factory. A type is a unique identifier that is being used to distinguish
+     * between the various available resources.
      *
      * @return Type of this implementation platform.
      */
     String getType();
+    
+    /**
+     * Retrieves the mode type of this external resource. This serves as a
+     * sub-categorization of the type as provided by {@link #getType()}.
+     * @return the mode type
+     * @since 0.7.9
+     * @see #getType()
+     */
+    ModeType getModeType();
+
 }
