@@ -30,7 +30,14 @@ import org.jvoicexml.xml.srgs.ModeType;
  * connected to a {@link org.jvoicexml.ConnectionInformation}.
  *
  * @param <T> Type of {@link ExternalResource} to produce in this
- * factory.
+ *      factory. This is usually mapped to one of the resource types known to
+ *      the {@link org.jvoicexml.ImplementationPlatform}:
+ *      <ul>
+ *      <li>{@link org.jvoicexml.implementation.SystemOutputOutputImplementation}</li>
+ *      <li>{@link org.jvoicexml.implementation.UserInputImplementation}</li>
+ *      <li>{@link org.jvoicexml.implementation.CallControlImplementation}</li>
+ *      </ul>
+
  *
  * @author Dirk Schnelle-Walka
  * @since 0.5.5

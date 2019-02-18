@@ -260,9 +260,9 @@ public final class JVoiceXmlImplementationPlatform
         final String type = info.getSystemOutput();
         synchronized (synthesizerPoolLock) {
             if (output == null) {
-                final SystemOutputOutputImplementation synthesizer =
+                Map<ModeType, SystemOutputOutputImplementation> synthesizers =
                         getExternalResourceFromPool(synthesizerPool, type);
-                output = new JVoiceXmlSystemOutput(synthesizer, session);
+                output = new JVoiceXmlSystemOutput(synthesizers, session);
                 output.addListener(this);
                 LOGGER.info("borrowed system output of type '" + type + "'");
             }

@@ -21,6 +21,9 @@
 
 package org.jvoicexml.implementation.jvxml;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.DocumentServer;
@@ -29,18 +32,18 @@ import org.jvoicexml.SpeakableText;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.implementation.SystemOutputImplementationProvider;
+import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
  * Basic wrapper for {@link SystemOutput}.
  *
  * <p>
- * The {@link JVoiceXmlSystemOutput} encapsulates two external resources, the
- * {@link SystemOutputOutputImplementation} and the {@link AudioFileOutput}. Both resources
- * are obtained from a pool using the same type.
+ * The {@link JVoiceXmlSystemOutput} encapsulates all external resources of
+ * that are employedthe same type that are 
  * </p>
  *
  * @author Dirk Schnelle-Walka
@@ -52,17 +55,18 @@ final class JVoiceXmlSystemOutput
     private static final Logger LOGGER =
         LogManager.getLogger(JVoiceXmlSystemOutput.class);
 
-    /** The synthesizer output device. */
-    private final SystemOutputOutputImplementation synthesizedOutput;
+    /** The system output devices. */
+    private final Collection<SystemOutputOutputImplementation> outputs;
 
     /**
      * Constructs a new object.
      * @param synthesizer the synthesizer output device.
      * @param currentSession the current session.
      */
-    JVoiceXmlSystemOutput(final SystemOutputOutputImplementation synthesizer,
+    JVoiceXmlSystemOutput(
+            final Map<ModeType, SystemOutputOutputImplementation> synthesizers,
             final Session currentSession) {
-        synthesizedOutput = synthesizer;
+        outputs = synthesizers.values();
     }
 
     /**
