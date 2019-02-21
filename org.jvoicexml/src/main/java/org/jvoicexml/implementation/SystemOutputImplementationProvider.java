@@ -21,6 +21,8 @@
 
 package org.jvoicexml.implementation;
 
+import java.util.Collection;
+
 import org.jvoicexml.event.error.NoresourceError;
 
 /**
@@ -33,10 +35,12 @@ import org.jvoicexml.event.error.NoresourceError;
  */
 public interface SystemOutputImplementationProvider {
     /**
-     * Retrieves the synthesized output device.
-     * @return the synthesized output device.
+     * Retrieves the currently employed
+     * {@link SystemOutputOutputImplementation}s.
+     * @return used system outputs.
      * @throws NoresourceError
-     *         Error obtaining the device.
+     *         Error obtaining the system output.
      */
-    SystemOutputOutputImplementation getSynthesizedOutput() throws NoresourceError;
+    Collection<SystemOutputOutputImplementation> getSystemOutputImplementations()
+            throws NoresourceError;
 }

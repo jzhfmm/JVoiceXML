@@ -260,7 +260,7 @@ public final class JVoiceXmlImplementationPlatform
         final String type = info.getSystemOutput();
         synchronized (synthesizerPoolLock) {
             if (output == null) {
-                Map<ModeType, SystemOutputOutputImplementation> synthesizers =
+                final Map<ModeType, SystemOutputOutputImplementation> synthesizers =
                         getExternalResourceFromPool(synthesizerPool, type);
                 output = new JVoiceXmlSystemOutput(synthesizers, session);
                 output.addListener(this);
@@ -296,11 +296,11 @@ public final class JVoiceXmlImplementationPlatform
                             + "'...");
                 }
                 systemOutput.removeListener(this);
-
-                final SystemOutputOutputImplementation synthesizedOutput = systemOutput
-                        .getSynthesizedOutput();
+                final ModeType mode = systemOutput.g
+                final Collection<SystemOutputOutputImplementation> outputs =
+                        output.getSystemOutputImplementations();
                 returnExternalResourceToPool(synthesizerPool,
-                        synthesizedOutput);
+                        outputs);
                 LOGGER.info("returned system output of type '" + type + "'");
             }
         }
@@ -740,6 +740,27 @@ public final class JVoiceXmlImplementationPlatform
         return resources;
     }
 
+    /**
+     * Returns the audio file output resource to the pool.
+     * 
+     * @param pool
+     *            the pool to which to return the resource.
+     * @param resource
+     *            the resource to return.
+     * @param <T>
+     *            type of the resource.
+     */
+    private <T extends ExternalResource> void returnExternalResourceToPool(
+            final KeyedResourcePool<T> pool, final Collection<T> resources) {
+        final Map<ModeType, T> mappedResources =
+                new java.util.HashMap<ModeType, T>();
+        for (T resource : resources) {
+            final ModeType type = resource.getType();
+            mappedResources.put(type, resource);
+        }
+        returnExternalResourceToPool(pool, mappedResources);
+    }
+    
     /**
      * Returns the audio file output resource to the pool.
      * 

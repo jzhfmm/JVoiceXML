@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -43,7 +43,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  *
  * <p>
  * The {@link JVoiceXmlSystemOutput} encapsulates all external resources of
- * that are employedthe same type that are 
+ * that are employed of a same type. 
  * </p>
  *
  * @author Dirk Schnelle-Walka
@@ -58,23 +58,28 @@ final class JVoiceXmlSystemOutput
     /** The system output devices. */
     private final Collection<SystemOutputOutputImplementation> outputs;
 
+    /** The used mode type. */
+    private final ModeType type;
+    
     /**
      * Constructs a new object.
      * @param synthesizer the synthesizer output device.
      * @param currentSession the current session.
      */
-    JVoiceXmlSystemOutput(
+    JVoiceXmlSystemOutput(final ModeType mode,
             final Map<ModeType, SystemOutputOutputImplementation> synthesizers,
             final Session currentSession) {
+        type = mode;
         outputs = synthesizers.values();
     }
 
     /**
-     * Retrieves the synthesized output resource.
-     * @return the synthesized output resource.
+     * {@inheritDoc}
      */
-    public SystemOutputOutputImplementation getSynthesizedOutput() {
-        return synthesizedOutput;
+    @Override
+    public Collection<SystemOutputOutputImplementation> getSystemOutputImplementations()
+            throws NoresourceError {
+        return outputs;
     }
 
     /**
@@ -83,7 +88,9 @@ final class JVoiceXmlSystemOutput
     public void queueSpeakable(final SpeakableText speakable,
             final String sessionId, final DocumentServer documentServer)
         throws NoresourceError, BadFetchError {
-        synthesizedOutput.queueSpeakable(speakable, sessionId, documentServer);
+        for (SystemOutputOutputImplementation output : outputs) {
+            output.queueSpeakable(speakable, sessionId, documentServer);
+        }
     }
 
     /**
@@ -91,12 +98,17 @@ final class JVoiceXmlSystemOutput
      */
     @Override
     public void cancelOutput(final BargeInType type) throws NoresourceError {
-        final boolean supportsBargeIn = synthesizedOutput.supportsBargeIn();
-        if (!supportsBargeIn) {
-            LOGGER.warn("implementation platform does not support barge-in");
-            return;
+        boolean supportsBargeIn = false;
+        for (SystemOutputOutputImplementation output : outputs) {
+            if (output.supportsBargeIn()) {
+                supportsBargeIn = true; 
+                output.cancelOutput(type);
+            }
         }
-        synthesizedOutput.cancelOutput(type);
+        if (!supportsBargeIn) {
+            LOGGER.warn("no implementation platform supports barge-in of type '"
+                    + type + "'");
+        }
     }
 
     /**
@@ -104,7 +116,9 @@ final class JVoiceXmlSystemOutput
      * @param listener the listener to add
      */
     public void addListener(final SystemOutputImplementationListener listener) {
-        synthesizedOutput.addListener(listener);
+        for (SystemOutputOutputImplementation output : outputs) {
+            output.addListener(listener);
+        }
     }
 
     /**
@@ -113,14 +127,21 @@ final class JVoiceXmlSystemOutput
      */
     public void removeListener(
             final SystemOutputImplementationListener listener) {
-        synthesizedOutput.removeListener(listener);
+        for (SystemOutputOutputImplementation output : outputs) {
+            output.removeListener(listener);
+        }
     }
 
     /**
      * Checks if the corresponding output device is busy.
-     * @return <code>true</code> if the output devices is busy.
+     * @return {@code true} if the output devices is busy.
      */
     public boolean isBusy() {
-        return synthesizedOutput.isBusy();
+        for (SystemOutputOutputImplementation output : outputs) {
+            if (output.isBusy()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

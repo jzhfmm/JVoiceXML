@@ -23,6 +23,7 @@ package org.jvoicexml.implementation;
 
 import org.jvoicexml.RemoteConnectable;
 import org.jvoicexml.event.error.NoresourceError;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * An external resource that is required by the used implementation
@@ -46,6 +47,13 @@ public interface ExternalResource
      */
     String getType();
 
+    /**
+     * Retrieves the mode type of this external resource.
+     * @return the mode type
+     * @since 0.7.9
+     */
+    ModeType getModeType();
+    
     /**
      * Initializes and and acquires the needed resources.
      * @exception NoresourceError
