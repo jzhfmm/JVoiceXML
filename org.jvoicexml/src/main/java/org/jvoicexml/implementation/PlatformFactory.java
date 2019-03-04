@@ -45,7 +45,7 @@ public interface PlatformFactory {
      * Retrieves the synthesized output implementation.
      * @return the synthesizedOutputFactory
      */
-    ResourceFactory<SystemOutputOutputImplementation> getSynthesizedoutput();
+    ResourceFactory<SystemOutputImplementation> getSynthesizedoutput();
 
     /**
      * Retrieves the telephonyFactory implementation.

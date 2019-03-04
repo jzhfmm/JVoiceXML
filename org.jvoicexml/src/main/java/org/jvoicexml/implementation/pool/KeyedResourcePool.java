@@ -47,7 +47,7 @@ import org.jvoicexml.xml.srgs.ModeType;
  *      This is usually mapped to one of the resource types known to the
  *      {@link org.jvoicexml.ImplementationPlatform}:
  *      <ul>
- *      <li>{@link org.jvoicexml.implementation.SystemOutputOutputImplementation}</li>
+ *      <li>{@link org.jvoicexml.implementation.SystemOutputImplementation}</li>
  *      <li>{@link org.jvoicexml.implementation.UserInputImplementation}</li>
  *      <li>{@link org.jvoicexml.implementation.CallControlImplementation}</li>
  *      </ul>

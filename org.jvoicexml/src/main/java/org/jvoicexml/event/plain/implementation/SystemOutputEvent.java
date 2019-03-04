@@ -22,10 +22,10 @@
 package org.jvoicexml.event.plain.implementation;
 
 import org.jvoicexml.event.JVoiceXMLEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 
 /**
- * Event generated from the {@link SystemOutputOutputImplementation} implementation. Events are
+ * Event generated from the {@link SystemOutputImplementation} implementation. Events are
  * associated to a dedicated event source, i.e. the system output device, and a
  * session.
  * 
@@ -42,7 +42,7 @@ public class SystemOutputEvent extends JVoiceXMLEvent {
     private final String detail;
 
     /** Object that caused the event. */
-    private final SystemOutputOutputImplementation source;
+    private final SystemOutputImplementation source;
 
     /** The id of the related session. */
     private final String sessionId;
@@ -59,7 +59,7 @@ public class SystemOutputEvent extends JVoiceXMLEvent {
      * @exception IllegalArgumentException
      *                if an illegal event type is passed.
      */
-    public SystemOutputEvent(final SystemOutputOutputImplementation output,
+    public SystemOutputEvent(final SystemOutputImplementation output,
             final String detailedType, final String id)
             throws IllegalArgumentException {
         source = output;
@@ -72,7 +72,7 @@ public class SystemOutputEvent extends JVoiceXMLEvent {
      * 
      * @return the source object.
      */
-    public final SystemOutputOutputImplementation getSource() {
+    public final SystemOutputImplementation getSource() {
         return source;
     }
 

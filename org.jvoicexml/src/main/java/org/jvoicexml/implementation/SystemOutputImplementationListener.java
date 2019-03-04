@@ -25,7 +25,7 @@ import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 
 /**
- * Listener for events from the {@link SystemOutputOutputImplementation} implementation.
+ * Listener for events from the {@link SystemOutputImplementation} implementation.
  *
  * @author Dirk Schnelle-Walka
  *
@@ -34,7 +34,7 @@ import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
  */
 public interface SystemOutputImplementationListener {
     /**
-     * Notification about status changes in the {@link SystemOutputOutputImplementation}.
+     * Notification about status changes in the {@link SystemOutputImplementation}.
      * @param event the output event.
      * @since 0.6
      */

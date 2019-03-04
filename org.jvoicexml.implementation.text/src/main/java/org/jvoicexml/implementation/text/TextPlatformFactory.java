@@ -26,7 +26,7 @@ import java.util.List;
 import org.jvoicexml.implementation.PlatformFactory;
 import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.grammar.GrammarParser;
 
@@ -57,7 +57,7 @@ public final class TextPlatformFactory implements PlatformFactory {
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<SystemOutputOutputImplementation> getSynthesizedoutput() {
+    public ResourceFactory<SystemOutputImplementation> getSynthesizedoutput() {
         final TextSynthesizedOutputFactory factory =
                 new TextSynthesizedOutputFactory();
         factory.setInstances(instances);

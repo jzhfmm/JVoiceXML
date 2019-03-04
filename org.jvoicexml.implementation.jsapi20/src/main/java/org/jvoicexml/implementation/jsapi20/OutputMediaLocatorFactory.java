@@ -24,16 +24,16 @@ package org.jvoicexml.implementation.jsapi20;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 
 /**
  * A factory to create a media locators for the synthesized output.
  * <p>
  * The audio is streamed from a data source to a data sink. The result
- * of the call to {@link #getSourceMediaLocator(SystemOutputOutputImplementation)} is
+ * of the call to {@link #getSourceMediaLocator(SystemOutputImplementation)} is
  * used to retrieve the URI of the JSAPI 2.0 compliant speech synthesizer.
  * The result of the call to
- * {@link #getSinkMediaLocator(SystemOutputOutputImplementation, URI)} is used to
+ * {@link #getSinkMediaLocator(SystemOutputImplementation, URI)} is used to
  * determine the sink of the data stream.
  * </p>
  * @author Dirk Schnelle-Walka
@@ -53,7 +53,7 @@ public interface OutputMediaLocatorFactory {
      * @exception URISyntaxException
      *            error creating the URI
      */
-    URI getSourceMediaLocator(SystemOutputOutputImplementation output)
+    URI getSourceMediaLocator(SystemOutputImplementation output)
         throws URISyntaxException;
 
     /**
@@ -68,6 +68,6 @@ public interface OutputMediaLocatorFactory {
      * @exception URISyntaxException
      *            error creating the URI
      */
-    URI getSinkMediaLocator(SystemOutputOutputImplementation output,
+    URI getSinkMediaLocator(SystemOutputImplementation output,
             URI sourceLocator) throws URISyntaxException;
 }

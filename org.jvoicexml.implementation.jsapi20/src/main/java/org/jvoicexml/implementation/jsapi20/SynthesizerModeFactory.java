@@ -29,7 +29,7 @@ import javax.speech.synthesis.SynthesizerMode;
  * <p>
  * Objects implementing this interface can be used to create a
  * {@link SynthesizerMode} for the
- * {@link org.jvoicexml.implementation.SystemOutputOutputImplementation} objects that are
+ * {@link org.jvoicexml.implementation.SystemOutputImplementation} objects that are
  * created by the
  * {@link Jsapi20SynthesizedOutputFactory}.
  * </p>

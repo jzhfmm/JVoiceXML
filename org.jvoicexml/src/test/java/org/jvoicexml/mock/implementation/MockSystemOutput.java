@@ -31,7 +31,7 @@ import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.vxml.BargeInType;
 
@@ -50,7 +50,7 @@ public final class MockSystemOutput implements SystemOutput {
     private SpeakableText speakable;
 
     /** The encapsulated synthesized output. */
-    private final SystemOutputOutputImplementation output;
+    private final SystemOutputImplementation output;
 
     /** the session id. */
     private String sessionId;
@@ -66,7 +66,7 @@ public final class MockSystemOutput implements SystemOutput {
      * Constructs a new object.
      * @param synthesizedOutput the encapsulated synthesized output.
      */
-    public MockSystemOutput(final SystemOutputOutputImplementation synthesizedOutput) {
+    public MockSystemOutput(final SystemOutputImplementation synthesizedOutput) {
         listener = new java.util.ArrayList<SystemOutputImplementationListener>();
         output = synthesizedOutput;
     }
@@ -147,7 +147,7 @@ public final class MockSystemOutput implements SystemOutput {
     /**
      * {@inheritDoc}
      */
-    public SystemOutputOutputImplementation getSynthesizedOutput() throws NoresourceError {
+    public SystemOutputImplementation getSynthesizedOutput() throws NoresourceError {
         return output;
     }
 }

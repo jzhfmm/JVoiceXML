@@ -30,7 +30,7 @@ import java.net.URI;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.mock.implementation.MockSynthesizedOutput;
 
 /**
@@ -43,7 +43,7 @@ import org.jvoicexml.mock.implementation.MockSynthesizedOutput;
 public final class TestJlibRtpMediaLocatorFactory {
 
     /**
-     * Test method for {@link org.jvoicexml.implementation.jsapi20.JlibRtpMediaLocatorFactory#getSourceMediaLocator(org.jvoicexml.implementation.SystemOutputOutputImplementation)}.
+     * Test method for {@link org.jvoicexml.implementation.jsapi20.JlibRtpMediaLocatorFactory#getSourceMediaLocator(org.jvoicexml.implementation.SystemOutputImplementation)}.
      * @exception Exception
      *            test failed
      */
@@ -52,7 +52,7 @@ public final class TestJlibRtpMediaLocatorFactory {
         final JlibRtpMediaLocatorFactory factory =
             new JlibRtpMediaLocatorFactory();
         factory.setPort(30000);
-        final SystemOutputOutputImplementation output = new MockSynthesizedOutput();
+        final SystemOutputImplementation output = new MockSynthesizedOutput();
         final URI locator1 = factory.getSourceMediaLocator(output);
         Assert.assertEquals(new URI("rtp://localhost:30000/audio?"
                 + "participant=localhost&keepAlive=false&signed=false"),

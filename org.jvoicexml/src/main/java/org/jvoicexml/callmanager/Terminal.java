@@ -42,7 +42,7 @@ import java.io.IOException;
  * the corresponding implementation of a
  * {@link org.jvoicexml.implementation.CallControlImplementation} implementation (if present) or
  * by the {@link org.jvoicexml.implementation.UserInputImplementation} or
- * {@link org.jvoicexml.implementation.SystemOutputOutputImplementation} implementations.
+ * {@link org.jvoicexml.implementation.SystemOutputImplementation} implementations.
  * It may happen that the {@link org.jvoicexml.implementation.CallControlImplementation}
  * needs resources from the terminal to fulfill its job. In that case it
  * is advisable to store a reference to the terminal in a custom implementation

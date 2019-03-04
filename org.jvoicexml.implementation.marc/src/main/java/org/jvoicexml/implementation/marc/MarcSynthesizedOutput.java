@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2011-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2011-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  * The JVoiceXML group hereby disclaims all copyright interest in the
  * library `JVoiceXML' (a free VoiceXML implementation).
  * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
@@ -49,9 +49,10 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.Text;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.ssml.Speak;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
@@ -66,7 +67,7 @@ import org.w3c.dom.NodeList;
  * @since 0.7.5
  */
 public final class MarcSynthesizedOutput
-    implements SystemOutputOutputImplementation, MarcClient {
+    implements SystemOutputImplementation, MarcClient {
     /** Logger for this class. */
     private static final Logger LOGGER =
             Logger.getLogger(MarcSynthesizedOutput.class);
@@ -124,6 +125,15 @@ public final class MarcSynthesizedOutput
         speakables = new SpeakableQueue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        // TODO make this configurable to also support mode type BML
+        return ModeType.VOICE;
+    }
+    
     /**
      * Sets the external publisher.
      * @param publisher

@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2014 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -42,12 +37,13 @@ import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
- * Text based implementation for a {@link SystemOutputOutputImplementation}.
+ * Text based implementation for a {@link SystemOutputImplementation}.
  *
  * <p>
  * This implementation simply receives the {@link SpeakableText} objects from
@@ -60,7 +56,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @since 0.6
  */
 final class TextSynthesizedOutput
-    implements SystemOutputOutputImplementation {
+    implements SystemOutputImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER =
             Logger.getLogger(TextSynthesizedOutput.class);
@@ -82,6 +78,14 @@ final class TextSynthesizedOutput
         outputListener = new java.util.ArrayList<SystemOutputImplementationListener>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
+    }
+    
     /**
      * {@inheritDoc}
      */

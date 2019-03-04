@@ -41,7 +41,6 @@ import org.jvoicexml.implementation.GrammarImplementation;
 import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.implementation.UserInputImplementationProvider;
-import org.jvoicexml.implementation.dtmf.BufferedDtmfInput;
 import org.jvoicexml.implementation.grammar.GrammarCache;
 import org.jvoicexml.implementation.grammar.LoadedGrammar;
 import org.jvoicexml.interpreter.datamodel.DataModel;
@@ -77,30 +76,32 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
     /**
      * Constructs a new object.
      * 
-     * @param input
-     *            the spoken input implementation.
+     * @param inputs
+     *            the spoken input implementation.s
      * @param dtmf
      *            the buffered character input.
      */
-    JVoiceXmlUserInput(final UserInputImplementation input, final BufferedDtmfInput dtmf) {
-        inputs = new java.util.HashMap<ModeType, UserInputImplementation>();
-        inputs.put(ModeType.VOICE, input);
-        inputs.put(ModeType.DTMF, dtmf);
+    JVoiceXmlUserInput(final Map<ModeType, UserInputImplementation> userInputs) {
+        inputs = userInputs;
         cache = new GrammarCache();
     }
 
     /**
-     * Retrieves the spoken input.
-     * 
-     * @return spoken input.
-     * 
-     * @since 0.5.5
+     * {@inheritDoc}
      */
     @Override
     public UserInputImplementation getUserInputImplemenation(ModeType mode) {
         return inputs.get(mode);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<UserInputImplementation> getUserInputImplementations() {
+        return inputs.values();
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -233,7 +234,8 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
     }
 
     /**
-     * {@inheritDoc}
+     * Adds the listener to all known {@link UserInputImplementation}s.
+     * @param listener the listener to add
      */
     public void addListener(final UserInputImplementationListener listener) {
         for (UserInputImplementation input : inputs.values()) {
@@ -242,7 +244,8 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
     }
 
     /**
-     * {@inheritDoc}
+     * Removes the listener from all known {@link UserInputImplementation}s.
+     * @param listener the listener to remove
      */
     public void removeListener(final UserInputImplementationListener listener) {
         for (UserInputImplementation input : inputs.values()) {

@@ -59,7 +59,7 @@ import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.SsmlNode;
 import org.jvoicexml.xml.ssml.SsmlDocument;
@@ -107,7 +107,7 @@ import org.util.ExLog;
  * @version $Revision$
  */
 public final class MobicentsSynthesizedOutput
-        implements SystemOutputOutputImplementation, CallObserver, StreamableSynthesizedOutput {
+        implements SystemOutputImplementation, CallObserver, StreamableSynthesizedOutput {
 
     private static final Logger LOGGER = Logger.getLogger(MobicentsSynthesizedOutput.class);
     /** Factory for SSML speak strategies. */

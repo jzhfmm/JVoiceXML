@@ -35,7 +35,7 @@ import org.jvoicexml.implementation.ExternalResource;
 import org.jvoicexml.implementation.PlatformFactory;
 import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.dtmf.BufferedDtmfInput;
 import org.jvoicexml.implementation.pool.KeyedResourcePool;
@@ -62,7 +62,7 @@ public final class JVoiceXmlImplementationPlatformFactory
             .getLogger(JVoiceXmlImplementationPlatformFactory.class);
 
     /** Pool of synthesizer output resource factories. */
-    private final KeyedResourcePool<SystemOutputOutputImplementation> synthesizerPool;
+    private final KeyedResourcePool<SystemOutputImplementation> synthesizerPool;
 
     /** Pool of user input resource factories. */
     private final KeyedResourcePool<UserInputImplementation> spokenInputPool;
@@ -84,7 +84,7 @@ public final class JVoiceXmlImplementationPlatformFactory
      * @see org.jvoicexml.JVoiceXml
      */
     public JVoiceXmlImplementationPlatformFactory() {
-        synthesizerPool = new KeyedResourcePool<SystemOutputOutputImplementation>();
+        synthesizerPool = new KeyedResourcePool<SystemOutputImplementation>();
         spokenInputPool = new KeyedResourcePool<UserInputImplementation>();
         telephonyPool = new KeyedResourcePool<CallControlImplementation>();
     }
@@ -116,7 +116,7 @@ public final class JVoiceXmlImplementationPlatformFactory
                         .getResourceType();
                 if (clazz.equals(UserInputImplementation.class)) {
                     addSpokenInputFactory(resourceFactory);
-                } else if (clazz.equals(SystemOutputOutputImplementation.class)) {
+                } else if (clazz.equals(SystemOutputImplementation.class)) {
                     addSynthesizedOutputFactory(resourceFactory);
                 } else if (clazz.equals(CallControlImplementation.class)) {
                     addTelephonyFactory(resourceFactory);
@@ -184,7 +184,7 @@ public final class JVoiceXmlImplementationPlatformFactory
      * @since 0.7
      */
     public void addPlatform(final PlatformFactory platform) throws Exception {
-        final ResourceFactory<SystemOutputOutputImplementation> synthesizedOutputFactory =
+        final ResourceFactory<SystemOutputImplementation> synthesizedOutputFactory =
                 platform.getSynthesizedoutput();
         if (synthesizedOutputFactory != null) {
             addSynthesizedOutputFactory(synthesizedOutputFactory);
@@ -202,7 +202,7 @@ public final class JVoiceXmlImplementationPlatformFactory
     }
 
     /**
-     * Adds the given {@link ResourceFactory} for {@link SystemOutputOutputImplementation} to
+     * Adds the given {@link ResourceFactory} for {@link SystemOutputImplementation} to
      * the list of know factories.
      * 
      * @param factory
@@ -212,7 +212,7 @@ public final class JVoiceXmlImplementationPlatformFactory
      * @since 0.6
      */
     private void addSynthesizedOutputFactory(
-            final ResourceFactory<SystemOutputOutputImplementation> factory) throws Exception {
+            final ResourceFactory<SystemOutputImplementation> factory) throws Exception {
         final String type = factory.getType();
         synthesizerPool.addResourceFactory(factory);
 

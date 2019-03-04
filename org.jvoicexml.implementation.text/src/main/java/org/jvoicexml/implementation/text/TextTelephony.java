@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -39,11 +39,12 @@ import org.jvoicexml.SpeakableText;
 import org.jvoicexml.client.text.TextConnectionInformation;
 import org.jvoicexml.client.text.protobuf.TextMessageOuterClass.TextMessage;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.CallControlImplementationEvent;
 import org.jvoicexml.implementation.CallControlImplementationListener;
+import org.jvoicexml.implementation.SystemOutputImplementation;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Text based implementation of {@link CallControlImplementation}.
@@ -103,7 +104,15 @@ public final class TextTelephony implements CallControlImplementation {
      * {@inheritDoc}
      */
     @Override
-    public void play(final SystemOutputOutputImplementation output,
+    public ModeType getModeType() {
+        return ModeType.VOICE;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void play(final SystemOutputImplementation output,
             final CallControlProperties props)
             throws NoresourceError, IOException {
         if (sentHungup) {
@@ -219,12 +228,15 @@ public final class TextTelephony implements CallControlImplementation {
      * {@inheritDoc}
      */
     @Override
-    public void record(final UserInputImplementation input,
-            final CallControlProperties props)
-            throws NoresourceError, IOException {
+    public void record(Collection<UserInputImplementation> inputs,
+            CallControlProperties props) throws NoresourceError, IOException {
         if (sentHungup) {
             throw new NoresourceError("connection disconnected");
         }
+        if (inputs.isEmpty()) {
+            throw new NoresourceError("no inpus provided");
+        }
+        final UserInputImplementation input = inputs.iterator().next();
         if (!(input instanceof TextSpokenInput)) {
             throw new IOException("input does not support texts!");
         }
@@ -583,5 +595,30 @@ public final class TextTelephony implements CallControlImplementation {
                 current.telephonyMediaEvent(event);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<ModeType> getSupportedOutputModeTypes() {
+        // TODO add a cache for the modes
+        final Collection<ModeType> modes =
+                new java.util.ArrayList<ModeType>();
+        modes.add(ModeType.DTMF);
+        return modes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<ModeType> getSupportedInputModeTypes() {
+        // TODO add a cache for the modes
+        final Collection<ModeType> modes =
+                new java.util.ArrayList<ModeType>();
+        modes.add(ModeType.VOICE);
+        modes.add(ModeType.DTMF);
+        return modes;
     }
 }

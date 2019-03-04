@@ -26,7 +26,7 @@
 
 package org.jvoicexml.event.plain.implementation;
 
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 
 /**
  * A notification that a certain mark within an SSML document has been reached.
@@ -64,7 +64,7 @@ public final class MarkerReachedEvent extends SystemOutputEvent {
      * @param name
      *            name of the mark that has been reached.
      */
-    public MarkerReachedEvent(final SystemOutputOutputImplementation output,
+    public MarkerReachedEvent(final SystemOutputImplementation output,
             final String sessionId, final String name) {
         super(output, DETAIL, sessionId);
         mark = name;

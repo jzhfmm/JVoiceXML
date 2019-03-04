@@ -21,6 +21,8 @@
 
 package org.jvoicexml.implementation;
 
+import java.util.Collection;
+
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.xml.srgs.ModeType;
 
@@ -42,4 +44,11 @@ public interface UserInputImplementationProvider {
      */
     UserInputImplementation getUserInputImplemenation(final ModeType mode)
             throws NoresourceError;
+    
+    /**
+     * Retrieves the currently employed
+     * {@link UserInputImplementation}s.
+     * @return used user inputs.
+     */
+    Collection<UserInputImplementation> getUserInputImplementations();
 }

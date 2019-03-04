@@ -27,13 +27,13 @@ import javax.speech.synthesis.SynthesizerModeDesc;
 import org.apache.log4j.Logger;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a
  * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link SystemOutputOutputImplementation} based on JSAPI 1.0.
+ * {@link SystemOutputImplementation} based on JSAPI 1.0.
  *
  * <p>
  * Custom implementations are expected to override
@@ -57,7 +57,7 @@ import org.jvoicexml.xml.srgs.ModeType;
  * @since 0.6
  */
 public class Jsapi10SynthesizedOutputFactory
-    implements ResourceFactory<SystemOutputOutputImplementation> {
+    implements ResourceFactory<SystemOutputImplementation> {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
             .getLogger(Jsapi10SynthesizedOutputFactory.class);
@@ -111,7 +111,7 @@ public class Jsapi10SynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public final SystemOutputOutputImplementation createResource() throws NoresourceError {
+    public final SystemOutputImplementation createResource() throws NoresourceError {
         final SynthesizerModeDesc desc = getDescriptor();
         final Jsapi10SynthesizedOutput output = new Jsapi10SynthesizedOutput(
                 desc);
@@ -208,7 +208,7 @@ public class Jsapi10SynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public final Class<SystemOutputOutputImplementation> getResourceType() {
-        return SystemOutputOutputImplementation.class;
+    public final Class<SystemOutputImplementation> getResourceType() {
+        return SystemOutputImplementation.class;
     }
 }

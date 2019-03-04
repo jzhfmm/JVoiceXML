@@ -32,7 +32,7 @@ public final class Platform implements PlatformFactory {
     private ResourceFactory<UserInputImplementation> spokenInputFactory;
 
     /** The used synthesized output. */
-    private ResourceFactory<SystemOutputOutputImplementation> synthesizedOutputFactory;
+    private ResourceFactory<SystemOutputImplementation> synthesizedOutputFactory;
 
     /** The used telephonyFactory implementation. */
     private ResourceFactory<CallControlImplementation> telephonyFactory;
@@ -55,7 +55,7 @@ public final class Platform implements PlatformFactory {
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<SystemOutputOutputImplementation> getSynthesizedoutput() {
+    public ResourceFactory<SystemOutputImplementation> getSynthesizedoutput() {
         return synthesizedOutputFactory;
     }
 
@@ -64,7 +64,7 @@ public final class Platform implements PlatformFactory {
      * @param output the synthesizedOutputFactory to set
      */
     public void setSynthesizedoutput(
-            final ResourceFactory<SystemOutputOutputImplementation> output) {
+            final ResourceFactory<SystemOutputImplementation> output) {
         synthesizedOutputFactory = output;
     }
 

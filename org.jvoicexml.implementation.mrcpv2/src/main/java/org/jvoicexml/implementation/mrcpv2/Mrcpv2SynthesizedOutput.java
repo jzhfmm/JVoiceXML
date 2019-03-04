@@ -47,8 +47,9 @@ import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
 import org.mrcp4j.client.MrcpInvocationException;
@@ -78,7 +79,7 @@ import net.sourceforge.halef.HalefDbWriter;
  * @since 0.7
  */
 public final class Mrcpv2SynthesizedOutput
-        implements SystemOutputOutputImplementation, SpeechEventListener {
+        implements SystemOutputImplementation, SpeechEventListener {
     // SpeakableListener, SynthesizerListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
@@ -121,6 +122,14 @@ public final class Mrcpv2SynthesizedOutput
         // queuedSpeakables = new java.util.ArrayList<SpeakableText>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
+    }
+    
     /**
      * {@inheritDoc}
      */

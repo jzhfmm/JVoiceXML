@@ -36,7 +36,7 @@ import org.jvoicexml.SystemOutput;
 import org.jvoicexml.UserInput;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.pool.KeyedResourcePool;
 import org.jvoicexml.mock.MockConnectionInformation;
@@ -55,7 +55,7 @@ public final class TestJVoiceXmlImplementationPlatform {
     private JVoiceXmlImplementationPlatform platform;
 
     /** The synthesizer pool. */
-    private KeyedResourcePool<SystemOutputOutputImplementation> synthesizerPool;
+    private KeyedResourcePool<SystemOutputImplementation> synthesizerPool;
 
     /** The telephony pool. */
     private KeyedResourcePool<CallControlImplementation> telephonyPool;
@@ -71,7 +71,7 @@ public final class TestJVoiceXmlImplementationPlatform {
      */
     @Before
     public void setUp() throws Exception {
-        synthesizerPool = new KeyedResourcePool<SystemOutputOutputImplementation>();
+        synthesizerPool = new KeyedResourcePool<SystemOutputImplementation>();
         final MockSynthesizedOutputFactory synthesizedOutputFactory =
             new MockSynthesizedOutputFactory();
         synthesizedOutputFactory.setInstances(1);

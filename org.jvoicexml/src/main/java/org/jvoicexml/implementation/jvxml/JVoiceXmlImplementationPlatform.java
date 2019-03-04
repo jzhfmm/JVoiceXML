@@ -64,7 +64,7 @@ import org.jvoicexml.implementation.CallControlImplementationEvent;
 import org.jvoicexml.implementation.CallControlImplementationListener;
 import org.jvoicexml.implementation.ExternalResource;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.implementation.dtmf.BufferedDtmfInput;
@@ -101,7 +101,7 @@ public final class JVoiceXmlImplementationPlatform
     private static final int BUSY_WAIT_TIMEOUT = 1000;
 
     /** Pool of synthesizer output resource factories. */
-    private final KeyedResourcePool<SystemOutputOutputImplementation> synthesizerPool;
+    private final KeyedResourcePool<SystemOutputImplementation> synthesizerPool;
 
     /** Lock for the synthesizer pool. */
     private final Object synthesizerPoolLock;
@@ -188,7 +188,7 @@ public final class JVoiceXmlImplementationPlatform
      */
     JVoiceXmlImplementationPlatform(
             final KeyedResourcePool<CallControlImplementation> telePool,
-            final KeyedResourcePool<SystemOutputOutputImplementation> synthesizedOutputPool,
+            final KeyedResourcePool<SystemOutputImplementation> synthesizedOutputPool,
             final KeyedResourcePool<UserInputImplementation> spokenInputPool,
             final ConnectionInformation connectionInformation) {
         this(telePool, synthesizedOutputPool, spokenInputPool,
@@ -218,7 +218,7 @@ public final class JVoiceXmlImplementationPlatform
      */
     JVoiceXmlImplementationPlatform(
             final KeyedResourcePool<CallControlImplementation> telePool,
-            final KeyedResourcePool<SystemOutputOutputImplementation> synthesizedOutputPool,
+            final KeyedResourcePool<SystemOutputImplementation> synthesizedOutputPool,
             final KeyedResourcePool<UserInputImplementation> spokenInputPool,
             final BufferedDtmfInput bufferedCharacterInput,
             final ConnectionInformation connectionInformation) {
@@ -260,7 +260,7 @@ public final class JVoiceXmlImplementationPlatform
         final String type = info.getSystemOutput();
         synchronized (synthesizerPoolLock) {
             if (output == null) {
-                final Map<ModeType, SystemOutputOutputImplementation> synthesizers =
+                final Map<ModeType, SystemOutputImplementation> synthesizers =
                         getExternalResourceFromPool(synthesizerPool, type);
                 output = new JVoiceXmlSystemOutput(synthesizers, session);
                 output.addListener(this);
@@ -296,8 +296,8 @@ public final class JVoiceXmlImplementationPlatform
                             + "'...");
                 }
                 systemOutput.removeListener(this);
-                final ModeType mode = systemOutput.g
-                final Collection<SystemOutputOutputImplementation> outputs =
+                
+                Collection<SystemOutputImplementation> outputs =
                         output.getSystemOutputImplementations();
                 returnExternalResourceToPool(synthesizerPool,
                         outputs);
@@ -342,9 +342,11 @@ public final class JVoiceXmlImplementationPlatform
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("waiting for empty output queue...");
         }
-        final SystemOutputOutputImplementation synthesizedOutput = output
-                .getSynthesizedOutput();
-        synthesizedOutput.waitQueueEmpty();
+        final Collection<SystemOutputImplementation> outputs = 
+                output.getSystemOutputImplementations();
+        for (SystemOutputImplementation systemOutput : outputs) {
+            systemOutput.waitQueueEmpty();
+        }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("...output queue empty.");
         }
@@ -360,9 +362,11 @@ public final class JVoiceXmlImplementationPlatform
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("waiting for non-barge-in played...");
         }
-        final SystemOutputOutputImplementation synthesizedOutput = output
-                .getSynthesizedOutput();
-        synthesizedOutput.waitNonBargeInPlayed();
+        final Collection<SystemOutputImplementation> outputs = 
+                output.getSystemOutputImplementations();
+        for (SystemOutputImplementation systemOutput : outputs) {
+            systemOutput.waitNonBargeInPlayed();
+        }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("...non-barge-in played.");
         }
@@ -386,9 +390,11 @@ public final class JVoiceXmlImplementationPlatform
         final String type = info.getUserInput();
         synchronized (recognizerPoolLock) {
             if (input == null) {
-                final UserInputImplementation spokenInput = getExternalResourceFromPool(
-                        recognizerPool, type);
-                input = new JVoiceXmlUserInput(spokenInput, dtmfInput);
+                final Map<ModeType, UserInputImplementation> inputs =
+                        getExternalResourceFromPool(recognizerPool, type);
+                // TODO also add this to the resource pool
+                inputs.put(ModeType.DTMF, dtmfInput);
+                input = new JVoiceXmlUserInput(inputs);
                 input.addListener(this);
                 LOGGER.info("borrowed user input of type '" + type + "'");
             }
@@ -431,8 +437,9 @@ public final class JVoiceXmlImplementationPlatform
                 }
                 userInput.removeListener(this);
 
-                final UserInputImplementation spokenInput = userInput.getUserInputImplemenation(ModeType.VOICE);
-                returnExternalResourceToPool(recognizerPool, spokenInput);
+                final Collection<UserInputImplementation> inputs =
+                        userInput.getUserInputImplementations();
+                returnExternalResourceToPool(recognizerPool, inputs);
 
                 LOGGER.info("returned user input of type '" + type + "'");
             }
@@ -477,10 +484,11 @@ public final class JVoiceXmlImplementationPlatform
         final String type = info.getCallControl();
         synchronized (telephonyPoolLock) {
             if (call == null) {
-                final CallControlImplementation telephony = getExternalResourceFromPool(
+                final Map<ModeType, CallControlImplementation> callcontrols =
+                        getExternalResourceFromPool(
                         telephonyPool, type);
-                telephony.addListener(this);
-                call = new JVoiceXmlCallControl(telephony);
+                call = new JVoiceXmlCallControl(callcontrols.values());
+                call.addListener(this);
                 LOGGER.info("borrowed call control of type '" + type + "'");
             }
 
@@ -515,8 +523,9 @@ public final class JVoiceXmlImplementationPlatform
                             + "'...");
                 }
 
-                final CallControlImplementation telephony = callControl.getTelephony();
-                returnExternalResourceToPool(telephonyPool, telephony);
+                final Collection<CallControlImplementation> callcontrols =
+                        callControl.getCallControlImplementations();
+                returnExternalResourceToPool(telephonyPool, callcontrols);
 
                 LOGGER.info("returned call control of type '" + type + "'");
             }
@@ -755,7 +764,7 @@ public final class JVoiceXmlImplementationPlatform
         final Map<ModeType, T> mappedResources =
                 new java.util.HashMap<ModeType, T>();
         for (T resource : resources) {
-            final ModeType type = resource.getType();
+            final ModeType type = resource.getModeType();
             mappedResources.put(type, resource);
         }
         returnExternalResourceToPool(pool, mappedResources);

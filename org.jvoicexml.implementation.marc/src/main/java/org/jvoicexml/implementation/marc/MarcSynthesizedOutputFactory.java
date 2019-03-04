@@ -28,18 +28,18 @@ import java.net.UnknownHostException;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link org.jvoicexml.implementation.SystemOutputOutputImplementation} for MARC.
+ * for the {@link org.jvoicexml.implementation.SystemOutputImplementation} for MARC.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.7.5
  */
 public final class MarcSynthesizedOutputFactory
-        implements ResourceFactory<SystemOutputOutputImplementation> {
+        implements ResourceFactory<SystemOutputImplementation> {
     /** Default port of MARC. */
     private static final int MARC_DEFAULT_PORT = 4010;
 
@@ -148,7 +148,7 @@ public final class MarcSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public SystemOutputOutputImplementation createResource() throws NoresourceError {
+    public SystemOutputImplementation createResource() throws NoresourceError {
         final MarcSynthesizedOutput output = new MarcSynthesizedOutput();
         output.setType(type);
         try {
@@ -200,7 +200,7 @@ public final class MarcSynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SystemOutputOutputImplementation> getResourceType() {
-        return SystemOutputOutputImplementation.class;
+    public Class<SystemOutputImplementation> getResourceType() {
+        return SystemOutputImplementation.class;
     }
 }

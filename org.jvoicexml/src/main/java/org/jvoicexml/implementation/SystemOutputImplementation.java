@@ -44,7 +44,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-public interface SystemOutputOutputImplementation extends ExternalResource {
+public interface SystemOutputImplementation extends ExternalResource {
     /**
      * The Speakable object is added to the end of the speaking queue and will
      * be spoken once it reaches the top of the queue.

@@ -30,7 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 
 /**
  * A media locator factory for the <a href="http://www.jlibrtp.org">jlibrtp</a>
@@ -38,7 +38,7 @@ import org.jvoicexml.implementation.SystemOutputOutputImplementation;
  * <p>
  * Used port numbers are incremented by <code>2</code> for each call to
  * {@link #getSourceMediaLocator(UserInputImplementation)} or
- * {@link #getSourceMediaLocator(SystemOutputOutputImplementation)}.
+ * {@link #getSourceMediaLocator(SystemOutputImplementation)}.
  * </p>
  *
  * @author Dirk Schnelle-Walka
@@ -174,7 +174,7 @@ public final class JlibRtpMediaLocatorFactory
     /**
      * {@inheritDoc}
      */
-    public URI getSourceMediaLocator(final SystemOutputOutputImplementation output)
+    public URI getSourceMediaLocator(final SystemOutputImplementation output)
         throws URISyntaxException {
         return getSourceMediaLocator();
     }
@@ -267,7 +267,7 @@ public final class JlibRtpMediaLocatorFactory
     /**
      * {@inheritDoc}
      */
-    public URI getSinkMediaLocator(final SystemOutputOutputImplementation output,
+    public URI getSinkMediaLocator(final SystemOutputImplementation output,
             final URI sourceLocator) throws URISyntaxException {
         return getSinkMediaLoactor(sourceLocator);
     }

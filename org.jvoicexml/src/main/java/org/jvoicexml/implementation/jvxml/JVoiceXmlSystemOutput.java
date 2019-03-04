@@ -34,7 +34,7 @@ import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.implementation.SystemOutputImplementationProvider;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
@@ -56,20 +56,16 @@ final class JVoiceXmlSystemOutput
         LogManager.getLogger(JVoiceXmlSystemOutput.class);
 
     /** The system output devices. */
-    private final Collection<SystemOutputOutputImplementation> outputs;
+    private final Collection<SystemOutputImplementation> outputs;
 
-    /** The used mode type. */
-    private final ModeType type;
-    
     /**
      * Constructs a new object.
      * @param synthesizer the synthesizer output device.
      * @param currentSession the current session.
      */
-    JVoiceXmlSystemOutput(final ModeType mode,
-            final Map<ModeType, SystemOutputOutputImplementation> synthesizers,
+    JVoiceXmlSystemOutput(
+            final Map<ModeType, SystemOutputImplementation> synthesizers,
             final Session currentSession) {
-        type = mode;
         outputs = synthesizers.values();
     }
 
@@ -77,8 +73,7 @@ final class JVoiceXmlSystemOutput
      * {@inheritDoc}
      */
     @Override
-    public Collection<SystemOutputOutputImplementation> getSystemOutputImplementations()
-            throws NoresourceError {
+    public Collection<SystemOutputImplementation> getSystemOutputImplementations() {
         return outputs;
     }
 
@@ -88,7 +83,7 @@ final class JVoiceXmlSystemOutput
     public void queueSpeakable(final SpeakableText speakable,
             final String sessionId, final DocumentServer documentServer)
         throws NoresourceError, BadFetchError {
-        for (SystemOutputOutputImplementation output : outputs) {
+        for (SystemOutputImplementation output : outputs) {
             output.queueSpeakable(speakable, sessionId, documentServer);
         }
     }
@@ -99,7 +94,7 @@ final class JVoiceXmlSystemOutput
     @Override
     public void cancelOutput(final BargeInType type) throws NoresourceError {
         boolean supportsBargeIn = false;
-        for (SystemOutputOutputImplementation output : outputs) {
+        for (SystemOutputImplementation output : outputs) {
             if (output.supportsBargeIn()) {
                 supportsBargeIn = true; 
                 output.cancelOutput(type);
@@ -116,7 +111,7 @@ final class JVoiceXmlSystemOutput
      * @param listener the listener to add
      */
     public void addListener(final SystemOutputImplementationListener listener) {
-        for (SystemOutputOutputImplementation output : outputs) {
+        for (SystemOutputImplementation output : outputs) {
             output.addListener(listener);
         }
     }
@@ -127,7 +122,7 @@ final class JVoiceXmlSystemOutput
      */
     public void removeListener(
             final SystemOutputImplementationListener listener) {
-        for (SystemOutputOutputImplementation output : outputs) {
+        for (SystemOutputImplementation output : outputs) {
             output.removeListener(listener);
         }
     }
@@ -137,7 +132,7 @@ final class JVoiceXmlSystemOutput
      * @return {@code true} if the output devices is busy.
      */
     public boolean isBusy() {
-        for (SystemOutputOutputImplementation output : outputs) {
+        for (SystemOutputImplementation output : outputs) {
             if (output.isBusy()) {
                 return true;
             }

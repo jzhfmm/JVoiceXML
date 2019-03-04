@@ -34,18 +34,18 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
- * This class provides a dummy {@link SystemOutputOutputImplementation} for testing
+ * This class provides a dummy {@link SystemOutputImplementation} for testing
  * purposes.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-public final class MockSynthesizedOutput implements SystemOutputOutputImplementation {
+public final class MockSynthesizedOutput implements SystemOutputImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER =
         LogManager.getLogger(MockSynthesizedOutput.class);
@@ -236,13 +236,13 @@ public final class MockSynthesizedOutput implements SystemOutputOutputImplementa
 
     private class SpeechThread extends Thread {
         /** Reference to the container. */
-        private final SystemOutputOutputImplementation observable;
+        private final SystemOutputImplementation observable;
 
         /**
          * Constructs a new object.
          * @param obs reference to the container.
          */
-        public SpeechThread(final SystemOutputOutputImplementation obs) {
+        public SpeechThread(final SystemOutputImplementation obs) {
             observable = obs;
         }
 

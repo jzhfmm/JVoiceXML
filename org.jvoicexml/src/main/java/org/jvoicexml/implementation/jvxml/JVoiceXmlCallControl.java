@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -23,6 +23,7 @@ package org.jvoicexml.implementation.jvxml;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 
 import javax.sound.sampled.AudioFormat;
 
@@ -34,15 +35,17 @@ import org.jvoicexml.SystemOutput;
 import org.jvoicexml.UserInput;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.CallControlImplementationListener;
 import org.jvoicexml.implementation.SystemOutputImplementationProvider;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.UserInputImplementationProvider;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Basic wrapper for {@link CallControl}. Method calls are forwarded to
- * the {@link CallControlImplementation} implementation.
+ * the {@link CallControlImplementation} implementation for their supported
+ * {@link ModeType}s.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.6
@@ -53,14 +56,14 @@ final class JVoiceXmlCallControl implements CallControl {
         LogManager.getLogger(JVoiceXmlCallControl.class);
 
     /** The encapsulated telephony object. */
-    private final CallControlImplementation telephony;
+    private final Collection<CallControlImplementation> callcontrols;
 
     /**
      * Constructs a new object.
-     * @param tel encapsulated telephony object.
+     * @param controls encapsulated call controls
      */
-    JVoiceXmlCallControl(final CallControlImplementation tel) {
-        telephony = tel;
+    JVoiceXmlCallControl(final Collection<CallControlImplementation> controls) {
+        callcontrols = controls;
     }
 
     /**
@@ -69,23 +72,18 @@ final class JVoiceXmlCallControl implements CallControl {
      * <p>
      * This implementation expects that the given output implements
      * {@link SystemOutputImplementationProvider} to retrieve the
-     * {@link SystemOutputOutputImplementation} that is needed to trigger the
+     * {@link SystemOutputImplementation} that is needed to trigger the
      * {@link CallControlImplementation} implementation.
      * </p>
      */
     @Override
-    public void play(final SystemOutput output,
+    public void play(SystemOutput output,
             final CallControlProperties props)
             throws NoresourceError, IOException {
-        if (output instanceof SystemOutputImplementationProvider) {
-            final SystemOutputImplementationProvider provider =
-                (SystemOutputImplementationProvider) output;
-            final SystemOutputOutputImplementation synthesizer =
-                provider.getSynthesizedOutput();
-            telephony.play(synthesizer, props);
-        } else {
-            LOGGER.warn("unable to retrieve a synthesized output from "
-                    + output);
+        for (CallControlImplementation call : callcontrols) {
+            final Collection<SystemOutputImplementation> relevant =
+                    getRelavantSystemOutputImplementations(call, output);
+            call.play(relevant, props);
         }
     }
 
@@ -93,7 +91,9 @@ final class JVoiceXmlCallControl implements CallControl {
      * {@inheritDoc}
      */
     public void stopPlay() throws NoresourceError {
-        telephony.stopPlay();
+        for (CallControlImplementation call : callcontrols) {
+            call.stopPlay();
+        }
     }
 
     /**
@@ -110,23 +110,23 @@ final class JVoiceXmlCallControl implements CallControl {
     public void record(final UserInput input,
             final CallControlProperties props)
             throws NoresourceError, IOException {
-        if (input instanceof UserInputImplementationProvider) {
-            final UserInputImplementationProvider provider =
-                (UserInputImplementationProvider) input;
-            final UserInputImplementation recognizer =
-                    provider.getUserInputImplemenation(ModeType.VOICE);
-            telephony.record(recognizer, props);
-        } else {
-            LOGGER.warn("unable to retrieve a recognizer output from "
-                    + input);
+        for (CallControlImplementation call : callcontrols) {
+            final Collection<UserInputImplementation> relevant =
+                    getRelavantUserInputImplementations(call, input);
+            call.record(relevant, props);
         }
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public AudioFormat getRecordingAudioFormat() {
-        return telephony.getRecordingAudioFormat();
+        // TODO find a proper way to handle potentially multiple audio formats
+        for (CallControlImplementation call : callcontrols) {
+            return call.getRecordingAudioFormat();
+        }
+        return null;
     }
 
     /**
@@ -143,14 +143,14 @@ final class JVoiceXmlCallControl implements CallControl {
     public void startRecording(final UserInput input, final OutputStream stream,
             final CallControlProperties props)
             throws NoresourceError, IOException {
-        if (input instanceof UserInputImplementationProvider) {
-            final UserInputImplementationProvider provider =
-                (UserInputImplementationProvider) input;
-            final UserInputImplementation recognizer = provider.getUserInputImplemenation(ModeType.VOICE);
-            telephony.startRecording(recognizer, stream, props);
-        } else {
-            LOGGER.warn("unable to retrieve a recognizer output from "
-                    + input);
+        // TODO find a proper way to handle potentially multiple streams
+        for (CallControlImplementation call : callcontrols) {
+            final Collection<UserInputImplementation> relevantInputs =
+                    getRelavantUserInputImplementations(call, input);
+            for (UserInputImplementation current : relevantInputs) {
+                call.startRecording(current, stream, props);
+                return;
+            }
         }
     }
 
@@ -159,7 +159,9 @@ final class JVoiceXmlCallControl implements CallControl {
      */
     @Override
     public void stopRecord() throws NoresourceError {
-        telephony.stopRecording();
+        for (CallControlImplementation call : callcontrols) {
+            call.stopRecording();
+        }
     }
 
     /**
@@ -167,15 +169,18 @@ final class JVoiceXmlCallControl implements CallControl {
      */
     @Override
     public void transfer(final String dest) throws NoresourceError {
-        telephony.transfer(dest);
+        // TODO find a better way to handle the transfer and select the correct one
+        for (CallControlImplementation call : callcontrols) {
+            call.transfer(dest);
+        }
     }
 
     /**
      * Retrieves the encapsulated telephony object.
      * @return the encapsulated telephony object.
      */
-    public CallControlImplementation getTelephony() {
-        return telephony;
+    public Collection<CallControlImplementation> getCallControlImplementations() {
+        return callcontrols;
     }
 
     /**
@@ -183,7 +188,12 @@ final class JVoiceXmlCallControl implements CallControl {
      * @return <code>true</code> if the telephony devices is busy.
      */
     public boolean isBusy() {
-        return telephony.isBusy();
+        for (CallControlImplementation call : callcontrols) {
+            if (call.isBusy()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -192,18 +202,20 @@ final class JVoiceXmlCallControl implements CallControl {
     @Override
     public void hangup() {
         LOGGER.info("terminating telephony");
-        if (telephony.isBusy()) {
-            try {
-                telephony.stopPlay();
-                telephony.stopRecording();
-            } catch (NoresourceError e) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("error stopping telephony", e);
+        for (CallControlImplementation call : callcontrols) {
+            if (call.isBusy()) {
+                try {
+                    call.stopPlay();
+                    call.stopRecording();
+                } catch (NoresourceError e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("error stopping telephony", e);
+                    }
                 }
             }
+            
+            call.hangup();
         }
-
-        telephony.hangup();
     }
 
     /**
@@ -211,6 +223,99 @@ final class JVoiceXmlCallControl implements CallControl {
      */
     @Override
     public boolean isCallActive() {
-        return telephony.isActive();
+        for (CallControlImplementation call : callcontrols) {
+            if (call.isActive()) {
+                return true;
+            }
+        }
+        return false;
     }
+
+    /**
+     * Adds the listener to all known {@link CallControlImplementation}s.
+     * @param listener the listener to add
+     */
+    public void addListener(final CallControlImplementationListener listener) {
+        for (CallControlImplementation call : callcontrols) {
+            call.addListener(listener);
+        }
+    }
+
+    /**
+     * Removes the listener from all known {@link CallControlImplementation}s.
+     * @param listener the listener to remove
+     */
+    public void removeListener(final CallControlImplementationListener listener) {
+        for (CallControlImplementation call : callcontrols) {
+            call.removeListener(listener);
+        }
+    }
+
+    /**
+     * Retrieves a list of relevant {@link SystemOutputImplementation}s
+     * form the given {@link CallControlImplementation}.
+     * @param call the call control to investigate
+     * @param output the the system output provider
+     * @param modes the modes to check for
+     * @return matching implementations for the mode
+     * @since 0.7.9
+     */
+    private Collection<SystemOutputImplementation> getRelavantSystemOutputImplementations(
+            final CallControlImplementation call, final SystemOutput output) {
+        // TODO add a caching to do this only once
+        final Collection<SystemOutputImplementation> relevant =
+                new java.util.ArrayList<SystemOutputImplementation>();
+        if (output instanceof SystemOutputImplementationProvider) {
+            final SystemOutputImplementationProvider provider =
+                (SystemOutputImplementationProvider) output;
+            final Collection<SystemOutputImplementation> outputs =
+                    provider.getSystemOutputImplementations();            
+            final Collection<ModeType> modes =
+                    call.getSupportedInputModeTypes();
+            for (SystemOutputImplementation current : outputs) {
+                final ModeType currentMode = current.getModeType();
+                if (modes.contains(currentMode)) {
+                    relevant.add(current);
+                }
+            }
+        } else {
+            LOGGER.warn("unable to retrieve a system output from "
+                    + output);
+        }
+        return relevant;
+    }
+
+    /**
+     * Retrieves a list of relevant {@link SystemOutputImplementation}s
+     * form the given provider for the specified mode.
+     * @param call the call control to investigate
+     * @param input the the system output provider
+     * @return matching implementations for the mode
+     * @since 0.7.9
+     */
+    private Collection<UserInputImplementation> getRelavantUserInputImplementations(
+            final CallControlImplementation call, final UserInput input) {
+        // TODO add a caching to do this only once
+        final Collection<UserInputImplementation> relevant =
+                new java.util.ArrayList<UserInputImplementation>();
+        if (input instanceof UserInputImplementationProvider) {
+            final UserInputImplementationProvider provider =
+                (UserInputImplementationProvider) input;
+            final Collection<UserInputImplementation> inputs =
+                provider.getUserInputImplementations();
+            final Collection<ModeType> modes =
+                    call.getSupportedInputModeTypes();
+            for (UserInputImplementation current : inputs) {
+                final ModeType currentMode = current.getModeType();
+                if (modes.contains(currentMode)) {
+                    relevant.add(current);
+                }
+            }
+        } else {
+            LOGGER.warn("unable to retrieve a system output from "
+                    + input);
+        }
+        return relevant;
+    }
+    
 }

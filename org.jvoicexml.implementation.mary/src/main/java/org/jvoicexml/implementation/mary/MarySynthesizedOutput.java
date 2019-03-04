@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-5 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2010-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -34,21 +34,22 @@ import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 import marytts.client.MaryClient;
 
 /**
- * An implementation of the {@link SystemOutputOutputImplementation} for the Mary TTS System.
+ * An implementation of the {@link SystemOutputImplementation} for the Mary TTS System.
  * 
  * @author Dirk Schnelle-Walka
  * @author Giannis Assiouras
  * @since 0.7.3
  */
 public final class MarySynthesizedOutput
-        implements SystemOutputOutputImplementation, SystemOutputImplementationListener {
+        implements SystemOutputImplementation, SystemOutputImplementationListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(MarySynthesizedOutput.class);
@@ -101,6 +102,14 @@ public final class MarySynthesizedOutput
         maryRequestParameters = new java.util.HashMap<String, String>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
+    }
+    
     /**
      * {@inheritDoc} The queueSpeakable method simply offers a speakable to the
      * queue. it notifies the synthesisQueue Thread and then it returns

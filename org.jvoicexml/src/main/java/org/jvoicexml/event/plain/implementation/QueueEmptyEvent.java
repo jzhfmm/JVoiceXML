@@ -26,7 +26,7 @@
 
 package org.jvoicexml.event.plain.implementation;
 
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 
 /**
  * Notification that the output queue is empty.
@@ -59,7 +59,7 @@ public final class QueueEmptyEvent extends SystemOutputEvent {
      * @param sessionId
      *            the session id
      */
-    public QueueEmptyEvent(final SystemOutputOutputImplementation output,
+    public QueueEmptyEvent(final SystemOutputImplementation output,
             final String sessionId) {
         super(output, DETAIL, sessionId);
     }

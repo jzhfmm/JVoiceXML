@@ -25,7 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 
 /**
  * A media locator factory to convert audio format.
@@ -134,7 +134,7 @@ public final class FormatMediaLocatorFactory
     /**
      * {@inheritDoc}
      */
-    public URI getSourceMediaLocator(final SystemOutputOutputImplementation output)
+    public URI getSourceMediaLocator(final SystemOutputImplementation output)
             throws URISyntaxException {
         return getSourceMediaLocator();
     }
@@ -236,7 +236,7 @@ public final class FormatMediaLocatorFactory
     /**
      * {@inheritDoc}
      */
-    public URI getSinkMediaLocator(final SystemOutputOutputImplementation output,
+    public URI getSinkMediaLocator(final SystemOutputImplementation output,
             final URI sourceLocator) throws URISyntaxException {
         return getSinkMediaLoactor(sourceLocator);
     }

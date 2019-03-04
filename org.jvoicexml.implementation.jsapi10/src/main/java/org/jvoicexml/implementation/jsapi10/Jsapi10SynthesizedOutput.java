@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  * The JVoiceXML group hereby disclaims all copyright interest in the
  * library `JVoiceXML' (a free VoiceXML implementation).
  * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
@@ -28,7 +28,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
@@ -55,9 +54,10 @@ import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.SsmlNode;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
 
@@ -97,7 +97,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Dirk Schnelle-Walka
  */
 public final class Jsapi10SynthesizedOutput
-        implements SystemOutputOutputImplementation, SpeakableListener,
+        implements SystemOutputImplementation, SpeakableListener,
         StreamableSynthesizedOutput {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
@@ -191,6 +191,15 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void open() throws NoresourceError {
         try {
             synthesizer = Central.createSynthesizer(desc);
@@ -219,6 +228,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() {
         if (synthesizer == null) {
             LOGGER.warn("no synthesizer: cannot deallocate");
@@ -284,6 +294,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addListener(final SystemOutputImplementationListener outputListener) {
         synchronized (listener) {
             listener.add(outputListener);
@@ -293,6 +304,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeListener(final SystemOutputImplementationListener outputListener) {
         synchronized (listener) {
             listener.remove(outputListener);
@@ -732,6 +744,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public void activate() {
     }
 
@@ -758,6 +771,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public void connect(final ConnectionInformation connectionInformation)
             throws IOException {
         if (handler != null) {
@@ -770,6 +784,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public void disconnect(final ConnectionInformation connectionInformation) {
         if (handler != null) {
             handler.disconnect(connectionInformation, this, synthesizer);
@@ -781,6 +796,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getType() {
         return type;
     }
@@ -809,17 +825,6 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
-    public URI getUriForNextSynthesisizedOutput() throws NoresourceError {
-        if (handler != null) {
-            return handler.getUriForNextSynthesisizedOutput(info);
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void markerReached(final SpeakableEvent event) {
         final String mark = event.getText();
         fireMarkerReached(mark);
@@ -828,48 +833,56 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public void speakableCancelled(final SpeakableEvent event) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void speakableEnded(final SpeakableEvent event) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void speakablePaused(final SpeakableEvent event) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void speakableResumed(final SpeakableEvent event) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void speakableStarted(final SpeakableEvent event) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void topOfQueue(final SpeakableEvent event) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void wordStarted(final SpeakableEvent event) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isBusy() {
         synchronized (queuedSpeakables) {
             return !queuedSpeakables.isEmpty();
@@ -879,6 +892,7 @@ public final class Jsapi10SynthesizedOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public int readSynthesizerStream(final byte[] buffer, final int offset,
             final int length) throws IOException {
         if (currentSynthesizerStream == null) {

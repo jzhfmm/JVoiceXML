@@ -27,7 +27,7 @@
 package org.jvoicexml.event.plain.implementation;
 
 import org.jvoicexml.SpeakableText;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 
 /**
  * Notification that the output of a {@link SpeakableText} has started.
@@ -65,7 +65,7 @@ public final class OutputStartedEvent extends SystemOutputEvent {
      * @param speakableText
      *            the speakable that has ended
      */
-    public OutputStartedEvent(final SystemOutputOutputImplementation output,
+    public OutputStartedEvent(final SystemOutputImplementation output,
             final String sessionId, final SpeakableText speakableText) {
         super(output, DETAIL, sessionId);
         speakable = speakableText;

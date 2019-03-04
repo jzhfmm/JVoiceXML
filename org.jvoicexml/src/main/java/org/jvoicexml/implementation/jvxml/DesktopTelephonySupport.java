@@ -34,11 +34,12 @@ import org.jvoicexml.CallControlProperties;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.AudioSource;
-import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.CallControlImplementationEvent;
 import org.jvoicexml.implementation.CallControlImplementationListener;
+import org.jvoicexml.implementation.SystemOutputImplementation;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Implementation of a {@link CallControlImplementation} resource to be used in desktop/like
@@ -47,7 +48,7 @@ import org.jvoicexml.implementation.CallControlImplementationListener;
  * <p>
  * This implementation of a {@link CallControlImplementation} resource can be used, if there is
  * no telephony support or if the {@link UserInputImplementation} and
- * {@link SystemOutputOutputImplementation} implementations are able to produced communicate
+ * {@link SystemOutputImplementation} implementations are able to produced communicate
  * directly with the user.
  * </p>
  *
@@ -175,12 +176,15 @@ public final class DesktopTelephonySupport implements CallControlImplementation 
      * {@inheritDoc}
      */
     @Override
-    public void play(final SystemOutputOutputImplementation output,
-            final CallControlProperties props)
-            throws IOException, NoresourceError {
+    public void play(Collection<SystemOutputImplementation> outputs,
+            CallControlProperties props) throws NoresourceError, IOException {
         if (!active) {
             throw new NoresourceError("desktop telephony is no longer active");
         }
+        if (outputs.isEmpty()) {
+            throw new NoresourceError("no outputs provided");
+        }
+        final SystemOutputImplementation output = outputs.iterator().next();
         if (output instanceof AudioSource) {
             final AudioSource source = (AudioSource) output;
             try {
@@ -255,11 +259,13 @@ public final class DesktopTelephonySupport implements CallControlImplementation 
      * {@inheritDoc}
      */
     @Override
-    public void record(final UserInputImplementation input,
-            final CallControlProperties props)
-            throws IOException, NoresourceError {
+    public void record(Collection<UserInputImplementation> inputs,
+            CallControlProperties props) throws NoresourceError, IOException {
         if (!active) {
             throw new NoresourceError("desktop telephony is no longer active");
+        }
+        if (inputs.isEmpty()) {
+            throw new NoresourceError("no inpus provided");
         }
         busy = true;
         synchronized (listener) {
@@ -395,5 +401,38 @@ public final class DesktopTelephonySupport implements CallControlImplementation 
     @Override
     public boolean isActive() {
         return active;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<ModeType> getSupportedOutputModeTypes() {
+        // TODO add a cache for the modes
+        final Collection<ModeType> modes =
+                new java.util.ArrayList<ModeType>();
+        modes.add(ModeType.DTMF);
+        return modes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<ModeType> getSupportedInputModeTypes() {
+        // TODO add a cache for the modes
+        final Collection<ModeType> modes =
+                new java.util.ArrayList<ModeType>();
+        modes.add(ModeType.VOICE);
+        modes.add(ModeType.DTMF);
+        return modes;
     }
 }

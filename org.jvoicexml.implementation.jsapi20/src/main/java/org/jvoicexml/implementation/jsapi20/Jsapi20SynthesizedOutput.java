@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  * The JVoiceXML group hereby disclaims all copyright interest in the
  * library `JVoiceXML' (a free VoiceXML implementation).
  * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
@@ -62,9 +62,10 @@ import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.implementation.AudioSource;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.jsapi2.synthesis.BaseSynthesizerAudioManager;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.ssml.Speak;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
@@ -82,7 +83,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @since 0.6
  */
 public final class Jsapi20SynthesizedOutput
-        implements SystemOutputOutputImplementation, SpeakableListener, SynthesizerListener,
+        implements SystemOutputImplementation, SpeakableListener, SynthesizerListener,
         AudioSource {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
@@ -138,6 +139,14 @@ public final class Jsapi20SynthesizedOutput
         emptyLock = new Object();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
+    }
+    
     /**
      * Sets the media locator.
      * 

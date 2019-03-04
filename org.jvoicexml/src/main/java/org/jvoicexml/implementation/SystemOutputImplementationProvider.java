@@ -23,12 +23,11 @@ package org.jvoicexml.implementation;
 
 import java.util.Collection;
 
-import org.jvoicexml.event.error.NoresourceError;
-
 /**
- * Objects that implement this class have an association to a
- * {@link SystemOutputOutputImplementation} device which can be retrieved by the corresponding
- * method.
+ * Objects that implement this class have an association to at least one
+ * {@link SystemOutputImplementation} device which can be retrieved by the
+ * corresponding method. All are guaranteed to feature the same type but will
+ * have a different {@link org.jvoicexml.xml.srgs.ModeType}.
  * *
  * @author Dirk Schnelle-Walka
  * @since 0.6
@@ -36,11 +35,8 @@ import org.jvoicexml.event.error.NoresourceError;
 public interface SystemOutputImplementationProvider {
     /**
      * Retrieves the currently employed
-     * {@link SystemOutputOutputImplementation}s.
+     * {@link SystemOutputImplementation}s.
      * @return used system outputs.
-     * @throws NoresourceError
-     *         Error obtaining the system output.
      */
-    Collection<SystemOutputOutputImplementation> getSystemOutputImplementations()
-            throws NoresourceError;
+    Collection<SystemOutputImplementation> getSystemOutputImplementations();
 }

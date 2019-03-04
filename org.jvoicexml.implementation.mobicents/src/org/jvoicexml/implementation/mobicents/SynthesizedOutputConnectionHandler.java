@@ -33,7 +33,7 @@ import javax.speech.synthesis.Synthesizer;
 
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 
 /**
  * Mobicents 1.0 does not know how to stream audio from a server to a client.
@@ -64,7 +64,7 @@ public interface SynthesizedOutputConnectionHandler {
      *         error establishing the connection.
      */
     void connect(final ConnectionInformation info,
-            final SystemOutputOutputImplementation output, final Synthesizer synthesizer)
+            final SystemOutputImplementation output, final Synthesizer synthesizer)
         throws IOException;
 
     /**
@@ -74,11 +74,11 @@ public interface SynthesizedOutputConnectionHandler {
      * @param synthesizer the current synthesizer.
      */
     void disconnect(final ConnectionInformation info,
-            final SystemOutputOutputImplementation output, final Synthesizer synthesizer);
+            final SystemOutputImplementation output, final Synthesizer synthesizer);
 
     /**
      * Delegate from
-     * {@link org.jvoicexml.implementation.SystemOutputOutputImplementation#getUriForNextSynthesisizedOutput()}
+     * {@link org.jvoicexml.implementation.SystemOutputImplementation#getUriForNextSynthesisizedOutput()}
      * .
      * @param client data container with connection relevant data.
      * @return URI of the input source, maybe <code>null</code> if the

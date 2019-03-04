@@ -44,7 +44,7 @@ import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.jvxml.RecordingEvent;
 import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.CallControlImplementationEvent;
 import org.jvoicexml.implementation.CallControlImplementationListener;
@@ -107,7 +107,7 @@ public final class MobicentsTelephony implements CallControlImplementation, Call
      * {@inheritDoc}
      *
      * This implementation uses
-     * {@link SystemOutputOutputImplementation#getUriForNextSynthesisizedOutput()} to obtain
+     * {@link SystemOutputImplementation#getUriForNextSynthesisizedOutput()} to obtain
      * a URI that is being used to stream to the terminal.
      *
      * <p>
@@ -118,7 +118,7 @@ public final class MobicentsTelephony implements CallControlImplementation, Call
      * unique URI.
      * </p>
      */
-    public void play(final SystemOutputOutputImplementation output,
+    public void play(final SystemOutputImplementation output,
             final CallControlProperties props)
             throws NoresourceError, IOException {
         try {

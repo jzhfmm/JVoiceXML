@@ -39,7 +39,7 @@ import org.jvoicexml.mock.implementation.MockSynthesizedOutputFactory;
  */
 public final class TestKeyedResourcePool {
     /** The object to test. */
-    private KeyedResourcePool<SystemOutputOutputImplementation> pool;
+    private KeyedResourcePool<SystemOutputImplementation> pool;
 
     /**
      * Test method for {@link org.jvoicexml.implementation.pool.KeyedResourcePool#borrowObject(java.lang.Object)}.
@@ -51,14 +51,14 @@ public final class TestKeyedResourcePool {
     @Test
     public void testBorrowObjectObject()  throws Exception, NoresourceError {
         final int instances = 500;
-        final ResourceFactory<SystemOutputOutputImplementation> factory =
+        final ResourceFactory<SystemOutputImplementation> factory =
             new MockSynthesizedOutputFactory();
         ((MockSynthesizedOutputFactory) factory).setInstances(instances);
-        pool = new KeyedResourcePool<SystemOutputOutputImplementation>();
+        pool = new KeyedResourcePool<SystemOutputImplementation>();
         pool.addResourceFactory(factory);
         Assert.assertEquals(instances, pool.getNumIdle());
         final String key = factory.getType();
-        final SystemOutputOutputImplementation[] outputs = new SystemOutputOutputImplementation[instances];
+        final SystemOutputImplementation[] outputs = new SystemOutputImplementation[instances];
         for (int i = 0; i < instances; i++) {
             outputs[i] = pool.borrowObject(key);
         }
@@ -81,14 +81,14 @@ public final class TestKeyedResourcePool {
     public void testBorrowObjectObjectExceed()
         throws Exception, NoresourceError {
         final int instances = 10;
-        final ResourceFactory<SystemOutputOutputImplementation> factory =
+        final ResourceFactory<SystemOutputImplementation> factory =
             new MockSynthesizedOutputFactory();
         ((MockSynthesizedOutputFactory) factory).setInstances(instances);
-        pool = new KeyedResourcePool<SystemOutputOutputImplementation>();
+        pool = new KeyedResourcePool<SystemOutputImplementation>();
         pool.addResourceFactory(factory);
         Assert.assertEquals(instances, pool.getNumIdle());
         final String key = factory.getType();
-        final SystemOutputOutputImplementation[] outputs = new SystemOutputOutputImplementation[instances];
+        final SystemOutputImplementation[] outputs = new SystemOutputImplementation[instances];
         for (int i = 0; i < instances; i++) {
             Assert.assertEquals(i, pool.getNumActive(key));
             Assert.assertEquals(instances - i, pool.getNumIdle(key));
@@ -109,14 +109,14 @@ public final class TestKeyedResourcePool {
     public void testBorrowObjectObjectMultipleKey()
         throws Exception, NoresourceError {
         final int instancesKey1 = 3;
-        final ResourceFactory<SystemOutputOutputImplementation> factory1 =
+        final ResourceFactory<SystemOutputImplementation> factory1 =
             new MockSynthesizedOutputFactory();
         ((MockSynthesizedOutputFactory) factory1).setInstances(instancesKey1);
         final int instancesKey2 = 5;
-        final ResourceFactory<SystemOutputOutputImplementation> factory2 =
+        final ResourceFactory<SystemOutputImplementation> factory2 =
             new MockSynthesizedOutputFactory("alt");
         ((MockSynthesizedOutputFactory) factory2).setInstances(instancesKey2);
-        pool = new KeyedResourcePool<SystemOutputOutputImplementation>();
+        pool = new KeyedResourcePool<SystemOutputImplementation>();
         pool.addResourceFactory(factory1);
         pool.addResourceFactory(factory2);
         final String key1 = factory1.getType();
@@ -126,8 +126,8 @@ public final class TestKeyedResourcePool {
         Assert.assertEquals(instancesKey1 + instancesKey2, pool.getNumIdle());
         final String[] keys = new String[]
                             {key2, key1, key2, key1, key2, key1, key2, key2};
-        final SystemOutputOutputImplementation[] outputs =
-            new SystemOutputOutputImplementation[instancesKey1 + instancesKey2];
+        final SystemOutputImplementation[] outputs =
+            new SystemOutputImplementation[instancesKey1 + instancesKey2];
         for (int i = 0; i < outputs.length; i++) {
             final String key = keys[i];
             outputs[i] = pool.borrowObject(key);

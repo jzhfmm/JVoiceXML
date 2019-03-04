@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2014 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  * The JVoiceXML group hereby disclaims all copyright interest in the
  * library `JVoiceXML' (a free VoiceXML implementation).
  * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
@@ -43,11 +38,12 @@ import org.jvoicexml.callmanager.jtapi.JVoiceXmlTerminal;
 import org.jvoicexml.callmanager.jtapi.JtapiConnectionInformation;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
 import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.CallControlImplementationEvent;
 import org.jvoicexml.implementation.CallControlImplementationListener;
+import org.jvoicexml.implementation.SystemOutputImplementation;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * JTAPI based implementation of a {@link CallControlImplementation}.
@@ -59,7 +55,6 @@ import org.jvoicexml.implementation.CallControlImplementationListener;
  * @author Hugo Monteiro
  * @author Renato Cassaca
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.6
  */
 public final class JtapiTelephony implements CallControlImplementation, CallControlImplementationListener {
@@ -80,8 +75,18 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     }
 
     /**
+     * 
      * {@inheritDoc}
      */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void addListener(final CallControlImplementationListener listener) {
         synchronized (callControlListeners) {
             callControlListeners.add(listener);
@@ -91,6 +96,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeListener(final CallControlImplementationListener listener) {
         synchronized (callControlListeners) {
             callControlListeners.remove(listener);
@@ -101,7 +107,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
      * {@inheritDoc}
      *
      * This implementation uses
-     * {@link SystemOutputOutputImplementation#getUriForNextSynthesisizedOutput()} to obtain a
+     * {@link SystemOutputImplementation#getUriForNextSynthesisizedOutput()} to obtain a
      * URI that is being used to stream to the terminal.
      *
      * <p>
@@ -111,11 +117,14 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
      * simplest case this implementation <emph>invents</emph> a unique URI.
      * </p>
      */
-    public void play(final SystemOutputOutputImplementation output,
-            final CallControlProperties props) throws NoresourceError,
-            IOException {
+    @Override
+    public void play(Collection<SystemOutputImplementation> outputs,
+            CallControlProperties props) throws NoresourceError, IOException {
         if (terminal == null) {
             throw new NoresourceError("No active telephony connection!");
+        }
+        if (outputs.isEmpty()) {
+            throw new NoresourceError("no outputs provided");
         }
         final URI uri;
 //        try {
@@ -137,11 +146,13 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
      * to obtain a URI to stream from the terminal to the spoken input device.
      */
     @Override
-    public void record(final UserInputImplementation input,
-            final CallControlProperties props) throws NoresourceError,
-            IOException {
+    public void record(Collection<UserInputImplementation> inputs,
+            CallControlProperties props) throws NoresourceError, IOException {
         if (terminal == null) {
             throw new NoresourceError("No active telephony connection!");
+        }
+        if (inputs.isEmpty()) {
+            throw new NoresourceError("no inpus provided");
         }
 
         final URI uri;
@@ -162,6 +173,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public AudioFormat getRecordingAudioFormat() {
         return null;
     }
@@ -169,15 +181,17 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void startRecording(final UserInputImplementation input,
             final OutputStream stream, final CallControlProperties props)
-            throws NoresourceError, IOException {
+            throws IOException, NoresourceError {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stopRecording() throws NoresourceError {
         if (terminal == null) {
             throw new NoresourceError("No active telephony connection!");
@@ -283,18 +297,21 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void activate() {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getType() {
         return "jtapi";
     }
@@ -302,12 +319,14 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void open() throws NoresourceError {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void passivate() {
         callControlListeners.clear();
     }
@@ -315,6 +334,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void connect(final ConnectionInformation info) throws IOException {
         final JtapiConnectionInformation jtapiInfo = (JtapiConnectionInformation) info;
         terminal = jtapiInfo.getTerminal();
@@ -324,6 +344,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void disconnect(final ConnectionInformation info) {
         final JtapiConnectionInformation jtapiInfo = (JtapiConnectionInformation) info;
         terminal = jtapiInfo.getTerminal();
@@ -334,6 +355,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stopPlay() throws NoresourceError {
         if (terminal == null) {
             throw new NoresourceError("No active telephony connection!");
@@ -345,6 +367,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void transfer(final String dest) throws NoresourceError {
         if (terminal == null) {
             throw new NoresourceError("No active telephony connection!");
@@ -369,6 +392,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isBusy() {
         if (terminal == null) {
             return false;
@@ -413,6 +437,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void telephonyMediaEvent(final CallControlImplementationEvent event) {
         final Collection<CallControlImplementationListener> tmp = new java.util.ArrayList<CallControlImplementationListener>(
                 callControlListeners);
@@ -424,6 +449,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * {@inheritDoc}
      */
+    @Override
     public void telephonyCallTransferred(final CallControlImplementationEvent event) {
     }
 
@@ -446,5 +472,30 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     public boolean isActive() {
         // TODO add a real implementation
         return terminal.isBusy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<ModeType> getSupportedOutputModeTypes() {
+        // TODO add a cache for the modes
+        final Collection<ModeType> modes =
+                new java.util.ArrayList<ModeType>();
+        modes.add(ModeType.DTMF);
+        return modes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<ModeType> getSupportedInputModeTypes() {
+        // TODO add a cache for the modes
+        final Collection<ModeType> modes =
+                new java.util.ArrayList<ModeType>();
+        modes.add(ModeType.VOICE);
+        modes.add(ModeType.DTMF);
+        return modes;
     }
 }

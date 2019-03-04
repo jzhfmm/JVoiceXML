@@ -23,15 +23,17 @@ package org.jvoicexml.implementation;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 
 import javax.sound.sampled.AudioFormat;
 
 import org.jvoicexml.CallControlProperties;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.event.error.NoresourceError;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
- * Telephony support as an external resource.
+ * Call control support as an external resource, i.e. telephony.
  *
  * <p>
  * Objects that implement this interface are able to support making a third
@@ -40,11 +42,16 @@ import org.jvoicexml.event.error.NoresourceError;
  *
  * <p>
  * In fact this is a bridge to use speech synthesis (via
- * {@link SystemOutputOutputImplementation} and spoken input (via {@link UserInputImplementation} on a
+ * {@link SystemOutputImplementation} and spoken input (via {@link UserInputImplementation} on a
  * client, which may be a PBX. Hence, it is able to handle the communication
  * between the client and the JVoiceXML server. The architecture is kept open at
  * this point so that it is also possible to hook other clients, like the
  * console or a PDA.
+ * </p>
+ * <p>
+ * Possible inputs and outputs are determined via their mode as they are
+ * retrieved by {@link #getSupportedOutputModeTypes()} and
+ * {@link #getSupportedInputModeTypes()}
  * </p>
  * <p>
  * It is guaranteed that the session remains the same between the calls to
@@ -52,16 +59,33 @@ import org.jvoicexml.event.error.NoresourceError;
  * and
  * {@link org.jvoicexml.RemoteConnectable#disconnect(org.jvoicexml.ConnectionInformation)}.
  * </p>
+ * 
  *
  * @author Dirk Schnelle-Walka
  */
 public interface CallControlImplementation extends ExternalResource {
     /**
+     * Retrieves the supported output mode types.
+     * @return supported output mode types.
+     * @since 0.7.9
+     */
+    Collection<ModeType> getSupportedOutputModeTypes();
+    
+    /**
+     * Retrieves the supported input mode types.
+     * @return supported output input types.
+     * @since 0.7.9
+     */
+    Collection<ModeType> getSupportedInputModeTypes();
+    
+    /**
      * Plays a stream from the given output device.
      * This method gets called
      *  prior to calling
      * {@link SystemOutput#queueSpeakable(org.jvoicexml.SpeakableText, String, org.jvoicexml.DocumentServer)}
-     * to prepare streaming from the synthesizer. Implementations may use this, 
+     * to prepare streaming from the available system outputs. Usually these are
+     * speech synthesizers. 
+     * Implementations may use this, 
      * method, e.g., to propagate {@link java.io.OutputStream}s to the
      * {@link SystemOutput} implementation.
      *
@@ -69,8 +93,8 @@ public interface CallControlImplementation extends ExternalResource {
      * The play method is expected to run asynchronously.
      * </p>
      *
-     * @param output
-     *            the output device delivering the output.
+     * @param outputs
+     *            the output devices delivering the output.
      * @param props
      *            parameters to use for playing.
      * @exception NoresourceError
@@ -79,7 +103,8 @@ public interface CallControlImplementation extends ExternalResource {
      *                Error accessing the given URI.
      * @since 0.6
      */
-    void play(SystemOutputOutputImplementation output, CallControlProperties props)
+    void play(Collection<SystemOutputImplementation> outputs,
+            CallControlProperties props)
             throws NoresourceError, IOException;
 
     /**
@@ -99,7 +124,7 @@ public interface CallControlImplementation extends ExternalResource {
      * method, e.g., to propagate {@link java.io.InputStream}s to the
      * {@link UserInputImplementation} implementation. 
      * 
-     * @param input
+     * @param inputs
      *            input device to use for recording.
      * @param props
      *            parameters to use for the recording.
@@ -109,7 +134,8 @@ public interface CallControlImplementation extends ExternalResource {
      *                Error accessing the given URI.
      * @since 0.6
      */
-    void record(UserInputImplementation input, CallControlProperties props)
+    void record(Collection<UserInputImplementation> inputs, 
+            CallControlProperties props)
             throws NoresourceError, IOException;
 
     /**

@@ -26,19 +26,19 @@ package org.jvoicexml.implementation.red5;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link org.jvoicexml.implementation.SystemOutputOutputImplementation} based on
+ * for the {@link org.jvoicexml.implementation.SystemOutputImplementation} based on
  * JSAPI 2.0.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.5.5
  */
 public final class Red5SynthesizedOutputFactory
-        implements ResourceFactory<SystemOutputOutputImplementation> {
+        implements ResourceFactory<SystemOutputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -64,7 +64,7 @@ public final class Red5SynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public SystemOutputOutputImplementation createResource() throws NoresourceError {
+    public SystemOutputImplementation createResource() throws NoresourceError {
         final Red5SynthesizedOutput output = new Red5SynthesizedOutput();
         output.setType(type);
         return output;
@@ -106,7 +106,7 @@ public final class Red5SynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<SystemOutputOutputImplementation> getResourceType() {
-        return SystemOutputOutputImplementation.class;
+    public Class<SystemOutputImplementation> getResourceType() {
+        return SystemOutputImplementation.class;
     }
 }

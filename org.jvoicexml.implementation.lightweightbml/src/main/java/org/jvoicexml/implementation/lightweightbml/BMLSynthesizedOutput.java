@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2014-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2014-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -27,8 +27,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Collection;
 
@@ -47,9 +45,10 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
 import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
-import org.jvoicexml.implementation.SystemOutputOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.Text;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.ssml.Speak;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
@@ -68,7 +67,7 @@ import org.w3c.dom.NodeList;
  * @since 0.7.7
  */
 public final class BMLSynthesizedOutput
-    implements SystemOutputOutputImplementation, BMLClient {
+    implements SystemOutputImplementation, BMLClient {
     /** Logger for this class. */
     private static final Logger LOGGER =
             Logger.getLogger(BMLSynthesizedOutput.class);
@@ -129,6 +128,14 @@ public final class BMLSynthesizedOutput
         speakables = new SpeakableQueue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        // TODO add a mode type BML
+        return null;
+    }
     /**
      * Sets the external publisher.
      * @param publisher
