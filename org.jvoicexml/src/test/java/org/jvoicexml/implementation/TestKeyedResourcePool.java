@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $LastChangedDate$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2013 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -26,11 +21,15 @@
 
 package org.jvoicexml.implementation;
 
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.pool.KeyedResourcePool;
 import org.jvoicexml.mock.implementation.MockSynthesizedOutputFactory;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  *Test cases for {@link KeyedResourcePool}.
@@ -58,14 +57,20 @@ public final class TestKeyedResourcePool {
         pool.addResourceFactory(factory);
         Assert.assertEquals(instances, pool.getNumIdle());
         final String key = factory.getType();
-        final SystemOutputImplementation[] outputs = new SystemOutputImplementation[instances];
+        final List<Map<ModeType, SystemOutputImplementation>> outputs = 
+                new java.util.ArrayList<Map<ModeType, SystemOutputImplementation>>(instances);
         for (int i = 0; i < instances; i++) {
-            outputs[i] = pool.borrowObject(key);
+            final Map<ModeType, SystemOutputImplementation> current =
+                    pool.borrowObjects(key);
+            Assert.assertNotEquals(0, current.size());
+            outputs.add(current);
         }
         Assert.assertEquals(instances, pool.getNumActive(key));
 
         for (int i = 0; i < instances; i++) {
-            pool.returnObject(key, outputs[i]);
+            final Map<ModeType, SystemOutputImplementation> current =
+                    outputs.get(i);
+            pool.returnObjects(key, current);
         }
         Assert.assertEquals(0, pool.getNumActive(key));
     }
@@ -88,14 +93,16 @@ public final class TestKeyedResourcePool {
         pool.addResourceFactory(factory);
         Assert.assertEquals(instances, pool.getNumIdle());
         final String key = factory.getType();
-        final SystemOutputImplementation[] outputs = new SystemOutputImplementation[instances];
+        final List<Map<ModeType, SystemOutputImplementation>> outputs = 
+                new java.util.ArrayList<Map<ModeType, SystemOutputImplementation>>(instances);
         for (int i = 0; i < instances; i++) {
-            Assert.assertEquals(i, pool.getNumActive(key));
-            Assert.assertEquals(instances - i, pool.getNumIdle(key));
-            outputs[i] = pool.borrowObject(key);
+            final Map<ModeType, SystemOutputImplementation> current =
+                    pool.borrowObjects(key);
+            Assert.assertNotEquals(0, current.size());
+            outputs.add(current);
         }
         Assert.assertEquals(instances, pool.getNumActive(key));
-        pool.borrowObject(key);
+        pool.borrowObjects(key);
     }
 
     /**
@@ -126,17 +133,22 @@ public final class TestKeyedResourcePool {
         Assert.assertEquals(instancesKey1 + instancesKey2, pool.getNumIdle());
         final String[] keys = new String[]
                             {key2, key1, key2, key1, key2, key1, key2, key2};
-        final SystemOutputImplementation[] outputs =
-            new SystemOutputImplementation[instancesKey1 + instancesKey2];
-        for (int i = 0; i < outputs.length; i++) {
+        final List<Map<ModeType, SystemOutputImplementation>> outputs = 
+                new java.util.ArrayList<Map<ModeType, SystemOutputImplementation>>(instancesKey1 + instancesKey2);
+        for (int i = 0; i < instancesKey1 + instancesKey2; i++) {
             final String key = keys[i];
-            outputs[i] = pool.borrowObject(key);
+            final Map<ModeType, SystemOutputImplementation> current =
+                    pool.borrowObjects(key);
+            Assert.assertNotEquals(0, current.size());
+            outputs.add(current);
         }
         Assert.assertEquals(instancesKey1, pool.getNumActive(key1));
         Assert.assertEquals(instancesKey2, pool.getNumActive(key2));
-        for (int i = 0; i < outputs.length; i++) {
+        for (int i = 0; i < instancesKey1 + instancesKey2; i++) {
             final String key = keys[i];
-            pool.returnObject(key, outputs[i]);
+            final Map<ModeType, SystemOutputImplementation> current =
+                    outputs.get(i);
+            pool.returnObjects(key, current);
         }
         Assert.assertEquals(0, pool.getNumActive(key1));
         Assert.assertEquals(0, pool.getNumActive(key2));

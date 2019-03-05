@@ -138,6 +138,7 @@ public final class KeyedResourcePool<T extends ExternalResource> {
             final ObjectPool<T> pool = modePools.get(mode);
             try {
                 resource = pool.borrowObject();
+                resources.put(mode, resource);
             } catch (Exception e) {
                 returnObjects(key.toString(), resources);
                 throw new NoresourceError(e.getMessage(), e);
@@ -168,6 +169,10 @@ public final class KeyedResourcePool<T extends ExternalResource> {
      */
     public synchronized void returnObjects(final String key,
             final Map<ModeType, T> resources) throws NoresourceError {
+        if (resources.isEmpty()) {
+            LOGGER.warn("no resources to retrun for key '" + key + "'");
+            return;
+        }
         final Map<ModeType, ObjectPool<T>> modePools = getPools(key);
         for (ModeType mode : modePools.keySet()) {
             final ObjectPool<T> pool = modePools.get(mode);

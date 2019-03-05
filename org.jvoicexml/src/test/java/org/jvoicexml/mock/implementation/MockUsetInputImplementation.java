@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -45,6 +40,7 @@ import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.interpreter.datamodel.DataModel;
 import org.jvoicexml.xml.srgs.GrammarType;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
@@ -52,10 +48,9 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * purposes.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.6
  */
-public final class MockSpokenInput
+public final class MockUsetInputImplementation
     implements UserInputImplementation {
     /** Registered output listener. */
     private final Collection<UserInputImplementationListener> listener;
@@ -66,7 +61,7 @@ public final class MockSpokenInput
     /**
      * Constructs a new object.
      */
-    public MockSpokenInput() {
+    public MockUsetInputImplementation() {
         listener = new java.util.ArrayList<UserInputImplementationListener>();
     }
 
@@ -223,5 +218,13 @@ public final class MockSpokenInput
                 current.inputStatusChanged(event);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 }

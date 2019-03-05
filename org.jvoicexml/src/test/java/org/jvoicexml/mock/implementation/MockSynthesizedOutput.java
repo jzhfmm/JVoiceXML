@@ -36,6 +36,7 @@ import org.jvoicexml.event.plain.implementation.OutputStartedEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
@@ -276,5 +277,13 @@ public final class MockSynthesizedOutput implements SystemOutputImplementation {
                 }
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 }

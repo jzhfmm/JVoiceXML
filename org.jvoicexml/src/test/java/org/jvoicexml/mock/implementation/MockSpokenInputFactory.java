@@ -29,6 +29,7 @@ package org.jvoicexml.mock.implementation;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link UserInputImplementation}.
@@ -52,7 +53,7 @@ public final class MockSpokenInputFactory
      */
     public UserInputImplementation createResource()
         throws NoresourceError {
-        return new MockSpokenInput();
+        return new MockUsetInputImplementation();
     }
 
     /**
@@ -82,5 +83,13 @@ public final class MockSpokenInputFactory
      */
     public Class<UserInputImplementation> getResourceType() {
         return UserInputImplementation.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 }

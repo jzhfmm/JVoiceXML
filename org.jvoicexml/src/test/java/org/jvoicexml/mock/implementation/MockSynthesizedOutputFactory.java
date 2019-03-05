@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $LastChangedDate$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2009 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -29,12 +24,12 @@ package org.jvoicexml.mock.implementation;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
 import org.jvoicexml.implementation.SystemOutputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link SystemOutputImplementation}.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  */
 public final class MockSynthesizedOutputFactory
     implements ResourceFactory<SystemOutputImplementation> {
@@ -94,5 +89,13 @@ public final class MockSynthesizedOutputFactory
      */
     public Class<SystemOutputImplementation> getResourceType() {
         return SystemOutputImplementation.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
     }
 }
