@@ -55,11 +55,11 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @version $Revision$
  * @since 0.6
  */
-final class TextSynthesizedOutput
+final class TextSystemOutputImplementation
     implements SystemOutputImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER =
-            Logger.getLogger(TextSynthesizedOutput.class);
+            Logger.getLogger(TextSystemOutputImplementation.class);
 
     /** Queued texts. */
     private final BlockingQueue<SpeakableText> texts;
@@ -73,7 +73,7 @@ final class TextSynthesizedOutput
     /**
      * Constructs a new object.
      */
-    TextSynthesizedOutput() {
+    TextSystemOutputImplementation() {
         texts = new java.util.concurrent.LinkedBlockingQueue<SpeakableText>();
         outputListener = new java.util.ArrayList<SystemOutputImplementationListener>();
     }

@@ -22,6 +22,7 @@
 package org.jvoicexml.implementation.text;
 
 import java.net.InetSocketAddress;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -40,6 +41,8 @@ import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.plain.implementation.RecognitionEvent;
 import org.jvoicexml.event.plain.implementation.UserInputEvent;
+import org.jvoicexml.implementation.SystemOutputImplementation;
+import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.xml.srgs.SrgsXmlDocument;
 import org.jvoicexml.xml.ssml.SsmlDocument;
@@ -123,12 +126,15 @@ public final class TestTextTelephony
      */
     @Test(timeout = 5000)
     public void testPlay() throws Exception, JVoiceXMLEvent {
-        final TextSynthesizedOutput textOutput = new TextSynthesizedOutput();
+        final TextSystemOutputImplementation textOutput = new TextSystemOutputImplementation();
         final String prompt = "testPlay";
         final SpeakableSsmlText speakable = new SpeakableSsmlText(prompt,
                 Locale.US);
         textOutput.queueSpeakable(speakable, sessionId, null);
-        telephony.play(textOutput, null);
+        final Collection<SystemOutputImplementation> outputs =
+                new java.util.ArrayList<SystemOutputImplementation>();
+        outputs.add(textOutput);
+        telephony.play(outputs, null);
         synchronized (lock) {
             lock.wait(MAX_WAIT);
         }
@@ -147,18 +153,21 @@ public final class TestTextTelephony
      */
     @Test(timeout = 5000)
     public void testRecord() throws Exception, JVoiceXMLEvent {
-        final TextSpokenInput textInput = new TextSpokenInput();
+        final TextUserInputImplementation textInput = new TextUserInputImplementation();
         textInput.startRecognition(null, null, null);
         textInput.addListener(this);
         final String utterance = "testRecord";
         mockGrammarChecker(textInput, utterance);
-        telephony.record(textInput, null);
+        final Collection<UserInputImplementation> inputs =
+                new java.util.ArrayList<UserInputImplementation>();
+        inputs.add(textInput);
+        telephony.record(inputs, null);
         Assert.assertTrue(telephony.isBusy());
         server.sendInput(utterance);
         synchronized (lock) {
             lock.wait(MAX_WAIT);
         }
-        Assert.assertNotNull(receivedResult);
+        Assert.assertNotNull("result must not be null", receivedResult);
         // equals should be already done in mocked grammar
         // Assert.assertEquals(utterance, receivedResult.getUtterance());
     }
@@ -173,7 +182,7 @@ public final class TestTextTelephony
      *            the valid text to be allowed in grammar
      * @since 0.7.6
      */
-    private void mockGrammarChecker(final TextSpokenInput textInput,
+    private void mockGrammarChecker(final TextUserInputImplementation textInput,
             final String utterance)
             throws JVoiceXMLEvent, ParserConfigurationException {
         SrgsXmlDocument doc = new SrgsXmlDocument();

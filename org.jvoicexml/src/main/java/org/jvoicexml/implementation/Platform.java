@@ -29,57 +29,59 @@ package org.jvoicexml.implementation;
  */
 public final class Platform implements PlatformFactory {
     /** The used spoken input. */
-    private ResourceFactory<UserInputImplementation> spokenInputFactory;
+    private ResourceFactory<UserInputImplementation> userInputFactory;
 
     /** The used synthesized output. */
-    private ResourceFactory<SystemOutputImplementation> synthesizedOutputFactory;
+    private ResourceFactory<SystemOutputImplementation> systemOutputFactory;
 
     /** The used telephonyFactory implementation. */
-    private ResourceFactory<CallControlImplementation> telephonyFactory;
+    private ResourceFactory<CallControlImplementation> callControlFactory;
 
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<UserInputImplementation> getSpokeninput() {
-        return spokenInputFactory;
+    public ResourceFactory<UserInputImplementation> getUserinputImplemetation() {
+        return userInputFactory;
     }
 
     /**
-     * Sets the spoken input implementation.
+     * Sets the user input implementation.
      * @param input the spokenInputFactory to set
      */
-    public void setSpokeninput(final ResourceFactory<UserInputImplementation> input) {
-        spokenInputFactory = input;
+    public void setUserinputImplementation(final ResourceFactory<UserInputImplementation> input) {
+        userInputFactory = input;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<SystemOutputImplementation> getSynthesizedoutput() {
-        return synthesizedOutputFactory;
+    @Override
+    public ResourceFactory<SystemOutputImplementation> getSystemoutputImplementation() {
+        return systemOutputFactory;
     }
 
     /**
-     * Sets the synthesized output implementation.
+     * Sets the system output implementation.
      * @param output the synthesizedOutputFactory to set
      */
-    public void setSynthesizedoutput(
+    public void setSystemOutputImplementation(
             final ResourceFactory<SystemOutputImplementation> output) {
-        synthesizedOutputFactory = output;
+        systemOutputFactory = output;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<CallControlImplementation> getTelephony() {
-        return telephonyFactory;
+    @Override
+    public ResourceFactory<CallControlImplementation> getCallControlImplementation() {
+        return callControlFactory;
     }
 
     /**
-     * Sets the telephonyFactory implementation.
+     * Sets the call control implementation.
      * @param tel the telephonyFactory to set
      */
-    public void setTelephony(final ResourceFactory<CallControlImplementation> tel) {
-        telephonyFactory = tel;
+    public void setCallControlImplemetnation(final ResourceFactory<CallControlImplementation> tel) {
+        callControlFactory = tel;
     }
 }

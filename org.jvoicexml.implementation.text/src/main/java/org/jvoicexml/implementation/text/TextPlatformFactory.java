@@ -23,11 +23,11 @@ package org.jvoicexml.implementation.text;
 
 import java.util.List;
 
+import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.PlatformFactory;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementation;
-import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.grammar.GrammarParser;
 
 /**
@@ -47,8 +47,9 @@ public final class TextPlatformFactory implements PlatformFactory {
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<UserInputImplementation> getSpokeninput() {
-        final TextSpokenInputFactory factory = new TextSpokenInputFactory();
+    @Override
+    public ResourceFactory<UserInputImplementation> getUserinputImplemetation() {
+        final TextUserInputImplementationFactory factory = new TextUserInputImplementationFactory();
         factory.setInstances(instances);
         factory.setGrammarParsers(parsers);
         return factory;
@@ -57,9 +58,10 @@ public final class TextPlatformFactory implements PlatformFactory {
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<SystemOutputImplementation> getSynthesizedoutput() {
-        final TextSynthesizedOutputFactory factory =
-                new TextSynthesizedOutputFactory();
+    @Override
+    public ResourceFactory<SystemOutputImplementation> getSystemoutputImplementation() {
+        final TextSystemOutputImplementationFactory factory =
+                new TextSystemOutputImplementationFactory();
         factory.setInstances(instances);
         return factory;
     }
@@ -67,7 +69,8 @@ public final class TextPlatformFactory implements PlatformFactory {
     /**
      * {@inheritDoc}
      */
-    public ResourceFactory<CallControlImplementation> getTelephony() {
+    @Override
+    public ResourceFactory<CallControlImplementation> getCallControlImplementation() {
         final TextTelephonyFactory factory = new TextTelephonyFactory();
         factory.setInstances(instances);
         return factory;

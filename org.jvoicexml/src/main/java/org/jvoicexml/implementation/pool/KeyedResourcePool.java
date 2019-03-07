@@ -286,4 +286,20 @@ public final class KeyedResourcePool<T extends ExternalResource> {
             }
         }
     }
+    
+    /**
+     * Dumps the contents of the pools to the log.
+     * @param key the key to look for
+     * @since 0.7.9
+     */
+    public void reportPool(final String key) {
+        final Map<ModeType, ObjectPool<T>> modePools = pools.get(key);
+        for (ModeType mode : modePools.keySet()) {
+            final ObjectPool<T> current = modePools.get(mode);
+            final int avail = getNumIdle(key);
+            LOGGER.info("key: '" + key + "' mode: '" + mode + "' available: " + avail);
+            final int active = getNumActive(key);
+            LOGGER.info("key: '" + key + "' mode: '" + mode + "' active:    " + active);
+        }
+    }
 }

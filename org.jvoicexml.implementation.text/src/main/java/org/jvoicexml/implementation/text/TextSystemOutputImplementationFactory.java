@@ -21,34 +21,29 @@
 
 package org.jvoicexml.implementation.text;
 
-import java.util.List;
-
 import org.jvoicexml.client.text.TextConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.grammar.GrammarParser;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
- * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link UserInputImplementation} based on a simple text interface.
+ * Demo implementation of a
+ * {@link org.jvoicexml.implementation.ResourceFactory} for the
+ * {@link SystemOutputImplementation} based on a simple text interface.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-public final class TextSpokenInputFactory
-        implements ResourceFactory<UserInputImplementation> {
+public final class TextSystemOutputImplementationFactory
+    implements ResourceFactory<SystemOutputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
-
-    /** The configured grammar parser. */
-    private List<GrammarParser<?>> parsers;
 
     /**
      * Constructs a new object.
      */
-    public TextSpokenInputFactory() {
+    public TextSystemOutputImplementationFactory() {
     }
 
     /**
@@ -60,31 +55,16 @@ public final class TextSpokenInputFactory
     }
 
     /**
-     * Sets the grammar parsers to use.
-     * 
-     * @param grammarParsers
-     *            the grammar parsers to use
-     * @since 0.7.8
-     */
-    public void setGrammarParsers(final List<GrammarParser<?>> grammarParsers) {
-        parsers = grammarParsers;
-    }
-
-    /**
      * {@inheritDoc}
      */
-    @Override
-    public UserInputImplementation createResource() throws NoresourceError {
-        final TextSpokenInput input = new TextSpokenInput();
-        input.setGrammarParsers(parsers);
-        return input;
+    public SystemOutputImplementation createResource()
+        throws NoresourceError {
+        return new TextSystemOutputImplementation();
     }
 
     /**
      * Sets the number of instances that this factory will create.
-     * 
-     * @param number
-     *            Number of instances to create.
+     * @param number Number of instances to create.
      */
     public void setInstances(final int number) {
         instances = number;
@@ -93,7 +73,6 @@ public final class TextSpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    @Override
     public int getInstances() {
         return instances;
     }
@@ -101,7 +80,6 @@ public final class TextSpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    @Override
     public String getType() {
         return TextConnectionInformation.TYPE;
     }
@@ -109,8 +87,7 @@ public final class TextSpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    @Override
-    public Class<UserInputImplementation> getResourceType() {
-        return UserInputImplementation.class;
+    public Class<SystemOutputImplementation> getResourceType() {
+        return SystemOutputImplementation.class;
     }
 }

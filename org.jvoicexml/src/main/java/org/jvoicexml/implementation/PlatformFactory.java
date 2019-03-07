@@ -39,17 +39,17 @@ public interface PlatformFactory {
      * Retrieves the spoken input implementation.
      * @return the spokenInputFactory
      */
-    ResourceFactory<UserInputImplementation> getSpokeninput();
+    ResourceFactory<UserInputImplementation> getUserinputImplemetation();
 
     /**
      * Retrieves the synthesized output implementation.
      * @return the synthesizedOutputFactory
      */
-    ResourceFactory<SystemOutputImplementation> getSynthesizedoutput();
+    ResourceFactory<SystemOutputImplementation> getSystemoutputImplementation();
 
     /**
      * Retrieves the telephonyFactory implementation.
      * @return the telephonyFactory
      */
-    ResourceFactory<CallControlImplementation> getTelephony();
+    ResourceFactory<CallControlImplementation> getCallControlImplementation();
 }

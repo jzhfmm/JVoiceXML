@@ -6,9 +6,9 @@
  * <p>
  * Main classes are {@link org.jvoicexml.implementation.text.TextTelephony}
  * as an interface to the client and
- * {@link org.jvoicexml.implementation.text.TextSynthesizedOutput} as a bridge
+ * {@link org.jvoicexml.implementation.text.TextSystemOutputImplementation} as a bridge
  * to send the SSML documents to the client and
- * {@link org.jvoicexml.implementation.text.TextSpokenInput} as a bridge
+ * {@link org.jvoicexml.implementation.text.TextUserInputImplementation} as a bridge
  * to receive input from the client.
  * </p>
  * 

@@ -51,10 +51,10 @@ import org.jvoicexml.xml.srgs.ModeType;
  * 
  * <p>
  * This class provides the basic communication means with a client. System
- * output is taken from the {@link TextSynthesizedOutput} and handed to
+ * output is taken from the {@link TextSystemOutputImplementation} and handed to
  * the {@link TextSenderThread} to send them to the client. User input
  * is received from the {@link TextReceiverThread} to forward the received
- * messages to the {@link TextSpokenInput}.
+ * messages to the {@link TextUserInputImplementation}.
  * </p>
  *
  * @author Dirk Schnelle-Walka
@@ -81,7 +81,7 @@ public final class TextTelephony implements CallControlImplementation {
     private TextSenderThread sender;
 
     /** The current text synthesizer. */
-    private TextSynthesizedOutput textOutput;
+    private TextSystemOutputImplementation textOutput;
 
     /** Registered call control listeners. */
     private final Collection<CallControlImplementationListener> listener;
@@ -112,16 +112,25 @@ public final class TextTelephony implements CallControlImplementation {
      * {@inheritDoc}
      */
     @Override
-    public void play(final SystemOutputImplementation output,
-            final CallControlProperties props)
-            throws NoresourceError, IOException {
+    public void play(Collection<SystemOutputImplementation> outputs,
+            CallControlProperties props) throws NoresourceError, IOException {
         if (sentHungup) {
             throw new NoresourceError("connection disconnected");
         }
-        if (!(output instanceof TextSynthesizedOutput)) {
+        // We are expecting only 1 output with mode VOICE
+        if (outputs.isEmpty()) {
+            throw new NoresourceError("No output devices provided");
+        }
+        final SystemOutputImplementation output = outputs.iterator().next();
+        if (output.getModeType() != ModeType.VOICE) {
+            throw new NoresourceError(
+                    "No output devices with correct mode type provided");
+            
+        }
+        if (!(output instanceof TextSystemOutputImplementation)) {
             throw new IOException("output does not deliver text!");
         }
-        textOutput = (TextSynthesizedOutput) output;
+        textOutput = (TextSystemOutputImplementation) output;
 
         // Retrieves the next message asynchronously.
         final Thread thread = new Thread() {
@@ -233,15 +242,21 @@ public final class TextTelephony implements CallControlImplementation {
         if (sentHungup) {
             throw new NoresourceError("connection disconnected");
         }
+        // We are only expecting 1 input of type Voice
         if (inputs.isEmpty()) {
-            throw new NoresourceError("no inpus provided");
+            throw new NoresourceError("no inputs provided");
         }
         final UserInputImplementation input = inputs.iterator().next();
-        if (!(input instanceof TextSpokenInput)) {
+        if (input.getModeType() != ModeType.VOICE) {
+            throw new NoresourceError(
+                    "No input devices with correct mode type provided");
+            
+        }
+        if (!(input instanceof TextUserInputImplementation)) {
             throw new IOException("input does not support texts!");
         }
         fireRecordStarted();
-        final TextSpokenInput textInput = (TextSpokenInput) input;
+        final TextUserInputImplementation textInput = (TextUserInputImplementation) input;
         receiver.setSpokenInput(textInput);
         sender.sendExpectingInput();
     }
@@ -618,7 +633,6 @@ public final class TextTelephony implements CallControlImplementation {
         final Collection<ModeType> modes =
                 new java.util.ArrayList<ModeType>();
         modes.add(ModeType.VOICE);
-        modes.add(ModeType.DTMF);
         return modes;
     }
 }

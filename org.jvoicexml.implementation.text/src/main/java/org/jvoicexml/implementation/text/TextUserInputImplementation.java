@@ -64,10 +64,10 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-final class TextSpokenInput implements UserInputImplementation {
+final class TextUserInputImplementation implements UserInputImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
-            .getLogger(TextSpokenInput.class);
+            .getLogger(TextUserInputImplementation.class);
 
     /** Supported barge-in types. */
     private static final Collection<BargeInType> BARGE_IN_TYPES;
@@ -96,7 +96,7 @@ final class TextSpokenInput implements UserInputImplementation {
     /**
      * Constructs a new object.
      */
-    TextSpokenInput() {
+    TextUserInputImplementation() {
         activeGrammars = new java.util.ArrayList<GrammarImplementation<?>>();
         parsers = new java.util.HashMap<String, GrammarParser<?>>();
         listener = new java.util.ArrayList<UserInputImplementationListener>();

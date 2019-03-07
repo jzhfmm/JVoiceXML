@@ -28,16 +28,16 @@ import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.SystemOutputImplementation;
 
 /**
- * Test cases for {@link TextSynthesizedOutputFactory}.
+ * Test cases for {@link TextSystemOutputImplementationFactory}.
  * @author Dirk Schnelle
  *
  */
-public final class TestTextSynthesizedOutputFactory {
+public final class TestTextSystemOutputImplementationFactory {
     /** The number of instances that this factory can create. */
     private static final int INSTANCES = 500;
 
     /** The object to test. */
-    private TextSynthesizedOutputFactory factory;
+    private TextSystemOutputImplementationFactory factory;
 
     /**
      * Set up the test environment.
@@ -45,12 +45,12 @@ public final class TestTextSynthesizedOutputFactory {
      */
     @Before
     public void setUp() throws Exception {
-        factory = new TextSynthesizedOutputFactory();
+        factory = new TextSystemOutputImplementationFactory();
         factory.setInstances(INSTANCES);
     }
 
     /**
-     * Test method for {@link org.jvoicexml.implementation.text.TextSynthesizedOutputFactory#createResource()}.
+     * Test method for {@link org.jvoicexml.implementation.text.TextSystemOutputImplementationFactory#createResource()}.
      * @throws Exception
      *         Test failed.
      * @throws NoresourceError
@@ -65,14 +65,14 @@ public final class TestTextSynthesizedOutputFactory {
     }
 
     /**
-     * Test method for {@link org.jvoicexml.implementation.text.TextSynthesizedOutputFactory#getInstances()}.
+     * Test method for {@link org.jvoicexml.implementation.text.TextSystemOutputImplementationFactory#getInstances()}.
      */
     public void testGetInstances() {
         Assert.assertEquals(INSTANCES, factory.getInstances());
     }
 
     /**
-     * Test method for {@link org.jvoicexml.implementation.text.TextSynthesizedOutputFactory#getType()}.
+     * Test method for {@link org.jvoicexml.implementation.text.TextSystemOutputImplementationFactory#getType()}.
      */
     public void testGetType() {
         Assert.assertEquals("text", factory.getType());

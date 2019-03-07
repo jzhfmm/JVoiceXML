@@ -44,7 +44,7 @@ final class TextReceiverThread extends Thread {
     private final Socket socket;
 
     /** Reference to the spoken input device. */
-    private TextSpokenInput input;
+    private TextUserInputImplementation input;
 
     /** Reference to the telephony device. */
     private final TextTelephony telephony;
@@ -79,7 +79,7 @@ final class TextReceiverThread extends Thread {
      * @param spokenInput
      *        the spoken input device.
      */
-    void setSpokenInput(final TextSpokenInput spokenInput) {
+    void setSpokenInput(final TextUserInputImplementation spokenInput) {
         input = spokenInput;
     }
 
