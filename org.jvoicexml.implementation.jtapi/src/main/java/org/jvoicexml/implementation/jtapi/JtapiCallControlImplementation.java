@@ -57,9 +57,10 @@ import org.jvoicexml.xml.srgs.ModeType;
  * @author Dirk Schnelle-Walka
  * @since 0.6
  */
-public final class JtapiTelephony implements CallControlImplementation, CallControlImplementationListener {
+public final class JtapiCallControlImplementation
+    implements CallControlImplementation, CallControlImplementationListener {
     /** Logger instance. */
-    private static final Logger LOGGER = Logger.getLogger(JtapiTelephony.class);
+    private static final Logger LOGGER = Logger.getLogger(JtapiCallControlImplementation.class);
 
     /** Listener to this call control. */
     private final Collection<CallControlImplementationListener> callControlListeners;
@@ -70,7 +71,7 @@ public final class JtapiTelephony implements CallControlImplementation, CallCont
     /**
      * Constructs a new object.
      */
-    public JtapiTelephony() {
+    public JtapiCallControlImplementation() {
         callControlListeners = new java.util.ArrayList<CallControlImplementationListener>();
     }
 

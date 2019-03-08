@@ -29,7 +29,7 @@ package org.jvoicexml.implementation.jsapi10.speakstrategy;
 import org.apache.log4j.Logger;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.jsapi10.Jsapi10SynthesizedOutput;
+import org.jvoicexml.implementation.jsapi10.Jsapi10SystemOutputImplementation;
 import org.jvoicexml.xml.SsmlNode;
 
 /**
@@ -45,7 +45,7 @@ final class EmphasisSpeakStrategy extends SpeakStrategyBase {
     /**
      * {@inheritDoc}
      */
-    public void speak(final Jsapi10SynthesizedOutput output,
+    public void speak(final Jsapi10SystemOutputImplementation output,
             final SsmlNode node)
         throws NoresourceError, BadFetchError {
         LOGGER.warn("JSAPI 1.0 does not support emphasis: ignoring");

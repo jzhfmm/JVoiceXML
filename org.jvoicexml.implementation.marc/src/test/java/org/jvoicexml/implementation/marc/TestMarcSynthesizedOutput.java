@@ -35,14 +35,14 @@ import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.xml.sax.InputSource;
 
 /**
- * Test cases for {@link MarcSynthesizedOutput}.
+ * Test cases for {@link MarcSystemOutputImplementation}.
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  * @since 0.7.5
  */
 public final class TestMarcSynthesizedOutput {
     /**
-     * Test method for {@link org.jvoicexml.implementation.marc.MarcSynthesizedOutput#queueSpeakable(org.jvoicexml.SpeakableText, java.lang.String, org.jvoicexml.DocumentServer)}.
+     * Test method for {@link org.jvoicexml.implementation.marc.MarcSystemOutputImplementation#queueSpeakable(org.jvoicexml.SpeakableText, java.lang.String, org.jvoicexml.DocumentServer)}.
      * @exception Exception test failed
      * @exception JVoiceXMLEvent test failed
      */
@@ -52,14 +52,14 @@ public final class TestMarcSynthesizedOutput {
         final Speak speak = doc.getSpeak();
         speak.addText("This is a test!");
         final SpeakableSsmlText speakable = new SpeakableSsmlText(doc);
-        final MarcSynthesizedOutput output = new MarcSynthesizedOutput();
+        final MarcSystemOutputImplementation output = new MarcSystemOutputImplementation();
         output.activate();
         output.connect(null);
         output.queueSpeakable(speakable, null, null);
     }
 
     /**
-     * Test method for {@link org.jvoicexml.implementation.marc.MarcSynthesizedOutput#queueSpeakable(org.jvoicexml.SpeakableText, java.lang.String, org.jvoicexml.DocumentServer)}.
+     * Test method for {@link org.jvoicexml.implementation.marc.MarcSystemOutputImplementation#queueSpeakable(org.jvoicexml.SpeakableText, java.lang.String, org.jvoicexml.DocumentServer)}.
      * @exception Exception test failed
      * @exception JVoiceXMLEvent test failed
      */
@@ -71,7 +71,7 @@ public final class TestMarcSynthesizedOutput {
         final InputSource source = new InputSource(in);
         final SsmlDocument doc = new SsmlDocument(source);
         final SpeakableSsmlText speakable = new SpeakableSsmlText(doc);
-        final MarcSynthesizedOutput output = new MarcSynthesizedOutput();
+        final MarcSystemOutputImplementation output = new MarcSystemOutputImplementation();
         output.activate();
         output.connect(null);
         output.queueSpeakable(speakable, null, null);

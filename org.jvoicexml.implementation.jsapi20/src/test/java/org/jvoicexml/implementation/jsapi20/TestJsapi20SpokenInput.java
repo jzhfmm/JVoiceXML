@@ -56,14 +56,14 @@ import org.jvoicexml.xml.srgs.Rule;
 import org.jvoicexml.xml.srgs.SrgsXmlDocument;
 
 /**
- * Test cases for {@link Jsapi20SynthesizedOutput}.
+ * Test cases for {@link Jsapi20SystemOutputImplementation}.
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  * @since 0.7.4
  */
 public final class TestJsapi20SpokenInput implements UserInputImplementationListener {
     /** The test object. */
-    private Jsapi20SpokenInput input;
+    private Jsapi20UserInputImplementation input;
 
     /** Semaphore to notify a recognition result. */
     private final Object monitor = new Object();
@@ -92,7 +92,7 @@ public final class TestJsapi20SpokenInput implements UserInputImplementationList
     @Before
     public void setUp() throws Exception, JVoiceXMLEvent {
         final RecognizerMode mode = RecognizerMode.DEFAULT;
-        input = new Jsapi20SpokenInput(mode, null);
+        input = new Jsapi20UserInputImplementation(mode, null);
         input.open();
         input.addListener(this);
         input.activate();
@@ -155,7 +155,7 @@ public final class TestJsapi20SpokenInput implements UserInputImplementationList
     }
 
     /**
-     * Test case for {@link Jsapi20SpokenInput#startRecognition(org.jvoicexml.SpeechRecognizerProperties, org.jvoicexml.DtmfRecognizerProperties)}.
+     * Test case for {@link Jsapi20UserInputImplementation#startRecognition(org.jvoicexml.SpeechRecognizerProperties, org.jvoicexml.DtmfRecognizerProperties)}.
      * @throws Exception
      *         test failed
      * @throws JVoiceXMLEvent

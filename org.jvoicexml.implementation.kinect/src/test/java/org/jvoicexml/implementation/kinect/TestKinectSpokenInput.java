@@ -36,7 +36,7 @@ import org.jvoicexml.event.plain.implementation.UserInputEvent;
 import org.jvoicexml.mock.implementation.MockSpokenInputListener;
 
 /**
- * Tests for {@link KinectSpokenInput}.
+ * Tests for {@link KinectUserInputImplementation}.
  * 
  * @author Dirk Schnelle-Walka
  * @version $Revision$
@@ -49,39 +49,39 @@ public class TestKinectSpokenInput {
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.kinect.KinectSpokenInput#getType()}.
+     * {@link org.jvoicexml.implementation.kinect.KinectUserInputImplementation#getType()}.
      */
     @Test
     public void testGetType() {
-        final KinectSpokenInput input = new KinectSpokenInput();
+        final KinectUserInputImplementation input = new KinectUserInputImplementation();
         input.setType("kinect");
         Assert.assertEquals("kinect", input.getType());
     }
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.kinect.KinectSpokenInput#open()}.
+     * {@link org.jvoicexml.implementation.kinect.KinectUserInputImplementation#open()}.
      * 
      * @throws JVoiceXMLEvent
      *             test failed
      */
     @Test
     public void testOpen() throws JVoiceXMLEvent {
-        final KinectSpokenInput input = new KinectSpokenInput();
+        final KinectUserInputImplementation input = new KinectUserInputImplementation();
         input.open();
         Assert.assertTrue(input.isOpen());
     }
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.kinect.KinectSpokenInput#activate()}.
+     * {@link org.jvoicexml.implementation.kinect.KinectUserInputImplementation#activate()}.
      * 
      * @throws JVoiceXMLEvent
      *             test failed
      */
     @Test
     public void testActivate() throws JVoiceXMLEvent {
-        final KinectSpokenInput input = new KinectSpokenInput();
+        final KinectUserInputImplementation input = new KinectUserInputImplementation();
         input.open();
         input.activate();
         Assert.assertTrue(input.isActivated());
@@ -91,7 +91,7 @@ public class TestKinectSpokenInput {
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.kinect.KinectSpokenInput#startRecognition(org.jvoicexml.SpeechRecognizerProperties, org.jvoicexml.DtmfRecognizerProperties)}
+     * {@link org.jvoicexml.implementation.kinect.KinectUserInputImplementation#startRecognition(org.jvoicexml.SpeechRecognizerProperties, org.jvoicexml.DtmfRecognizerProperties)}
      * .
      * 
      * @throws JVoiceXMLEvent
@@ -101,7 +101,7 @@ public class TestKinectSpokenInput {
      */
     @Test
     public void testStartRecognition() throws JVoiceXMLEvent, Exception {
-        final KinectSpokenInput input = new KinectSpokenInput();
+        final KinectUserInputImplementation input = new KinectUserInputImplementation();
         final MockSpokenInputListener listener = new MockSpokenInputListener();
         input.addListener(listener);
         input.open();
@@ -121,7 +121,7 @@ public class TestKinectSpokenInput {
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.kinect.KinectSpokenInput#stopRecognition()}
+     * {@link org.jvoicexml.implementation.kinect.KinectUserInputImplementation#stopRecognition()}
      * .
      * 
      * @throws JVoiceXMLEvent
@@ -131,7 +131,7 @@ public class TestKinectSpokenInput {
      */
     @Test
     public void testStopRecognition() throws Exception, JVoiceXMLEvent {
-        final KinectSpokenInput input = new KinectSpokenInput();
+        final KinectUserInputImplementation input = new KinectUserInputImplementation();
         final MockSpokenInputListener listener = new MockSpokenInputListener();
         input.addListener(listener);
         input.open();

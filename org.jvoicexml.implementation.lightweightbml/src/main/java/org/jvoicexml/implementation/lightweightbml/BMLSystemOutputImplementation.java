@@ -66,11 +66,11 @@ import org.w3c.dom.NodeList;
  * 
  * @since 0.7.7
  */
-public final class BMLSynthesizedOutput
+public final class BMLSystemOutputImplementation
     implements SystemOutputImplementation, BMLClient {
     /** Logger for this class. */
     private static final Logger LOGGER =
-            Logger.getLogger(BMLSynthesizedOutput.class);
+            Logger.getLogger(BMLSystemOutputImplementation.class);
 
     /** BML Namespace URI. */
     private static final String BML_NAMESPACE_URI =
@@ -123,7 +123,7 @@ public final class BMLSynthesizedOutput
     /**
      * Constructs a new object.
      */
-    public BMLSynthesizedOutput() {
+    public BMLSystemOutputImplementation() {
         listeners = new java.util.ArrayList<SystemOutputImplementationListener>();
         speakables = new SpeakableQueue();
     }

@@ -1,10 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2011-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
- * The JVoiceXML group hereby disclaims all copyright interest in the
- * library `JVoiceXML' (a free VoiceXML implementation).
- * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
+ * Copyright (C) 2014-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -21,8 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
-package org.jvoicexml.implementation.marc;
+package org.jvoicexml.implementation.lightweightbml;
 
 import java.net.UnknownHostException;
 
@@ -33,18 +29,21 @@ import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link org.jvoicexml.implementation.SystemOutputImplementation} for MARC.
- *
- * @author Dirk Schnelle-Walka
- * @since 0.7.5
+ * for the {@link org.jvoicexml.implementation.SystemOutputImplementation} for LightweightBML and TalkingHead.
+ * 
+ * @author Matthias Mettel
+ * @author Markus Ermuth
+ * @author Alex Krause
+ * 
+ * @since 0.7.7
  */
-public final class MarcSynthesizedOutputFactory
+public final class BMLSystemOutputImplementationFactory
         implements ResourceFactory<SystemOutputImplementation> {
-    /** Default port of MARC. */
-    private static final int MARC_DEFAULT_PORT = 4010;
+    /** Default port of Avatar. */
+    private static final int AVATAR_DEFAULT_PORT = 4010;
 
-    /** Default port of MARC. */
-    private static final int MARC_DEFAULT_FEEDBACK_PORT = 4011;
+    /** Default port of Avatar. */
+    private static final int AVATAR_DEFAULT_FEEDBACK_PORT = 4011;
 
     /** Number of instances that this factory will create. */
     private int instances;
@@ -52,31 +51,31 @@ public final class MarcSynthesizedOutputFactory
     /** Type of the created resources. */
     private String type;
 
-    /** MARC host. */
+    /** Avatar host. */
     private String host;
 
-    /** MARC port number. */
+    /** Avatar port number. */
     private int port;
 
-    /** Port number for feedback from MARC. */
+    /** Port number for feedback from Avatar. */
     private int feedbackPort;
 
-    /** An external MARC publisher. */
-    private ExternalMarcPublisher external;
+    /** An external BML publisher. */
+    private ExternalBMLPublisher external;
 
-    /** The voice to use for MARC. */
-    private String voice;
-
-    /** The default locale for text to be synthesized. */
-    private String defaultLocale;
+//    /** The voice to use for Avatar. */
+//    private String voice;
+//
+//    /** The default locale for text to be synthesized. */
+//    private String defaultLocale;
 
     /**
      * Constructs a new object.
      */
-    public MarcSynthesizedOutputFactory() {
-        type = "marc";
-        port = MARC_DEFAULT_PORT;
-        feedbackPort = MARC_DEFAULT_FEEDBACK_PORT;
+    public BMLSystemOutputImplementationFactory() {
+        type = "bml";
+        port = AVATAR_DEFAULT_PORT;
+        feedbackPort = AVATAR_DEFAULT_FEEDBACK_PORT;
     }
 
     /**
@@ -92,13 +91,13 @@ public final class MarcSynthesizedOutputFactory
      * @param publisher
      *        the external publisher
      */
-    public void setExternalMarcPublisher(
-            final ExternalMarcPublisher publisher) {
+    public void setExternalBMLPublisher(
+            final ExternalBMLPublisher publisher) {
         external = publisher;
     }
 
     /**
-     * Sets the host name of MARC.
+     * Sets the host name of Avatar.
      *
      * @param value
      *            the host to set
@@ -108,7 +107,7 @@ public final class MarcSynthesizedOutputFactory
     }
 
     /**
-     * Sets the port number of MARC.
+     * Sets the port number of Avatar.
      *
      * @param portNumber
      *            the port to set
@@ -118,7 +117,7 @@ public final class MarcSynthesizedOutputFactory
     }
 
     /**
-     * Sets the feedback port number of MARC.
+     * Sets the feedback port number of Avatar.
      *
      * @param portNumber
      *            the port to set
@@ -127,29 +126,29 @@ public final class MarcSynthesizedOutputFactory
         feedbackPort = portNumber;
     }
 
-    /**
-     * Sets the name of the voice to use.
-     * @param name name of the voice
-     * @since 0.7.6
-     */
-    public void setVoice(final String name) {
-        voice = name;
-    }
-
-    /**
-     * Sets the default locale.
-     * @param locale the default locale
-     * @since 0.7.6
-     */
-    public void setDefaultLocale(final String locale) {
-        defaultLocale = locale;
-    }
+//    /**
+//     * Sets the name of the voice to use.
+//     * @param name name of the voice
+//     * @since 0.7.6
+//     */
+//    public void setVoice(final String name) {
+//        voice = name;
+//    }
+//
+//    /**
+//     * Sets the default locale.
+//     * @param locale the default locale
+//     * @since 0.7.6
+//     */
+//    public void setDefaultLocale(final String locale) {
+//        defaultLocale = locale;
+//    }
 
     /**
      * {@inheritDoc}
      */
     public SystemOutputImplementation createResource() throws NoresourceError {
-        final MarcSynthesizedOutput output = new MarcSynthesizedOutput();
+        final BMLSystemOutputImplementation output = new BMLSystemOutputImplementation();
         output.setType(type);
         try {
             output.setHost(host);
@@ -158,9 +157,9 @@ public final class MarcSynthesizedOutputFactory
         }
         output.setPort(port);
         output.setFeedbackPort(feedbackPort);
-        output.setExternalMarcPublisher(external);
-        output.setVoice(voice);
-        output.setDefaultLocale(defaultLocale);
+        output.setExternalBMLPublisher(external);
+//        output.setVoice(voice);
+//        output.setDefaultLocale(defaultLocale);
         return output;
     }
 
@@ -193,7 +192,7 @@ public final class MarcSynthesizedOutputFactory
      * Sets the type of the created resource.
      * @param typeName name of the resource
      */
-    void setType(final String typeName) {
+    public void setType(final String typeName) {
         type = typeName;
     }
 

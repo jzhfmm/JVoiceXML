@@ -102,7 +102,7 @@ public final class TestKinectRecognizer {
      */
     @Test
     public void testStartRecognition() throws Exception {
-        final KinectSpokenInput input = new KinectSpokenInput();
+        final KinectUserInputImplementation input = new KinectUserInputImplementation();
         final MockSpokenInputListener listener = new MockSpokenInputListener();
         input.addListener(listener);
         final KinectRecognizer recognizer = new KinectRecognizer(input);
@@ -125,7 +125,7 @@ public final class TestKinectRecognizer {
      */
     @Test
     public void testStartRecognitionMultiple() throws Exception {
-        final KinectSpokenInput input = new KinectSpokenInput();
+        final KinectUserInputImplementation input = new KinectUserInputImplementation();
         final MockSpokenInputListener listener = new MockSpokenInputListener();
         input.addListener(listener);
         final KinectRecognizer recognizer = new KinectRecognizer(input);

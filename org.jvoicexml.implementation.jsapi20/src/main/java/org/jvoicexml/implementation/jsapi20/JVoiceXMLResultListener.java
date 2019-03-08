@@ -45,7 +45,7 @@ public final class JVoiceXMLResultListener implements ResultListener {
             .getLogger(JVoiceXMLResultListener.class);
 
     /** The related input device. */
-    private final Jsapi20SpokenInput input;
+    private final Jsapi20UserInputImplementation input;
 
     /**
      * Construct a new object.
@@ -53,7 +53,7 @@ public final class JVoiceXMLResultListener implements ResultListener {
      * @param spokenInput
      *            the related input device.
      */
-    public JVoiceXMLResultListener(final Jsapi20SpokenInput spokenInput) {
+    public JVoiceXMLResultListener(final Jsapi20UserInputImplementation spokenInput) {
         input = spokenInput;
     }
 

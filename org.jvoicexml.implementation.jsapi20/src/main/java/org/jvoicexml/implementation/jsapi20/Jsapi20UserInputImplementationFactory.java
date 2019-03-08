@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -42,11 +42,11 @@ import org.jvoicexml.xml.srgs.ModeType;
  * @author Dirk Schnelle-Walka
  * @since 0.5.5
  */
-public final class Jsapi20SpokenInputFactory
+public final class Jsapi20UserInputImplementationFactory
     implements ResourceFactory<UserInputImplementation> {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
-            .getLogger(Jsapi20SpokenInputFactory.class);
+            .getLogger(Jsapi20UserInputImplementationFactory.class);
 
     /** Number of instances that this factory will create. */
     private int instances;
@@ -64,7 +64,7 @@ public final class Jsapi20SpokenInputFactory
      * Constructs a new object.
      * @param engineFactory class name of the engine list factory.
      */
-    public Jsapi20SpokenInputFactory(final String engineFactory) {
+    public Jsapi20UserInputImplementationFactory(final String engineFactory) {
         type = "jsapi20";
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("registering engine list factory '"
@@ -113,7 +113,7 @@ public final class Jsapi20SpokenInputFactory
      */
     public UserInputImplementation createResource() throws NoresourceError {
         final RecognizerMode mode = getEngineMode();
-        final Jsapi20SpokenInput input = new Jsapi20SpokenInput(mode,
+        final Jsapi20UserInputImplementation input = new Jsapi20UserInputImplementation(mode,
                 locatorFactory);
         input.setType(type);
         if (locatorFactory != null) {

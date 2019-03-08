@@ -75,11 +75,11 @@ import net.sourceforge.halef.HalefDbWriter;
  * @author Patrick L. Lange
  * @since 0.7
  */
-public final class Mrcpv2SpokenInput
+public final class Mrcpv2UserInputImplementation
         implements UserInputImplementation, SpeechEventListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
-            .getLogger(Mrcpv2SpokenInput.class);
+            .getLogger(Mrcpv2UserInputImplementation.class);
 
     /** Listener for user input events. */
     private final Collection<UserInputImplementationListener> listeners;
@@ -107,7 +107,7 @@ public final class Mrcpv2SpokenInput
     /**
      * Constructs a new object.
      */
-    public Mrcpv2SpokenInput() {
+    public Mrcpv2UserInputImplementation() {
         activeGrammars = new java.util.ArrayList<GrammarImplementation<?>>();
         listeners = new java.util.ArrayList<UserInputImplementationListener>();
         parsers = new java.util.HashMap<String, GrammarParser<?>>();

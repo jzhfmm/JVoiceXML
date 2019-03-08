@@ -58,7 +58,7 @@ import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
- * Test cases for {@link Jsapi20SynthesizedOutput}.
+ * Test cases for {@link Jsapi20SystemOutputImplementation}.
  * @author Dirk Schnelle-Walka
  * @version $Revision$
  * @since 0.7.4
@@ -78,7 +78,7 @@ public final class TestJsapi20SynthesizedOutput {
     private static final int TIMEOUT = 1000;
 
     /** The test object. */
-    private Jsapi20SynthesizedOutput output;
+    private Jsapi20SystemOutputImplementation output;
 
     /** Listener for output events. */
     private MockSynthesizedOutputListener listener;
@@ -119,7 +119,7 @@ public final class TestJsapi20SynthesizedOutput {
     @Before
     public void setUp() throws Exception, JVoiceXMLEvent {
         final SynthesizerMode mode = SynthesizerMode.DEFAULT;
-        output = new Jsapi20SynthesizedOutput(mode, null);
+        output = new Jsapi20SystemOutputImplementation(mode, null);
         output.open();
         output.activate();
         listener = new MockSynthesizedOutputListener();
@@ -142,7 +142,7 @@ public final class TestJsapi20SynthesizedOutput {
     }
 
     /**
-     * Test method for {@link Jsapi20SynthesizedOutput#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}.
+     * Test method for {@link Jsapi20SystemOutputImplementation#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}.
      * @throws JVoiceXMLEvent
      *         Test failed.
      * @throws Exception
@@ -175,7 +175,7 @@ public final class TestJsapi20SynthesizedOutput {
     }
 
     /**
-     * Test method for {@link Jsapi20SynthesizedOutput#waitQueueEmpty()}.
+     * Test method for {@link Jsapi20SystemOutputImplementation#waitQueueEmpty()}.
      * @throws JVoiceXMLEvent
      *         test failed
      * @throws Exception
@@ -194,7 +194,7 @@ public final class TestJsapi20SynthesizedOutput {
     }
 
     /**
-     * Test method for {@link Jsapi20SynthesizedOutput#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}.
+     * Test method for {@link Jsapi20SystemOutputImplementation#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}.
      * @throws JVoiceXMLEvent
      *         test failed.
      * @throws Exception
@@ -238,7 +238,7 @@ public final class TestJsapi20SynthesizedOutput {
     
 
     /**
-     * Test method for {@link Jsapi20SynthesizedOutput#cancelOutput()}.
+     * Test method for {@link Jsapi20SystemOutputImplementation#cancelOutput()}.
      * @throws JVoiceXMLEvent
      *         test failed
      * @throws Exception
@@ -271,7 +271,7 @@ public final class TestJsapi20SynthesizedOutput {
     }
     
     /**
-     * Test method for {@link Jsapi20SynthesizedOutput#cancelOutput()}.
+     * Test method for {@link Jsapi20SystemOutputImplementation#cancelOutput()}.
      * @throws JVoiceXMLEvent
      *         test failed
      * @throws Exception

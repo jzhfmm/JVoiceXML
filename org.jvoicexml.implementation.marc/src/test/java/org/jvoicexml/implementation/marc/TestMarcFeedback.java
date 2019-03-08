@@ -68,7 +68,7 @@ public final class TestMarcFeedback implements SystemOutputImplementationListene
      */
     @Test
     public void testRun() throws Exception, JVoiceXMLEvent {
-        final MarcSynthesizedOutput output = new MarcSynthesizedOutput();
+        final MarcSystemOutputImplementation output = new MarcSystemOutputImplementation();
         output.connect(null);
         output.addListener(this);
         final SpeakableText speakable = new SpeakableSsmlText("test",

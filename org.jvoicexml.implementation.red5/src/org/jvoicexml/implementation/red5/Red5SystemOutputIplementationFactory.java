@@ -2,6 +2,9 @@
  * JVoiceXML - A free VoiceXML implementation.
  *
  * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * The JVoiceXML group hereby disclaims all copyright interest in the
+ * library `JVoiceXML' (a free VoiceXML implementation).
+ * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -23,18 +26,19 @@ package org.jvoicexml.implementation.red5;
 
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
  * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link UserInputImplementation} based on JSAPI 2.0.
+ * for the {@link org.jvoicexml.implementation.SystemOutputImplementation} based on
+ * JSAPI 2.0.
  *
  * @author Dirk Schnelle-Walka
- * @since 0.7.4
+ * @since 0.5.5
  */
-public final class Red5SpokenInputFactory
-    implements ResourceFactory<UserInputImplementation> {
+public final class Red5SystemOutputIplementationFactory
+        implements ResourceFactory<SystemOutputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -43,8 +47,9 @@ public final class Red5SpokenInputFactory
 
     /**
      * Constructs a new object.
+     * @param engineFactory class name of the engine list factory.
      */
-    public Red5SpokenInputFactory() {
+    public Red5SystemOutputIplementationFactory() {
         type = "red5";
     }
 
@@ -59,17 +64,17 @@ public final class Red5SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public UserInputImplementation createResource() throws NoresourceError {
-        final Red5SpokenInput input = new Red5SpokenInput();
-        input.setType(type);
-        return input;
+    public SystemOutputImplementation createResource() throws NoresourceError {
+        final Red5SystemOutputImplementation output = new Red5SystemOutputImplementation();
+        output.setType(type);
+        return output;
     }
 
     /**
      * Sets the number of instances that this factory will create.
      *
      * @param number
-     *            Number of instances to create.
+     *                Number of instances to create.
      */
     public void setInstances(final int number) {
         instances = number;
@@ -81,6 +86,8 @@ public final class Red5SpokenInputFactory
     public int getInstances() {
         return instances;
     }
+
+
     /**
      * {@inheritDoc}
      */
@@ -99,7 +106,7 @@ public final class Red5SpokenInputFactory
     /**
      * {@inheritDoc}
      */
-    public Class<UserInputImplementation> getResourceType() {
-        return UserInputImplementation.class;
+    public Class<SystemOutputImplementation> getResourceType() {
+        return SystemOutputImplementation.class;
     }
 }

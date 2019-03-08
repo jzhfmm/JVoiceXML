@@ -70,7 +70,7 @@ final class SynthesisQueue extends Thread {
     private SystemOutputImplementationListener listener;
 
     /** The Mary synthesized output resource. */
-    private final MarySynthesizedOutput output;
+    private final MarySystemOutputImplementation output;
 
     /** The Mary client used to send requests to Mary server . */
     private MaryClient processor;
@@ -94,7 +94,7 @@ final class SynthesisQueue extends Thread {
      * Constructs a new SynthesisQueue object. .
      * @param synthesizedOutput reference to the parent
      */
-    SynthesisQueue(final MarySynthesizedOutput synthesizedOutput) {
+    SynthesisQueue(final MarySystemOutputImplementation synthesizedOutput) {
         queuedSpeakables = new java.util.LinkedList<SpeakableText>();
         output = synthesizedOutput;
         setDaemon(true);

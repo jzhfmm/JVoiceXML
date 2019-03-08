@@ -7,7 +7,7 @@
     </classpath>
 
     <beans:bean
-        class="org.jvoicexml.implementation.lightweightbml.BMLSynthesizedOutputFactory">
+        class="org.jvoicexml.implementation.lightweightbml.BMLSystemOutputImplementationFactory">
         <beans:property name="instances" value="1" />
         <beans:property name="type" value="bml" />
     </beans:bean>

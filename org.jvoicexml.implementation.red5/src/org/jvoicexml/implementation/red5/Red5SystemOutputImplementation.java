@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2010-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2010-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  * The JVoiceXML group hereby disclaims all copyright interest in the
  * library `JVoiceXML' (a free VoiceXML implementation).
  * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
@@ -25,32 +25,25 @@
 package org.jvoicexml.implementation.red5;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.Collection;
 
 import org.jvoicexml.ConnectionInformation;
-import org.jvoicexml.DtmfRecognizerProperties;
-import org.jvoicexml.SpeechRecognizerProperties;
+import org.jvoicexml.DocumentServer;
+import org.jvoicexml.SpeakableText;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.event.error.UnsupportedFormatError;
-import org.jvoicexml.event.error.UnsupportedLanguageError;
-import org.jvoicexml.implementation.GrammarImplementation;
-import org.jvoicexml.implementation.UserInputImplementation;
-import org.jvoicexml.implementation.UserInputImplementationListener;
-import org.jvoicexml.interpreter.datamodel.DataModel;
-import org.jvoicexml.xml.srgs.GrammarType;
+import org.jvoicexml.implementation.SystemOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
  * Demo implementation for a synthesized output using the Red5 server.
- *
+ * 
  * @author Dirk Schnelle-Walka
  * @author Mohamed Ali
  * @since 0.7.4
  */
-public final class Red5SpokenInput implements UserInputImplementation {
+public class Red5SystemOutputImplementation implements SystemOutputImplementation {
     /** Type of the created resources. */
     private String type;
 
@@ -61,7 +54,7 @@ public final class Red5SpokenInput implements UserInputImplementation {
     public ModeType getModeType() {
         return ModeType.VOICE;
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -145,10 +138,16 @@ public final class Red5SpokenInput implements UserInputImplementation {
      * {@inheritDoc}
      */
     @Override
-    public void startRecognition(final DataModel mode,
-            final SpeechRecognizerProperties speech,
-            final DtmfRecognizerProperties dtmf)
-        throws NoresourceError, BadFetchError {
+    public boolean supportsBargeIn() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cancelOutput(final BargeInType bargeInType) throws NoresourceError {
         // TODO Auto-generated method stub
 
     }
@@ -157,7 +156,7 @@ public final class Red5SpokenInput implements UserInputImplementation {
      * {@inheritDoc}
      */
     @Override
-    public void stopRecognition() {
+    public void addListener(SystemOutputImplementationListener listener) {
         // TODO Auto-generated method stub
 
     }
@@ -166,7 +165,7 @@ public final class Red5SpokenInput implements UserInputImplementation {
      * {@inheritDoc}
      */
     @Override
-    public void addListener(UserInputImplementationListener listener) {
+    public void removeListener(SystemOutputImplementationListener listener) {
         // TODO Auto-generated method stub
 
     }
@@ -175,7 +174,10 @@ public final class Red5SpokenInput implements UserInputImplementation {
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(UserInputImplementationListener listener) {
+    public void queueSpeakable(final SpeakableText speakable,
+            final String sessionId, final DocumentServer documentServer)
+        throws NoresourceError,
+            BadFetchError {
         // TODO Auto-generated method stub
 
     }
@@ -184,8 +186,7 @@ public final class Red5SpokenInput implements UserInputImplementation {
      * {@inheritDoc}
      */
     @Override
-    public void activateGrammars(Collection<GrammarImplementation<?>> grammars)
-            throws BadFetchError, UnsupportedLanguageError, NoresourceError {
+    public void waitNonBargeInPlayed() {
         // TODO Auto-generated method stub
 
     }
@@ -194,38 +195,9 @@ public final class Red5SpokenInput implements UserInputImplementation {
      * {@inheritDoc}
      */
     @Override
-    public void deactivateGrammars(Collection<GrammarImplementation<?>> grammars)
-            throws NoresourceError, BadFetchError {
+    public void waitQueueEmpty() {
         // TODO Auto-generated method stub
 
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<GrammarType> getSupportedGrammarTypes() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public GrammarImplementation<?> loadGrammar(URI uri, GrammarType type)
-            throws NoresourceError, IOException, UnsupportedFormatError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<BargeInType> getSupportedBargeInTypes() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

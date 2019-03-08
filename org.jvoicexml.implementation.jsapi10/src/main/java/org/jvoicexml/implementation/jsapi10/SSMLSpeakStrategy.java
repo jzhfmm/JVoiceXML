@@ -47,6 +47,6 @@ public interface SSMLSpeakStrategy {
      * @exception BadFetchError
      *            Recognizer in wrong state.
      */
-    void speak(final Jsapi10SynthesizedOutput output, final SsmlNode node)
+    void speak(final Jsapi10SystemOutputImplementation output, final SsmlNode node)
             throws NoresourceError, BadFetchError;
 }

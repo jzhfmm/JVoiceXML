@@ -163,7 +163,11 @@ final class JVoiceXmlUserInput implements UserInput, UserInputImplementationProv
         for (UserInputImplementation input : inputs.values()) {
             final Collection<BargeInType> current = 
                     input.getSupportedBargeInTypes();
-            types.addAll(current);
+            if (current == null) {
+                LOGGER.warn("input '" + input.getClass().getCanonicalName() + "' does not support any barge-in types");
+            } else {
+                types.addAll(current);
+            }
         }
         return types;
     }

@@ -39,7 +39,7 @@ import org.speechforge.cairo.client.SessionManager;
  * @author Patrick L. Lange
  * @since 0.7
  */
-public final class Mrcpv2SpokenInputFactory
+public final class Mrcpv2UserInputImplementationFactory
         implements ResourceFactory<UserInputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
@@ -62,7 +62,7 @@ public final class Mrcpv2SpokenInputFactory
     /**
      * Constructs a new object.
      */
-    public Mrcpv2SpokenInputFactory() {
+    public Mrcpv2UserInputImplementationFactory() {
         type = "mrcpv2";
     }
 
@@ -78,7 +78,7 @@ public final class Mrcpv2SpokenInputFactory
      * {@inheritDoc}
      */
     public UserInputImplementation createResource() throws NoresourceError {
-        final Mrcpv2SpokenInput input = new Mrcpv2SpokenInput();
+        final Mrcpv2UserInputImplementation input = new Mrcpv2UserInputImplementation();
         input.setSessionManager(sessionManager);
         input.setGrammarParsers(parsers);
 

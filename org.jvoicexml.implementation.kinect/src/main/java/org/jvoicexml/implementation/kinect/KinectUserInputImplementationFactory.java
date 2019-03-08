@@ -27,19 +27,19 @@ import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
- * A resource factory to produce {@link KinectSpokenInput} objects.
+ * A resource factory to produce {@link KinectUserInputImplementation} objects.
  * @author Dirk Schnelle-Walka
  * @since 0.7.6
  *
  */
-public final class KinectSpokenInputFactory implements ResourceFactory<UserInputImplementation> {
+public final class KinectUserInputImplementationFactory implements ResourceFactory<UserInputImplementation> {
     /** Type of the created resources. */
     private String type;
 
     /**
      * Constructs a new object.
      */
-    public KinectSpokenInputFactory() {
+    public KinectUserInputImplementationFactory() {
         type = "kinect";
     }
 
@@ -64,7 +64,7 @@ public final class KinectSpokenInputFactory implements ResourceFactory<UserInput
      */
     @Override
     public UserInputImplementation createResource() throws NoresourceError {
-        final KinectSpokenInput input = new KinectSpokenInput();
+        final KinectUserInputImplementation input = new KinectUserInputImplementation();
         input.setType(type);
         return input;
     }

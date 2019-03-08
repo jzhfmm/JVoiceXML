@@ -67,7 +67,7 @@ class MarcFeedback extends Thread {
     private final DatagramSocket socket;
     
     /** Output to MARC. */
-    private final MarcSynthesizedOutput output;
+    private final MarcSystemOutputImplementation output;
 
     /**
      * Constructs a new object.
@@ -75,7 +75,7 @@ class MarcFeedback extends Thread {
      * @param portNumber the feedback port number from MARC
      * @throws IOException error creating the feedback socket
      */
-    public MarcFeedback(final MarcSynthesizedOutput marcOutput,
+    public MarcFeedback(final MarcSystemOutputImplementation marcOutput,
             final int portNumber) throws IOException {
         setDaemon(true);
         output = marcOutput;

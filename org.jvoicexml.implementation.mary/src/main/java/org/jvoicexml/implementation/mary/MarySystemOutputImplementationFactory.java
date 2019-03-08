@@ -37,7 +37,7 @@ import org.jvoicexml.xml.srgs.ModeType;
  * @author Giannis Assiouras
  */
 
-public class MarySynthesizedOutputFactory
+public class MarySystemOutputImplementationFactory
         implements ResourceFactory<SystemOutputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
@@ -56,7 +56,7 @@ public class MarySynthesizedOutputFactory
      */
     @Override
     public final SystemOutputImplementation createResource() throws NoresourceError {
-        final MarySynthesizedOutput output = new MarySynthesizedOutput();
+        final MarySystemOutputImplementation output = new MarySystemOutputImplementation();
         output.setType(type);
         output.setAudioType(audioType);
         output.setVoiceName(voiceName);

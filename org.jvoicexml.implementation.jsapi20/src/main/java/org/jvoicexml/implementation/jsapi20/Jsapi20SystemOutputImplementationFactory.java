@@ -48,11 +48,11 @@ import org.jvoicexml.xml.srgs.ModeType;
  * @author Dirk Schnelle-Walka
  * @since 0.5.5
  */
-public final class Jsapi20SynthesizedOutputFactory
+public final class Jsapi20SystemOutputImplementationFactory
         implements ResourceFactory<SystemOutputImplementation> {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
-            .getLogger(Jsapi20SynthesizedOutputFactory.class);
+            .getLogger(Jsapi20SystemOutputImplementationFactory.class);
 
     /** Number of instances that this factory will create. */
     private int instances;
@@ -70,7 +70,7 @@ public final class Jsapi20SynthesizedOutputFactory
      * Constructs a new object.
      * @param engineFactory class name of the engine list factory.
      */
-    public Jsapi20SynthesizedOutputFactory(final String engineFactory) {
+    public Jsapi20SystemOutputImplementationFactory(final String engineFactory) {
         type = "jsapi20";
         try {
             EngineManager.registerEngineListFactory(engineFactory);
@@ -114,8 +114,8 @@ public final class Jsapi20SynthesizedOutputFactory
      */
     public SystemOutputImplementation createResource() throws NoresourceError {
         final SynthesizerMode mode = getEngineProperties();
-        final Jsapi20SynthesizedOutput output =
-            new Jsapi20SynthesizedOutput(mode, locatorFactory);
+        final Jsapi20SystemOutputImplementation output =
+            new Jsapi20SystemOutputImplementation(mode, locatorFactory);
         output.setType(type);
         if (locatorFactory != null) {
             URI locator;

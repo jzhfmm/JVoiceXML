@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 import org.jvoicexml.DocumentServer;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.jsapi10.Jsapi10SynthesizedOutput;
+import org.jvoicexml.implementation.jsapi10.Jsapi10SystemOutputImplementation;
 import org.jvoicexml.xml.SsmlNode;
 import org.jvoicexml.xml.ssml.Audio;
 
@@ -58,7 +58,7 @@ class AudioSpeakStrategy
     /**
      * {@inheritDoc}
      */
-    public void speak(final Jsapi10SynthesizedOutput output,
+    public void speak(final Jsapi10SystemOutputImplementation output,
             final SsmlNode node)
         throws NoresourceError, BadFetchError {
         final Audio audio = (Audio) node;

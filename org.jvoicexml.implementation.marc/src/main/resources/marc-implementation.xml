@@ -6,7 +6,7 @@
   <classpath>org.jvoicexml.implementation.marc-@@VERSION@@.jar</classpath>
 
   <beans:bean
-    class="org.jvoicexml.implementation.marc.MarcSynthesizedOutputFactory">
+    class="org.jvoicexml.implementation.marc.MarcSystemOutputImplementationFactory">
     <beans:property name="instances" value="1" />
     <beans:property name="host" value="127.0.0.1" />
     <beans:property name="port" value="4210" />

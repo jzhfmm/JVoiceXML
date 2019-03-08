@@ -63,14 +63,14 @@ class BMLFeedback extends Thread {
     private final int port;
 
     /** Output to Avatar. */
-    private final BMLSynthesizedOutput output;
+    private final BMLSystemOutputImplementation output;
 
     /**
      * Constructs a new object.
      * @param bmlOutput output to Avatar
      * @param portNumber the feedback port number from Avatar.
      */
-    public BMLFeedback(final BMLSynthesizedOutput bmlOutput,
+    public BMLFeedback(final BMLSystemOutputImplementation bmlOutput,
             final int portNumber) {
         setDaemon(true);
         output = bmlOutput;

@@ -63,8 +63,8 @@ import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.CallControlImplementationEvent;
 import org.jvoicexml.implementation.CallControlImplementationListener;
 import org.jvoicexml.implementation.ExternalResource;
-import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.implementation.SystemOutputImplementation;
+import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.implementation.UserInputImplementationListener;
 import org.jvoicexml.implementation.dtmf.BufferedDtmfInput;
@@ -298,7 +298,7 @@ public final class JVoiceXmlImplementationPlatform
                 systemOutput.removeListener(this);
                 
                 Collection<SystemOutputImplementation> outputs =
-                        output.getSystemOutputImplementations();
+                        systemOutput.getSystemOutputImplementations();
                 returnExternalResourceToPool(synthesizerPool,
                         outputs);
                 LOGGER.info("returned system output of type '" + type + "'");
@@ -786,7 +786,7 @@ public final class JVoiceXmlImplementationPlatform
         for (T resource : resources.values()) {
             LOGGER.info("disconnecting external resource ("
                     + resource.getClass().getCanonicalName() + ")");
-            if (type != null) {
+            if (type == null) {
                 type = resource.getType();
             }
             resource.disconnect(info);

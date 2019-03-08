@@ -83,11 +83,11 @@ import org.xml.sax.SAXException;
  * @author David Rodriguez
  * @since 0.6
  */
-public final class Jsapi20SpokenInput
+public final class Jsapi20UserInputImplementation
         implements UserInputImplementation, RecognizerListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
-            .getLogger(Jsapi20SpokenInput.class);
+            .getLogger(Jsapi20UserInputImplementation.class);
 
     /** The speech recognizer. */
     private Recognizer recognizer;
@@ -118,7 +118,7 @@ public final class Jsapi20SpokenInput
      * @param mediaLocatorFactory
      *            the media locator factory
      */
-    public Jsapi20SpokenInput(final RecognizerMode defaultDescriptor,
+    public Jsapi20UserInputImplementation(final RecognizerMode defaultDescriptor,
             final InputMediaLocatorFactory mediaLocatorFactory) {
         mode = defaultDescriptor;
         listeners = new java.util.ArrayList<UserInputImplementationListener>();

@@ -82,12 +82,12 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * @author Renato Cassaca
  * @since 0.6
  */
-public final class Jsapi20SynthesizedOutput
+public final class Jsapi20SystemOutputImplementation
         implements SystemOutputImplementation, SpeakableListener, SynthesizerListener,
         AudioSource {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
-            .getLogger(Jsapi20SynthesizedOutput.class);
+            .getLogger(Jsapi20SystemOutputImplementation.class);
 
     /** Number of msec to wait when waiting for an empty queue. */
     private static final int WAIT_EMPTY_TIMEINTERVALL = 300;
@@ -130,7 +130,7 @@ public final class Jsapi20SynthesizedOutput
      * @param mediaLocatorFactory
      *            factory to create a sink media locator
      */
-    public Jsapi20SynthesizedOutput(final SynthesizerMode defaultDescriptor,
+    public Jsapi20SystemOutputImplementation(final SynthesizerMode defaultDescriptor,
             final OutputMediaLocatorFactory mediaLocatorFactory) {
         desc = defaultDescriptor;
         listeners = new java.util.ArrayList<SystemOutputImplementationListener>();

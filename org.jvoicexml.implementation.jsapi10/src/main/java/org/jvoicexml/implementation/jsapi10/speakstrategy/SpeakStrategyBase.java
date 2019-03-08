@@ -31,7 +31,7 @@ import javax.speech.synthesis.Synthesizer;
 import org.apache.log4j.Logger;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.jsapi10.Jsapi10SynthesizedOutput;
+import org.jvoicexml.implementation.jsapi10.Jsapi10SystemOutputImplementation;
 import org.jvoicexml.implementation.jsapi10.SSMLSpeakStrategy;
 import org.jvoicexml.implementation.jsapi10.SSMLSpeakStrategyFactory;
 import org.jvoicexml.xml.SsmlNode;
@@ -77,7 +77,7 @@ abstract class SpeakStrategyBase
      * @exception BadFetchError
      *            Recognizer in wrong state.
      */
-    protected void speakChildNodes(final Jsapi10SynthesizedOutput synthesizer,
+    protected void speakChildNodes(final Jsapi10SystemOutputImplementation synthesizer,
                                    final SsmlNode node)
             throws NoresourceError, BadFetchError {
         final NodeList children = node.getChildNodes();
@@ -108,7 +108,7 @@ abstract class SpeakStrategyBase
      *         error waiting for an empty queue
      * @since 0.7.2
      */
-    protected void waitQueueEmpty(final Jsapi10SynthesizedOutput output)
+    protected void waitQueueEmpty(final Jsapi10SystemOutputImplementation output)
         throws NoresourceError {
         final Synthesizer synthesizer = output.getSynthesizer();
         try {

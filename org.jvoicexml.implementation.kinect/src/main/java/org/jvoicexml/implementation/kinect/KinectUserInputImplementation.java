@@ -1,9 +1,4 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
  * Copyright (C) 2012-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
@@ -64,10 +59,10 @@ import org.xml.sax.SAXException;
  * @author Dirk Schnelle-Walka
  * @since 0.7.6
  */
-public final class KinectSpokenInput implements UserInputImplementation {
+public final class KinectUserInputImplementation implements UserInputImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
-            .getLogger(KinectSpokenInput.class);
+            .getLogger(KinectUserInputImplementation.class);
 
     /** Listener for user input events. */
     private final Collection<UserInputImplementationListener> listeners;
@@ -81,7 +76,7 @@ public final class KinectSpokenInput implements UserInputImplementation {
     /**
      * Constructs a new object
      */
-    public KinectSpokenInput() {
+    public KinectUserInputImplementation() {
         listeners = new java.util.ArrayList<UserInputImplementationListener>();
     }
 

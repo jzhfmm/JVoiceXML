@@ -50,7 +50,7 @@ import org.jvoicexml.xml.srgs.GrammarType;
 import com.cloudgarden.speech.CGEngineCentral;
 
 /**
- * Test cases for {@link Jsapi10SpokenInput}.
+ * Test cases for {@link Jsapi10UserInputImplementation}.
  * 
  * @author Dirk Schnelle-Walka
  * @version $Revision$
@@ -62,7 +62,7 @@ public class TestJsapi10SpokenInput {
             .getLogger(TestJsapi10SpokenInput.class);
 
     /** The recognizer to test. */
-    private Jsapi10SpokenInput recognizer;
+    private Jsapi10UserInputImplementation recognizer;
 
     /**
      * Global initialization.
@@ -85,7 +85,7 @@ public class TestJsapi10SpokenInput {
      */
     @Before
     public void setUp() throws Exception, JVoiceXMLEvent {
-        recognizer = new Jsapi10SpokenInput(null);
+        recognizer = new Jsapi10UserInputImplementation(null);
         recognizer.open();
         recognizer.activate();
     }
@@ -144,7 +144,7 @@ public class TestJsapi10SpokenInput {
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.jsapi10.Jsapi10SpokenInput#loadGrammar(java.io.Reader, org.jvoicexml.xml.srgs.GrammarType)}
+     * {@link org.jvoicexml.implementation.jsapi10.Jsapi10UserInputImplementation#loadGrammar(java.io.Reader, org.jvoicexml.xml.srgs.GrammarType)}
      * .
      * 
      * @exception Exception
@@ -175,7 +175,7 @@ public class TestJsapi10SpokenInput {
     }
 
     /**
-     * Test case for {@link Jsapi10SpokenInput#activateGrammars(Collection)}.
+     * Test case for {@link Jsapi10UserInputImplementation#activateGrammars(Collection)}.
      * 
      * @exception Exception
      *                test failed
@@ -200,7 +200,7 @@ public class TestJsapi10SpokenInput {
     }
 
     /**
-     * Test case for {@link Jsapi10SpokenInput#activateGrammars(Collection)}.
+     * Test case for {@link Jsapi10UserInputImplementation#activateGrammars(Collection)}.
      * 
      * @exception Exception
      *                test failed
@@ -233,7 +233,7 @@ public class TestJsapi10SpokenInput {
     }
 
     /**
-     * Test case for {@link Jsapi10SpokenInput#deactivateGrammars(Collection)}.
+     * Test case for {@link Jsapi10UserInputImplementation#deactivateGrammars(Collection)}.
      * 
      * @exception Exception
      *                test failed
@@ -261,7 +261,7 @@ public class TestJsapi10SpokenInput {
     }
 
     /**
-     * Test case for {@link Jsapi10SpokenInput#deactivateGrammars(Collection)}.
+     * Test case for {@link Jsapi10UserInputImplementation#deactivateGrammars(Collection)}.
      * 
      * @exception Exception
      *                test failed
@@ -299,8 +299,8 @@ public class TestJsapi10SpokenInput {
 
     /**
      * Test case for multiple calls to
-     * {@link Jsapi10SpokenInput#activateGrammars(Collection)} and
-     * {@link Jsapi10SpokenInput#deactivateGrammars(Collection)}.
+     * {@link Jsapi10UserInputImplementation#activateGrammars(Collection)} and
+     * {@link Jsapi10UserInputImplementation#deactivateGrammars(Collection)}.
      * 
      * @exception Exception
      *                test failed

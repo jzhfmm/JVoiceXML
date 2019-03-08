@@ -29,7 +29,7 @@ import java.io.IOException;
 
 /**
  * MARC allows only one client at a time. This one and only client is
- * already busy with the {@link MarcSynthesizedOutput}.
+ * already busy with the {@link MarcSystemOutputImplementation}.
  * {@link ExternalMarcPublisher}s can be used to generate other 
  * <a href="http://wiki.mindmakers.org/projects:BML:main">Behavior Markup
  * Language</a> messages that should be sento MARC.

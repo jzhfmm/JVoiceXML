@@ -74,7 +74,7 @@ public final class KinectRecognizer {
     private boolean isRecognizing;
 
     /** Reference to the spoken input. */
-    private final KinectSpokenInput input;
+    private final KinectUserInputImplementation input;
 
     /**
      * Constructs a new object.
@@ -82,7 +82,7 @@ public final class KinectRecognizer {
      * @param spokenInput
      *            the spoken input
      */
-    public KinectRecognizer(final KinectSpokenInput spokenInput) {
+    public KinectRecognizer(final KinectUserInputImplementation spokenInput) {
         input = spokenInput;
     }
 

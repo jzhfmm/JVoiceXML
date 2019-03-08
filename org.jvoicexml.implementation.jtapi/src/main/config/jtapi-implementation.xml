@@ -11,7 +11,7 @@
   <classpath>sip.jar</classpath>
   <classpath>ua.jar</classpath>
 
-  <beans:bean class="org.jvoicexml.implementation.jtapi.JtapiTelephonyFactory">
+  <beans:bean class="org.jvoicexml.implementation.jtapi.JtapiCallControlImplementationFactory">
     <beans:property name="instances" value="1" />
   </beans:bean>
  

@@ -19,35 +19,33 @@
  *
  */
 
-package org.jvoicexml.implementation.jtapi;
+package org.jvoicexml.implementation.red5;
 
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.ResourceFactory;
+import org.jvoicexml.implementation.UserInputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
- * Demo implementation of a
- * {@link org.jvoicexml.implementation.ResourceFactory} for the
- * {@link CallControlImplementation} based on JTAPI 1.3.1.
+ * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
+ * for the {@link UserInputImplementation} based on JSAPI 2.0.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
- * @since 0.6
+ * @since 0.7.4
  */
-public final class JtapiTelephonyFactory
-    implements ResourceFactory<CallControlImplementation> {
+public final class Red5UserInputImplementationFactory
+    implements ResourceFactory<UserInputImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
-    /** Type of resources that this factory will create. */
-    private final String type;
+    /** Type of the created resources. */
+    private String type;
 
     /**
      * Constructs a new object.
      */
-    public JtapiTelephonyFactory() {
-      type = "jtapi";
+    public Red5UserInputImplementationFactory() {
+        type = "red5";
     }
 
     /**
@@ -61,14 +59,17 @@ public final class JtapiTelephonyFactory
     /**
      * {@inheritDoc}
      */
-    public CallControlImplementation createResource()
-        throws NoresourceError {
-        return new JtapiTelephony();
+    public UserInputImplementation createResource() throws NoresourceError {
+        final Red5UserInputImplementation input = new Red5UserInputImplementation();
+        input.setType(type);
+        return input;
     }
 
     /**
      * Sets the number of instances that this factory will create.
-     * @param number Number of instances to create.
+     *
+     * @param number
+     *            Number of instances to create.
      */
     public void setInstances(final int number) {
         instances = number;
@@ -80,7 +81,6 @@ public final class JtapiTelephonyFactory
     public int getInstances() {
         return instances;
     }
-
     /**
      * {@inheritDoc}
      */
@@ -89,9 +89,17 @@ public final class JtapiTelephonyFactory
     }
 
     /**
+     * Sets the type of the created resource.
+     * @param typeName
+     */
+    void setType(final String typeName) {
+        type = typeName;
+    }
+
+    /**
      * {@inheritDoc}
      */
-    public Class<CallControlImplementation> getResourceType() {
-        return CallControlImplementation.class;
+    public Class<UserInputImplementation> getResourceType() {
+        return UserInputImplementation.class;
     }
 }

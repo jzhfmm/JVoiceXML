@@ -96,12 +96,12 @@ import org.jvoicexml.xml.vxml.BargeInType;
  *
  * @author Dirk Schnelle-Walka
  */
-public final class Jsapi10SynthesizedOutput
+public final class Jsapi10SystemOutputImplementation
         implements SystemOutputImplementation, SpeakableListener,
         StreamableSynthesizedOutput {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
-            .getLogger(Jsapi10SynthesizedOutput.class);
+            .getLogger(Jsapi10SystemOutputImplementation.class);
 
     /** Factory for SSML speak strategies. */
     private static final SSMLSpeakStrategyFactory SPEAK_FACTORY;
@@ -179,7 +179,7 @@ public final class Jsapi10SynthesizedOutput
      * @param defaultDescriptor
      *            the default synthesizer mode descriptor.
      */
-    public Jsapi10SynthesizedOutput(final SynthesizerModeDesc defaultDescriptor) {
+    public Jsapi10SystemOutputImplementation(final SynthesizerModeDesc defaultDescriptor) {
         desc = defaultDescriptor;
         listener = new java.util.ArrayList<SystemOutputImplementationListener>();
         queuedSpeakables = new java.util.LinkedList<SpeakableText>();

@@ -50,7 +50,7 @@ public final class JVoiceXMLRecognitionListener implements ResultListener {
             .getLogger(JVoiceXMLRecognitionListener.class);
 
     /** The related spoken input device. */
-    private final Jsapi10SpokenInput input;
+    private final Jsapi10UserInputImplementation input;
 
     /**
      * Constructs a new object.
@@ -58,7 +58,7 @@ public final class JVoiceXMLRecognitionListener implements ResultListener {
      * @param spokenInput
      *            the related spoken input device.
      */
-    public JVoiceXMLRecognitionListener(final Jsapi10SpokenInput spokenInput) {
+    public JVoiceXMLRecognitionListener(final Jsapi10UserInputImplementation spokenInput) {
         input = spokenInput;
     }
 

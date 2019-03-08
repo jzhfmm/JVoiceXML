@@ -5,7 +5,7 @@
   <repository>kinect</repository>
   <classpath>org.jvoicexml.implementation.kinect-@@VERSION@@.jar</classpath>
 
-  <beans:bean class="org.jvoicexml.implementation.kinect.KinectSpokenInputFactory">
+  <beans:bean class="org.jvoicexml.implementation.kinect.KinectUserInputImplementationFactory">
     <beans:property name="type" value="kinect" />
   </beans:bean>
 </implementation>

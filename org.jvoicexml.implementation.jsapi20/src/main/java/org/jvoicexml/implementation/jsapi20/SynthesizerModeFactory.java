@@ -31,7 +31,7 @@ import javax.speech.synthesis.SynthesizerMode;
  * {@link SynthesizerMode} for the
  * {@link org.jvoicexml.implementation.SystemOutputImplementation} objects that are
  * created by the
- * {@link Jsapi20SynthesizedOutputFactory}.
+ * {@link Jsapi20SystemOutputImplementationFactory}.
  * </p>
  *
  * @author Dirk Schnelle-Walka

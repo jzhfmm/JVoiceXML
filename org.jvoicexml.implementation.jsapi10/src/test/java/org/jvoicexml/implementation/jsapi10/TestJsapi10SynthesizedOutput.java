@@ -74,7 +74,7 @@ public final class TestJsapi10SynthesizedOutput {
     private static final int TIMEOUT = 500;
 
     /** The test object. */
-    private Jsapi10SynthesizedOutput synthesizer;
+    private Jsapi10SystemOutputImplementation synthesizer;
 
     /** Listener for output events. */
     private MockSynthesizedOutputListener listener;
@@ -107,7 +107,7 @@ public final class TestJsapi10SynthesizedOutput {
     @Before
     public void setUp() throws Exception, NoresourceError {
         final SynthesizerModeDesc desc = new SynthesizerModeDesc(Locale.US);
-        synthesizer = new Jsapi10SynthesizedOutput(desc);
+        synthesizer = new Jsapi10SystemOutputImplementation(desc);
         synthesizer.open();
         synthesizer.activate();
         listener = new MockSynthesizedOutputListener();
@@ -129,7 +129,7 @@ public final class TestJsapi10SynthesizedOutput {
 
     /**
      * Test method for
-     * {@link Jsapi10SynthesizedOutput#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}
+     * {@link Jsapi10SystemOutputImplementation#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}
      * .
      * 
      * @throws JVoiceXMLEvent
@@ -164,7 +164,7 @@ public final class TestJsapi10SynthesizedOutput {
 
     /**
      * Test method for
-     * {@link Jsapi10SynthesizedOutput#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}
+     * {@link Jsapi10SystemOutputImplementation#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}
      * .
      * 
      * @throws JVoiceXMLEvent
@@ -210,7 +210,7 @@ public final class TestJsapi10SynthesizedOutput {
 
     /**
      * Test method for
-     * {@link Jsapi10SynthesizedOutput#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}
+     * {@link Jsapi10SystemOutputImplementation#queueSpeakable(SpeakableText, boolean, org.jvoicexml.DocumentServer)}
      * .
      * 
      * @throws JVoiceXMLEvent
@@ -277,7 +277,7 @@ public final class TestJsapi10SynthesizedOutput {
     }
 
     /**
-     * Test case for {@link Jsapi10SynthesizedOutput#waitNonBargeInPlayed()}.
+     * Test case for {@link Jsapi10SystemOutputImplementation#waitNonBargeInPlayed()}.
      * 
      * @exception JVoiceXMLEvent
      *                test failed
@@ -309,7 +309,7 @@ public final class TestJsapi10SynthesizedOutput {
     }
 
     /**
-     * Test case for {@link Jsapi10SynthesizedOutput#cancelOutput()}.
+     * Test case for {@link Jsapi10SystemOutputImplementation#cancelOutput()}.
      * 
      * @exception JVoiceXMLEvent
      *                test failed

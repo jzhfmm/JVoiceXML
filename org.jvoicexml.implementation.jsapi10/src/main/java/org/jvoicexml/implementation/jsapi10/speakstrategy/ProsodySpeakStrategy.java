@@ -31,7 +31,7 @@ import javax.speech.synthesis.SynthesizerProperties;
 
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
-import org.jvoicexml.implementation.jsapi10.Jsapi10SynthesizedOutput;
+import org.jvoicexml.implementation.jsapi10.Jsapi10SystemOutputImplementation;
 import org.jvoicexml.xml.SsmlNode;
 import org.jvoicexml.xml.ssml.Prosody;
 
@@ -45,11 +45,11 @@ final class ProsodySpeakStrategy extends SpeakStrategyBase {
     /**
      * {@inheritDoc}
      */
-    public void speak(final Jsapi10SynthesizedOutput output,
+    public void speak(final Jsapi10SystemOutputImplementation output,
             final SsmlNode node)
         throws NoresourceError, BadFetchError {
         final Prosody prosody = (Prosody) node;
-        final Jsapi10SynthesizedOutput syn = output;
+        final Jsapi10SystemOutputImplementation syn = output;
         final Synthesizer synthesizer = syn.getSynthesizer();
         final SynthesizerProperties properties =
             synthesizer.getSynthesizerProperties();
@@ -83,7 +83,7 @@ final class ProsodySpeakStrategy extends SpeakStrategyBase {
      * @since 0.7.2
      */
     private void changeProperties(
-            final Jsapi10SynthesizedOutput output,
+            final Jsapi10SystemOutputImplementation output,
             final SynthesizerProperties properties,
             final SynthesizerProperties newProperties)
             throws NoresourceError {

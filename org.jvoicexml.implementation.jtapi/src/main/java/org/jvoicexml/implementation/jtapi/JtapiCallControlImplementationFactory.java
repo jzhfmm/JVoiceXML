@@ -2,9 +2,6 @@
  * JVoiceXML - A free VoiceXML implementation.
  *
  * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
- * The JVoiceXML group hereby disclaims all copyright interest in the
- * library `JVoiceXML' (a free VoiceXML implementation).
- * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -22,35 +19,35 @@
  *
  */
 
-package org.jvoicexml.implementation.red5;
+package org.jvoicexml.implementation.jtapi;
 
 import org.jvoicexml.event.error.NoresourceError;
+import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.xml.srgs.ModeType;
 
 /**
- * Demo implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link org.jvoicexml.implementation.SystemOutputImplementation} based on
- * JSAPI 2.0.
+ * Demo implementation of a
+ * {@link org.jvoicexml.implementation.ResourceFactory} for the
+ * {@link CallControlImplementation} based on JTAPI 1.3.1.
  *
  * @author Dirk Schnelle-Walka
- * @since 0.5.5
+ * @version $Revision$
+ * @since 0.6
  */
-public final class Red5SynthesizedOutputFactory
-        implements ResourceFactory<SystemOutputImplementation> {
+public final class JtapiCallControlImplementationFactory
+    implements ResourceFactory<CallControlImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
-    /** Type of the created resources. */
-    private String type;
+    /** Type of resources that this factory will create. */
+    private final String type;
 
     /**
      * Constructs a new object.
-     * @param engineFactory class name of the engine list factory.
      */
-    public Red5SynthesizedOutputFactory() {
-        type = "red5";
+    public JtapiCallControlImplementationFactory() {
+      type = "jtapi";
     }
 
     /**
@@ -64,17 +61,14 @@ public final class Red5SynthesizedOutputFactory
     /**
      * {@inheritDoc}
      */
-    public SystemOutputImplementation createResource() throws NoresourceError {
-        final Red5SynthesizedOutput output = new Red5SynthesizedOutput();
-        output.setType(type);
-        return output;
+    public CallControlImplementation createResource()
+        throws NoresourceError {
+        return new JtapiCallControlImplementation();
     }
 
     /**
      * Sets the number of instances that this factory will create.
-     *
-     * @param number
-     *                Number of instances to create.
+     * @param number Number of instances to create.
      */
     public void setInstances(final int number) {
         instances = number;
@@ -87,7 +81,6 @@ public final class Red5SynthesizedOutputFactory
         return instances;
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -96,17 +89,9 @@ public final class Red5SynthesizedOutputFactory
     }
 
     /**
-     * Sets the type of the created resource.
-     * @param typeName
-     */
-    void setType(final String typeName) {
-        type = typeName;
-    }
-
-    /**
      * {@inheritDoc}
      */
-    public Class<SystemOutputImplementation> getResourceType() {
-        return SystemOutputImplementation.class;
+    public Class<CallControlImplementation> getResourceType() {
+        return CallControlImplementation.class;
     }
 }

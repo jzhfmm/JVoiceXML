@@ -48,11 +48,11 @@ import marytts.client.MaryClient;
  * @author Giannis Assiouras
  * @since 0.7.3
  */
-public final class MarySynthesizedOutput
+public final class MarySystemOutputImplementation
         implements SystemOutputImplementation, SystemOutputImplementationListener {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
-            .getLogger(MarySynthesizedOutput.class);
+            .getLogger(MarySystemOutputImplementation.class);
 
     /** The system output listener. */
     private final Collection<SystemOutputImplementationListener> listener;
@@ -96,7 +96,7 @@ public final class MarySynthesizedOutput
     /**
      * Constructs a new MarySynthesizedOutput object.
      */
-    public MarySynthesizedOutput() {
+    public MarySystemOutputImplementation() {
         listener = new java.util.ArrayList<SystemOutputImplementationListener>();
         emptyLock = new Object();
         maryRequestParameters = new java.util.HashMap<String, String>();

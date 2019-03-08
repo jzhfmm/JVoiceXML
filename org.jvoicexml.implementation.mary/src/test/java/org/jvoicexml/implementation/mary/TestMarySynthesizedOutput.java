@@ -48,7 +48,7 @@ import org.jvoicexml.xml.vxml.BargeInType;
 import marytts.client.MaryClient;
 
 /**
- * Test cases for {@link MarySynthesizedOutput}.
+ * Test cases for {@link MarySystemOutputImplementation}.
  * 
  * @author Dirk Schnelle-Walka
  * @since 0.7.3
@@ -63,7 +63,7 @@ public final class TestMarySynthesizedOutput
     private static final int DELAY = 1000;
 
     /** The test object. */
-    private MarySynthesizedOutput output;
+    private MarySystemOutputImplementation output;
 
     /** Output Ended notification mechanism. */
     private final Object outputEndedLock = new Object();
@@ -158,7 +158,7 @@ public final class TestMarySynthesizedOutput
      */
     @Before
     public void setUp() throws Exception {
-        output = new MarySynthesizedOutput();
+        output = new MarySystemOutputImplementation();
         output.setAudioType("WAVE");
         output.setLang("en-US");
         output.setVoiceName("cmu-slt");
@@ -181,7 +181,7 @@ public final class TestMarySynthesizedOutput
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.mary.MarySynthesizedOutput#queueSpeakable(org.jvoicexml.SpeakableText, org.jvoicexml.DocumentServer)}.
+     * {@link org.jvoicexml.implementation.mary.MarySystemOutputImplementation#queueSpeakable(org.jvoicexml.SpeakableText, org.jvoicexml.DocumentServer)}.
      * 
      * @exception Exception
      *                test failed
@@ -203,7 +203,7 @@ public final class TestMarySynthesizedOutput
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.mary.MarySynthesizedOutput#queueSpeakable(org.jvoicexml.SpeakableText, org.jvoicexml.DocumentServer)}.
+     * {@link org.jvoicexml.implementation.mary.MarySystemOutputImplementation#queueSpeakable(org.jvoicexml.SpeakableText, org.jvoicexml.DocumentServer)}.
      * 
      * @exception Exception
      *                test failed
@@ -223,7 +223,7 @@ public final class TestMarySynthesizedOutput
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.mary.MarySynthesizedOutput#waitQueueEmpty()}.
+     * {@link org.jvoicexml.implementation.mary.MarySystemOutputImplementation#waitQueueEmpty()}.
      * 
      * @exception Exception
      *                test failed
@@ -275,7 +275,7 @@ public final class TestMarySynthesizedOutput
 
     /**
      * Test method for
-     * {@link org.jvoicexml.implementation.mary.MarySynthesizedOutput#cancelOutput()}.
+     * {@link org.jvoicexml.implementation.mary.MarySystemOutputImplementation#cancelOutput()}.
      * 
      * @exception Exception
      *                test failed

@@ -29,7 +29,7 @@ import java.io.IOException;
 
 /**
  * TalkingHead allows only one client at a time. This one and only client is
- * already busy with the {@link BMLSynthesizedOutput}.
+ * already busy with the {@link BMLSystemOutputImplementation}.
  * {@link ExternalBMLPublisher}s can be used to generate other 
  * LightweightBML messages that should be sento TalkingHead.
  * Messages to TalkingHead can only be sent  between calls to {@link #start()} and

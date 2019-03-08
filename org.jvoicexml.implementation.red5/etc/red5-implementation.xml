@@ -6,11 +6,11 @@
   <classpath>dist/org.jvoicexml.implementation.red5.jar</classpath>
 
   <beans:bean
-    class="org.jvoicexml.implementation.red5.Red5SynthesizedOutputFactory">
+    class="org.jvoicexml.implementation.red5.Red5SystemOutputImplementationFactory">
     <beans:property name="instances" value="1" />
   </beans:bean>
 
-  <beans:bean class="org.jvoicexml.implementation.red5.Red5SpokenInputFactory">
+  <beans:bean class="org.jvoicexml.implementation.red5.Red5UserInputImplementationFactory">
     <beans:property name="instances" value="1" />
   </beans:bean>
  

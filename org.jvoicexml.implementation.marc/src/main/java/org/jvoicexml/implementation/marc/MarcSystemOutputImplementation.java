@@ -66,11 +66,11 @@ import org.w3c.dom.NodeList;
  * @author Dirk Schnelle-Walka
  * @since 0.7.5
  */
-public final class MarcSynthesizedOutput
+public final class MarcSystemOutputImplementation
     implements SystemOutputImplementation, MarcClient {
     /** Logger for this class. */
     private static final Logger LOGGER =
-            Logger.getLogger(MarcSynthesizedOutput.class);
+            Logger.getLogger(MarcSystemOutputImplementation.class);
 
     /** MARC Namespace URI. */
     private static final String MARC_NAMESPACE_URI = "http://marc.limsi.fr/";
@@ -120,7 +120,7 @@ public final class MarcSynthesizedOutput
     /**
      * Constructs a new object.
      */
-    public MarcSynthesizedOutput() {
+    public MarcSystemOutputImplementation() {
         listeners = new java.util.ArrayList<SystemOutputImplementationListener>();
         speakables = new SpeakableQueue();
     }

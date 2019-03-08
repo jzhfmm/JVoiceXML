@@ -73,11 +73,11 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * 
  * @author Dirk Schnelle-Walka
  */
-public final class Jsapi10SpokenInput
+public final class Jsapi10UserInputImplementation
         implements UserInputImplementation, StreamableSpokenInput {
     /** Logger for this class. */
     private static final Logger LOGGER = Logger
-            .getLogger(Jsapi10SpokenInput.class);
+            .getLogger(Jsapi10UserInputImplementation.class);
 
     /** Supported barge-in types. */
     private static final Collection<BargeInType> BARGE_IN_TYPES;
@@ -121,7 +121,7 @@ public final class Jsapi10SpokenInput
      * @param defaultDescriptor
      *            the default recognizer mode descriptor.
      */
-    public Jsapi10SpokenInput(final RecognizerModeDesc defaultDescriptor) {
+    public Jsapi10UserInputImplementation(final RecognizerModeDesc defaultDescriptor) {
         desc = defaultDescriptor;
         listener = new java.util.ArrayList<UserInputImplementationListener>();
     }
