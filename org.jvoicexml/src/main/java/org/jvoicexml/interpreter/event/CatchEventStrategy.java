@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -139,7 +139,7 @@ final class CatchEventStrategy extends AbstractEventStrategy {
                 Scope.APPLICATION, Object.class);
         model.createVariableFor(value, "confidence", result.getConfidence());
         model.createVariableFor(value, "utterance", result.getUtterance());
-        model.createVariableFor(value, "inputmode", result.getMode().name());
+        model.createVariableFor(value, "inputmode", result.getMode().getMode());
         model.createVariableFor(value, "interpretation",
                 result.getSemanticInterpretation(model));
         model.updateArray("lastresult$", 0, value, Scope.APPLICATION);
@@ -149,8 +149,8 @@ final class CatchEventStrategy extends AbstractEventStrategy {
                 Scope.APPLICATION);
         model.createVariable("lastresult$.utterance", result.getUtterance(),
                 Scope.APPLICATION);
-        model.createVariable("lastresult$.inputmode", result.getMode().name(),
-                Scope.APPLICATION);
+        model.createVariable("lastresult$.inputmode", 
+                result.getMode().getMode(), Scope.APPLICATION);
     }
     
 }

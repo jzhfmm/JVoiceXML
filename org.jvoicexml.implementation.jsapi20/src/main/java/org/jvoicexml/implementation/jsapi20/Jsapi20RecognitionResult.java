@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  * The JVoiceXML group hereby disclaims all copyright interest in the
  * library `JVoiceXML' (a free VoiceXML implementation).
  * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
@@ -178,7 +178,7 @@ public final class Jsapi20RecognitionResult implements RecognitionResult {
      */
     @Override
     public ModeType getMode() {
-        return ModeType.valueOf("VOICE");
+        return ModeType.VOICE;
     }
 
     /**

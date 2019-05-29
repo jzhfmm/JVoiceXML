@@ -26,6 +26,8 @@
 
 package org.jvoicexml.xml.srgs;
 
+import java.util.ServiceLoader;
+
 /**
  * The mode of a grammar indicates the type of input that the user agent should
  * be detecting.
@@ -34,21 +36,21 @@ package org.jvoicexml.xml.srgs;
  * @version $Revision$
  * @since 0.6
  */
-public enum ModeType {
+public final class ModeType {
     /**
      * Voice input.
      */
-    VOICE("voice"),
+    public static ModeType VOICE = new ModeType("voice");
 
     /**
      * DTMF input.
      */
-    DTMF("dtmf"),
+    public static ModeType DTMF = new ModeType("dtmf");
 
     /**
      * External input.
      */
-    EXTERNAL("external");
+    public static ModeType EXTERNAL = new ModeType("external");
 
     /** Name of the mode. */
     private final String mode;
@@ -71,4 +73,44 @@ public enum ModeType {
     public String getMode() {
         return mode;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return mode;
+    }
+
+    /**
+     * Converts the given value of the attribute into a
+     * {@code ModeType} object. If the attribute can not be
+     * resolved, an {@link IllegalArgumentException} is thrown.
+     *
+     * @param attribute Value of the attribute as it is specified in
+     *        a {@link Grammar} type.
+     * @return corresponding {@code ModeType} object.
+     * @since 0.6
+     */
+    public static final ModeType valueOfAttribute(final String attribute) {
+        // First, check if there is an externally defined grammar
+        final ServiceLoader<ModeTypeFactory> factories =
+            ServiceLoader.load(ModeTypeFactory.class);
+        for (ModeTypeFactory factory : factories) {
+            final ModeType type = factory.getGrammarType(attribute);
+            if (type != null) {
+                return type;
+            }
+        }
+        
+        // If there is none, try it with internal modes
+        final JVoiceXmlModeTypeFactory factory =
+            new JVoiceXmlModeTypeFactory();
+        final ModeType type = factory.getGrammarType(attribute);
+        if (type != null) {
+            return type;
+        }
+        throw new IllegalArgumentException("Unable to determine the mode"
+                + " type for '" + attribute + "'");
+    }   
 }

@@ -162,7 +162,7 @@ public final class KeyedResourcePool<T extends ExternalResource> {
     /**
      * Returns a previously borrowed resource to the pool.
      * @param key resource type.
-     * @param resource resource to return.
+     * @param resources mode types of resources to return.
      * @throws NoresourceError
      *         Error returning the object to the pool.
      * @since 0.6

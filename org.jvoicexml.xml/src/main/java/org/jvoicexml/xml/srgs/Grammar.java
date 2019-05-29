@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group
+ * Copyright (C) 2005-2019 JVoiceXML group
  * The JVoiceXML group hereby disclaims all copyright interest in the
  * library `JVoiceXML' (a free VoiceXML implementation).
  * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
@@ -362,7 +362,7 @@ public final class Grammar
             return null;
         }
         final String str = mode.toUpperCase();
-        return ModeType.valueOf(str);
+        return ModeType.valueOfAttribute(str);
     }
 
     /**

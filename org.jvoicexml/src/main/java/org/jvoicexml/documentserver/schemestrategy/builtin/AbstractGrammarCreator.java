@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2009-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2009-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -70,7 +70,7 @@ public abstract class AbstractGrammarCreator implements GrammarCreator {
             if (str.equals("GRAMMAR")) {
                 return ModeType.VOICE;
             }
-            mode = ModeType.valueOf(str);
+            mode = ModeType.valueOfAttribute(str);
         } catch (IllegalArgumentException e) {
             throw new BadFetchError(e.getMessage(), e);
         }
