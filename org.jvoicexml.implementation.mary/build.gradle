@@ -41,7 +41,6 @@ dependencies {
     testCompile project(path: ':org.jvoicexml', configuration: 'testArtifacts')
 
     compile project(':org.jvoicexml')
-    compile project(':org.jvoicexml.client.mrcpv2')
 }
 
 xslt {
