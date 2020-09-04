@@ -26,7 +26,6 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import org.jvoicexml.LastResult;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.xml.vxml.VoiceXmlDocument;
 
@@ -72,6 +71,15 @@ public interface RemoteApplication extends Remote {
      *            Error in remote method call.
      */
     URI getApplication() throws RemoteException;
+
+    /**
+     * Retrieves a list of loaded documents.
+     * @return loaded documents
+     * @exception RemoteException
+     *            Error in remote method call.
+     * @since 0.7.9
+     */
+    List<URI> getLoadedDocuments() throws RemoteException;;
 
     /**
      * Sets the new root document.
@@ -132,24 +140,5 @@ public interface RemoteApplication extends Remote {
      *            Error in remote method call.
      */
     URI resolve(URI baseUri, URI uri) throws RemoteException;
-
-    /**
-     * Sets the last result.
-     * @param lastresult the last result to set.
-     * @exception RemoteException
-     *            Error in remote method call.
-     */
-    void setLastResult(List<LastResult> lastresult)
-            throws RemoteException;
-
-    /**
-     * Retrieves information about the last recognition to occur within this
-     * application. It is an array of elements where each element, represents a
-     * possible result.
-     * @return last recognition result information, maybe {@code null}.
-     * @exception RemoteException
-     *            Error in remote method call.
-     */
-    List<LastResult> getLastResult() throws RemoteException;
 }
 

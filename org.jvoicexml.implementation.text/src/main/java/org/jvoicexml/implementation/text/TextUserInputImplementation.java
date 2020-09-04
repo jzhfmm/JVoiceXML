@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.MimeType;
+
 import org.apache.log4j.Logger;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.DtmfRecognizerProperties;
@@ -81,6 +83,9 @@ final class TextUserInputImplementation implements UserInputImplementation {
     /** The data model in use. */
     private DataModel model;
     
+    /** The no input timeout. */
+    private long timeout = -1;
+
     static {
         BARGE_IN_TYPES = new java.util.ArrayList<BargeInType>();
         BARGE_IN_TYPES.add(BargeInType.SPEECH);
@@ -106,6 +111,14 @@ final class TextUserInputImplementation implements UserInputImplementation {
      * {@inheritDoc}
      */
     @Override
+    public long getNoInputTimeout() {
+        return timeout;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public ModeType getModeType() {
         return ModeType.VOICE;
     }
@@ -118,7 +131,8 @@ final class TextUserInputImplementation implements UserInputImplementation {
     public void setGrammarParsers(final List<GrammarParser<?>> grammarParsers) {
         for (GrammarParser<?> parser : grammarParsers) {
             final GrammarType type = parser.getType();
-            parsers.put(type.getType(), parser);
+            final MimeType mimeType = type.getType();
+            parsers.put(mimeType.toString(), parser);
         }
     }
 
@@ -194,7 +208,8 @@ final class TextUserInputImplementation implements UserInputImplementation {
     public GrammarImplementation<?> loadGrammar(final URI uri,
             final GrammarType type) throws NoresourceError, IOException,
             UnsupportedFormatError {
-        final GrammarParser<?> parser = parsers.get(type.getType());
+        final MimeType mimeType = type.getType();
+        final GrammarParser<?> parser = parsers.get(mimeType.toString());
         if (parser == null) {
             throw new UnsupportedFormatError("'" + type + "' is not supported");
         }
@@ -257,6 +272,7 @@ final class TextUserInputImplementation implements UserInputImplementation {
             BadFetchError {
         model = dataModel;
         recognizing = true;
+        timeout = speech.getNoInputTimeoutAsMsec();
         final UserInputEvent event = new RecognitionStartedEvent(this, null);
         fireInputEvent(event);
     }
@@ -266,6 +282,7 @@ final class TextUserInputImplementation implements UserInputImplementation {
      */
     @Override
     public void stopRecognition() {
+        timeout = -1;
         recognizing = false;
         final UserInputEvent event = new RecognitionStoppedEvent(this, null);
         fireInputEvent(event);
@@ -301,7 +318,6 @@ final class TextUserInputImplementation implements UserInputImplementation {
         if (!recognizing || (listener == null)) {
             return;
         }
-
         LOGGER.info("received utterance '" + text + "'");
 
         final UserInputEvent inputStartedEvent = new InputStartedEvent(this,

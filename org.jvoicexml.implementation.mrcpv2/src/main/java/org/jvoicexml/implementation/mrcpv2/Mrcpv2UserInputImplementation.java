@@ -60,8 +60,6 @@ import org.speechforge.cairo.client.SpeechClient;
 import org.speechforge.cairo.client.SpeechEventListener;
 import org.speechforge.cairo.client.recog.RecognitionResult;
 
-import net.sourceforge.halef.HalefDbWriter;
-
 /**
  * Audio input that uses a mrcpv2 client to use a recognition resource.
  * 
@@ -86,7 +84,6 @@ public final class Mrcpv2UserInputImplementation
 
     /** The grammar parser to use. */
     private final Map<String, GrammarParser<?>> parsers;
-    // private JSGFGrammar _grammar = new JSGFGrammar();
 
     // TODO Handle load and activate grammars properly on the server. At
     // present the mrcpv2 server does not support it. So just saving the grammar
@@ -104,6 +101,9 @@ public final class Mrcpv2UserInputImplementation
     /** The ASR client. */
     private SpeechClient speechClient;
 
+    /** The timeout value that was used to start a recognition. */
+    private long lastUsedTimeout;
+    
     /**
      * Constructs a new object.
      */
@@ -111,6 +111,16 @@ public final class Mrcpv2UserInputImplementation
         activeGrammars = new java.util.ArrayList<GrammarImplementation<?>>();
         listeners = new java.util.ArrayList<UserInputImplementationListener>();
         parsers = new java.util.HashMap<String, GrammarParser<?>>();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * The no input timeout is handled by the MRCPv2 provider
+     */
+    @Override
+    public long getNoInputTimeout() {
+        return -1;
     }
 
     /**
@@ -131,7 +141,7 @@ public final class Mrcpv2UserInputImplementation
     public void setGrammarParsers(final List<GrammarParser<?>> grammarParsers) {
         for (GrammarParser<?> parser : grammarParsers) {
             final GrammarType type = parser.getType();
-            parsers.put(type.getType(), parser);
+            parsers.put(type.toString(), parser);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("added parser '" + parser + "' for grammar type '"
                         + type + "'");
@@ -194,7 +204,7 @@ public final class Mrcpv2UserInputImplementation
     public GrammarImplementation<?> loadGrammar(final URI uri,
             final GrammarType type)
             throws NoresourceError, IOException, UnsupportedFormatError {
-        final GrammarParser<?> parser = parsers.get(type.getType());
+        final GrammarParser<?> parser = parsers.get(type.toString());
         if (parser == null) {
             throw new UnsupportedFormatError("'" + type + "' is not supported");
         }
@@ -252,7 +262,7 @@ public final class Mrcpv2UserInputImplementation
         }
         try {
 
-            long noInputTimeout = 0;
+            lastUsedTimeout = speech.getNoInputTimeoutAsMsec();
             boolean hotword = false;
             boolean attachGrammar = true;
             GrammarImplementation<?> firstGrammar = activeGrammars.iterator().next(); 
@@ -261,55 +271,38 @@ public final class Mrcpv2UserInputImplementation
             // org.jvoicexml.interpreter.grammar.halef.HalefGrammarParser.java
             // TODO load the application type from the grammar
             LOGGER.info(String.format("Starting recognition with url: %s", firstGrammarDocument.getDocument()));
-
-            // HALEF Event logging
-            final String hevent = String.format("INSERT INTO haleflogs"
-                + " (databasedate, machineIP, machinedate, class, level,"
-                + " message) VALUES(%s, \"%s\", %s,"
-                + " \"%s\", \"%s\", \"%s\")", 
-                "now()",
-                System.getenv("IP"),
-                "now()",
-                "implementation.mrcpv2.Mrcpv2SpokenInput",
-                "INFO",
-                "Starting recognition with url: " + firstGrammarDocument.getDocument());
-            HalefDbWriter.execute(hevent);
-
             speechClient.setContentType("application/wfst");
             speechClient.recognize(
                     firstGrammarDocument.getDocument(), hotword,
-                    attachGrammar, noInputTimeout);
+                    attachGrammar, lastUsedTimeout);
         } catch (MrcpInvocationException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Mrcpv2 invocation exception while initiating a "
-                        + "recognition request", e);
-            }
-            throw new NoresourceError(e);
+            LOGGER.error("MRCPv2 invocation exception while initiating a "
+                    + "recognition request", e);
+            throw new NoresourceError(
+                    "MRCPv2 invocation exception while initiating a "
+                    + "recognition request", e);
         } catch (IllegalValueException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Illegal Value exception while initiating a "
-                        + "recognition request", e);
-            }
-            throw new NoresourceError(e);
+            LOGGER.error("Illegal Value exception while initiating a "
+                    + "recognition request", e);
+            throw new NoresourceError(
+                    "Illegal Value exception while initiating a "
+                    + "recognition request", e);
         } catch (IOException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(
-                        "IO exception while initiating a recognition request",
-                        e);
-            }
-            throw new NoresourceError(e);
+            LOGGER.error("IO exception while initiating a recognition request",
+                    e);
+            throw new NoresourceError(
+                    "IO exception while initiating a recognition request", e);
         } catch (InterruptedException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Interruped exception while initiating a "
-                        + "recognition request", e);
-            }
-            throw new NoresourceError(e);
+            LOGGER.error("Interruped exception while initiating a "
+                    + "recognition request", e);
+            throw new NoresourceError("Interruped exception while initiating a "
+                    + "recognition request", e);
         } catch (NoMediaControlChannelException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("No Media Control Channel exception while "
-                        + "initiating a recognition request", e);
-            }
-            throw new NoresourceError(e);
+            LOGGER.error("No Media Control Channel exception while "
+                    + "initiating a recognition request", e);
+            throw new NoresourceError(
+                    "No Media Control Channel exception while "
+                    + "initiating a recognition request", e);
         }
 
         final UserInputEvent event = new RecognitionStartedEvent(this, null);
@@ -323,6 +316,8 @@ public final class Mrcpv2UserInputImplementation
     @Override
     public void stopRecognition() {
         try {
+            lastUsedTimeout =
+                    SpeechRecognizerProperties.DEFAULT_NO_INPUT_TIMEOUT;
             speechClient.stopActiveRecognitionRequests();
         } catch (MrcpInvocationException e) {
             LOGGER.warn("MrcpException while stopping recognition."
@@ -466,6 +461,24 @@ public final class Mrcpv2UserInputImplementation
     }
 
     /**
+     * Notifies all registered listeners about the given event.
+     * 
+     * @param event
+     *            the event.
+     * @since 0.6
+     */
+    void fireTimeoutEvent() {
+        synchronized (listeners) {
+            final Collection<UserInputImplementationListener> copy =
+                    new java.util.ArrayList<UserInputImplementationListener>();
+            copy.addAll(listeners);
+            for (UserInputImplementationListener current : copy) {
+                current.timeout(lastUsedTimeout);
+            }
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -492,13 +505,19 @@ public final class Mrcpv2UserInputImplementation
             fireInputEvent(spokenInputEvent);
 
         } else if (event == SpeechEventType.RECOGNITION_COMPLETE) {
-            LOGGER.info("Recognition results are: " + result.getText());
-            final org.jvoicexml.RecognitionResult recognitionResult =
-                    new Mrcpv2RecognitionResult(result);
+            // Some implementations may return an empty recognition result.
+            // Handle these as timeouts as the input cannot be used at all.
+            if (result == null) {
+                fireTimeoutEvent();
+            } else {
+                LOGGER.info("Recognition results are: " + result.getText());
+                final org.jvoicexml.RecognitionResult recognitionResult =
+                        new Mrcpv2RecognitionResult(result);
 
-            final UserInputEvent spokenInputEvent = new RecognitionEvent(this,
-                    null, recognitionResult);
-            fireInputEvent(spokenInputEvent);
+                final UserInputEvent spokenInputEvent = new RecognitionEvent(this,
+                        null, recognitionResult);
+                fireInputEvent(spokenInputEvent);
+            }
         }
     }
 

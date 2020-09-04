@@ -1,3 +1,5 @@
+import static org.apache.tools.ant.taskdefs.condition.Os.*
+
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'distribution'
@@ -16,6 +18,26 @@ repositories {
 }
 
 configurations {
+    jvxmlCoreProjects {
+        description = "Core projects needed for JVoiceXML"
+        extendsFrom compile
+    }
+    
+    jvxmlDocumentServerJetty {
+        description = "Document repository based on Jetty"
+        extendsFrom compile
+    }
+
+    jvxmlDocumentServerSchemestrategyFile {
+        description = "File scheme strategy for the document server"
+        extendsFrom compile
+    }
+
+    jvxmlDocumentServerSchemestrategyHttp {
+        description = "HTTP scheme strategy for the document server"
+        extendsFrom compile
+    }
+
     jvxmlInterpreterDatamodelECMAScript {
         description = "ECMAScript data model"
         extendsFrom compile
@@ -122,8 +144,16 @@ configurations {
 }
 
 dependencies {
-    compile project(':org.jvoicexml.client')
+    jvxmlCoreProjects project(':org.jvoicexml.xml')
+    jvxmlCoreProjects project(':org.jvoicexml')
+    jvxmlCoreProjects project(':org.jvoicexml.config')
+    jvxmlCoreProjects project(':org.jvoicexml.srgs')
 
+    jvxmlDocumentServerJetty project(':org.jvoicexml.documentserver.jetty')
+
+    jvxmlDocumentServerSchemestrategyFile project(':org.jvoicexml.documentserver.schemestrategy.file')
+    jvxmlDocumentServerSchemestrategyHttp project(':org.jvoicexml.documentserver.schemestrategy.http')
+    
     jvxmlImplementationJSAPI10 project(':org.jvoicexml.implementation.jsapi10')
 
     jvxmlImplementationJSAPI20 project(':org.jvoicexml.implementation.jsapi20')
@@ -139,6 +169,8 @@ dependencies {
 
     jvxmlImplementationMary project(':org.jvoicexml.implementation.mary')
 
+    jvxmlImplementationMrcpv2 project(':org.jvoicexml.client.mrcpv2')
+    jvxmlImplementationMrcpv2 project(':org.jvoicexml.zanzibar')
     jvxmlImplementationMrcpv2 project(':org.jvoicexml.interpreter.grammar.halef')
     jvxmlImplementationMrcpv2 project(':org.jvoicexml.implementation.mrcpv2')
     jvxmlImplementationMrcpv2 project(':org.jvoicexml.callmanager.sip')
@@ -170,7 +202,6 @@ dependencies {
 
     jvxmlDocumentation project(':howtobuild')
     jvxmlDocumentation project(':userguide')
-    
     runtime project(':org.jvoicexml.xml')
     runtime project(':org.jvoicexml')
     runtime project(':org.jvoicexml.config')
@@ -189,7 +220,11 @@ jar {
 }
 
 task jvxmlConfigurations {
+    dependsOn configurations.jvxmlCoreProjects
     dependsOn configurations.jvxmlDocumentation
+    dependsOn configurations.jvxmlDocumentServerJetty
+    dependsOn configurations.jvxmlDocumentServerSchemestrategyFile
+    dependsOn configurations.jvxmlDocumentServerSchemestrategyHttp
     dependsOn configurations.jvxmlInterpreterDatamodelECMAScript
 
     if (project.property('JVOICEXML_INTERPRETER_GRAMMAR_LUIS') == 'true') {
@@ -207,7 +242,7 @@ task jvxmlConfigurations {
     if (project.property('JVOICEXML_IMPLEMENTATION_JTAPI') == 'true') {
         dependsOn configurations.jvxmlImplementationJTAPI 
     }
-    if (project.property('JVOICEXML_IMPLEMENTATION_KINECT') == 'true') {
+    if (project.property('JVOICEXML_IMPLEMENTATION_KINECT') == 'true' && isFamily(FAMILY_WINDOWS)) {
         dependsOn configurations.jvxmlImplementationKinect 
     }
     if (project.property('JVOICEXML_IMPLEMENTATION_BML') == 'true') {
@@ -221,7 +256,7 @@ task jvxmlConfigurations {
     }
     if (project.property('JVOICEXML_IMPLEMENTATION_MRCPV2') == 'true') {
         dependsOn configurations.jvxmlImplementationMrcpv2
-        }
+    }
     if (project.property('JVOICEXML_IMPLEMENTATION_TEXT') == 'true') {
         dependsOn configurations.jvxmlImplementationText
     }
@@ -243,15 +278,24 @@ task jvxmlConfigurations {
     }
 }
 
-task jvxmlDistributioConfigurations {
+task jvxmlDistributionConfigurations {
+    dependsOn project(':org.jvoicexml.client')
+
     dependsOn configurations.jvxmlDocumentation
+    dependsOn configurations.jvxmlDocumentServerJetty
+    dependsOn configurations.jvxmlDocumentServerSchemestrategyFile
+    dependsOn configurations.jvxmlDocumentServerSchemestrategyHttp
     dependsOn configurations.jvxmlInterpreterDatamodelECMAScript
     dependsOn configurations.jvxmlInterpreterGrammarLUIS
     dependsOn configurations.jvxmlInterpreterGrammarRegex
     dependsOn configurations.jvxmlImplementationJSAPI10 
     dependsOn configurations.jvxmlImplementationJSAPI20 
-    dependsOn configurations.jvxmlImplementationJTAPI 
-    dependsOn configurations.jvxmlImplementationKinect 
+    dependsOn configurations.jvxmlImplementationJTAPI
+    dependsOn configurations.jvxmlImplementationKinect {
+        onlyIf { 
+            isFamily(FAMILY_WINDOWS)
+        }
+    }
     dependsOn configurations.jvxmlImplementationLightweightBML 
     dependsOn configurations.jvxmlImplementationMarc 
     dependsOn configurations.jvxmlImplementationMary
@@ -287,6 +331,11 @@ distributions {
             into ('lib') {
                 from configurations.jvxmlJNDI
             
+                from configurations.jvxmlDocumentServerJetty
+
+                from configurations.jvxmlDocumentServerSchemestrategyFile
+                from configurations.jvxmlDocumentServerSchemestrategyHttp
+                
                 from configurations.jvxmlInterpreterDatamodelECMAScript
                 from configurations.jvxmlInterpreterGrammarLUIS
                 from configurations.jvxmlInterpreterGrammarRegex
@@ -346,6 +395,18 @@ distributions {
                 }
             }
             
+            into('demo/org.jvoicexml.demo.gotodemo') {
+                from(project(':org.jvoicexml.demo.gotodemo').projectDir) {
+                    exclude "**/build",
+                    "**/logging",
+                    "**/bin",
+                    "build.gradle"
+                }
+                from(project(':org.jvoicexml.demo.gotodemo').projectDir) {
+                    include "build.gradle"
+                    filter{ it.replaceAll('JVOICEXML_VERSION', "\'${JVOICEXML_VERSION}\'")}
+                }
+            }
             into('demo/org.jvoicexml.demo.helloworlddemo') {
                 from(project(':org.jvoicexml.demo.helloworlddemo').projectDir) {
                     exclude "**/build",
@@ -544,14 +605,25 @@ distributions {
     }
 }
 
-run {
+task createJvxmlRunConfiguration {
     dependsOn jvxmlConfigurations
     dependsOn configurations.jvxmlJNDI
+    version = JVOICEXML_VERSION
+}
+
+run {
+    dependsOn createJvxmlRunConfiguration
 
     version = JVOICEXML_VERSION
 
+// Add the following lines to the jvmArgs to enable RMI logging
+//                "-Djava.rmi.server.logCalls=true",
+//                "-Dsun.rmi.server.logLevel=VERBOSE",
+//                "-Dsun.rmi.loader.logLevel=VERBOSE",
+
     mainClassName = "org.jvoicexml.startup.Startup"
-    classpath += files("${project(':org.jvoicexml').buildDir}/config")
+    classpath = sourceSets.main.runtimeClasspath \
+                + files("${project(':org.jvoicexml').buildDir}/config")
     jvmArgs = ["-Djvoicexml.config=${project(':org.jvoicexml').buildDir}/config",
                "-Djava.security.manager",
                "-Djava.security.policy=${project(':org.jvoicexml').buildDir}/config/jvoicexml.policy",
@@ -561,8 +633,7 @@ run {
 }
 
 task(runDebug, type: JavaExec) {
-    dependsOn jvxmlConfigurations
-    dependsOn configurations.jvxmlJNDI
+    dependsOn createJvxmlRunConfiguration
 
     version = JVOICEXML_VERSION
 
@@ -584,7 +655,7 @@ task(shutdown, type: JavaExec) {
     main = "org.jvoicexml.startup.Shutdown"
     classpath = sourceSets.main.runtimeClasspath \
                 + files("${project(':org.jvoicexml').buildDir}/config") \
-                + files("${project(':org.jvoicexml.jndi').buildDir}/libs/org.jvoicexml.jndi-${JVOICEXML_VERSION}.jar")
+                + files("${project(':org.jvoicexml.client').buildDir}/libs/org.jvoicexml.client-${JVOICEXML_VERSION}.jar")
     jvmArgs = ["-Djvoicexml.config=${project(':org.jvoicexml').buildDir}/config",
                "-Djava.security.manager",
                "-Djava.security.policy=file://${project(':org.jvoicexml').buildDir}/config/jvoicexml.policy",
@@ -594,11 +665,11 @@ task(shutdown, type: JavaExec) {
 
 startScripts {
     mainClassName = "org.jvoicexml.startup.Startup"
-    classpath += files('../config') \
-              + files("../lib/org.jvoicexml.jndi-${JVOICEXML_VERSION}.jar")
+    classpath += files('../config')
     applicationName = "jvxml-startup"
     defaultJvmOpts = ["-Xms1024m", "-Xmx2048m"]
     defaultJvmOpts = [ "-Djava.library.path=lib",
+               "-Djava.security.manager",
                "-Djava.security.policy=config/jvoicexml.policy",
                "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager",
                "-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.Slf4jLog" ]
@@ -613,11 +684,13 @@ startScripts {
 task createShutdownApp(type: CreateStartScripts) {
     mainClassName = "org.jvoicexml.startup.Shutdown"
     classpath = startScripts.classpath \
-                + files('../config')
+                + files('../config') \
+                + files("../libs/org.jvoicexml.client-${JVOICEXML_VERSION}.jar")
     outputDir = startScripts.outputDir
     applicationName = 'jvxml-shutdown'
     defaultJvmOpts = ["-Xms1024m", "-Xmx2048m"]
     defaultJvmOpts = [ "-Djava.library.path=lib",
+               "-Djava.security.manager",
                "-Djava.security.policy=config/jvoicexml.policy",
                "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager",
                "-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.Slf4jLog" ]

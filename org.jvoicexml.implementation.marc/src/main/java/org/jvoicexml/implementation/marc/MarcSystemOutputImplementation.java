@@ -41,6 +41,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.apache.log4j.Logger;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.DocumentServer;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableSsmlText;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.event.ErrorEvent;
@@ -103,7 +104,7 @@ public final class MarcSystemOutputImplementation
     private final SpeakableQueue speakables;
 
     /** the current session id. */
-    private String sessionId;
+    private SessionIdentifier sessionId;
 
     /** The current event id. */
     private int marcEventId;
@@ -405,7 +406,7 @@ public final class MarcSystemOutputImplementation
      */
     @Override
     public void queueSpeakable(final SpeakableText speakable,
-            final String id, final DocumentServer documentServer)
+            final SessionIdentifier id, final DocumentServer documentServer)
         throws NoresourceError,
             BadFetchError {
         synchronized (speakables) {

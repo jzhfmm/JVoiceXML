@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2013 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -47,12 +42,29 @@ import org.jvoicexml.xml.vxml.BargeInType;
  * </p>
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  */
 public interface SystemOutput {
     /**
-     * The Speakable object is added to the end of the speaking queue and will
-     * be spoken once it reaches the top of the queue.
+     * The {@link SpeakableText} object is offered for addition to the speaking
+     * queue.
+     * 
+     * <p>
+     * Depending on the priority of the {@link SpeakableText} it will be
+     * handled as follows:
+     * <dl>
+     * <dt>{@link org.jvoicexml.xml.vxml.PriorityType#APPEND}</dt>
+     * <dd>append the {@link SpeakableText} to the end of the queue.</dd>
+     * <dt>{@link org.jvoicexml.xml.vxml.PriorityType#PREPEND}</dt>
+     * <dd>prepend the {@link SpeakableText} to the top of the queue.</dd>
+     * <dt>{@link org.jvoicexml.xml.vxml.PriorityType#CLEAR}</dt>
+     * <dd>clear the current queue and append the {@link SpeakableText} to the
+     *          end of the queue.</dd>
+     * </dl>
+     * Not all priority types may be supported by the platform. In case the
+     * behavior is not supported, the platform defaults to 
+     * {@link org.jvoicexml.xml.vxml.PriorityType#APPEND}.
+     * </p>
+     * 
      *
      * @param speakable
      *        Text to be spoken.
@@ -66,9 +78,10 @@ public interface SystemOutput {
      *            A URI within the speakable could not be obtained or a parsing
      *            error occurred.
      */
-    void queueSpeakable(final SpeakableText speakable, final String sessionId,
-            final DocumentServer documentServer) throws NoresourceError,
-            BadFetchError;
+    void queueSpeakable(final SpeakableText speakable,
+            final SessionIdentifier sessionId,
+                final DocumentServer documentServer) throws NoresourceError,
+                    BadFetchError;
 
     /**
      * Cancels the current output from the TTS engine and queued audio

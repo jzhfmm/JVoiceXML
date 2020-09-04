@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -31,7 +31,7 @@ import org.jvoicexml.CallControlProperties;
 import org.jvoicexml.DocumentServer;
 import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.PromptAccumulator;
-import org.jvoicexml.SpeakableSsmlText;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.event.error.BadFetchError;
@@ -51,9 +51,6 @@ class JVoiceXmlPromptAccumulator implements PromptAccumulator {
     /** The implementation platform to use. */
     private final ImplementationPlatform platform;
 
-    /** The prompt timeout. */
-    private long timeout;
-
     /** The accumulated prompts. */
     private final List<SpeakableText> prompts;
 
@@ -65,27 +62,17 @@ class JVoiceXmlPromptAccumulator implements PromptAccumulator {
             final ImplementationPlatform implementationPlatform) {
         platform = implementationPlatform;
         prompts = new java.util.ArrayList<SpeakableText>();
-        timeout = -1;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setPromptTimeout(final long promptTimeout) {
-        timeout = promptTimeout;
+    public void startPromptQueuing() {
         prompts.clear();
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("initial timeout after prompt queuing is " + timeout);
+            LOGGER.debug("start prompt queuing");
         }
-    }
-
-    /**
-     * Retrieves the prompt timeout.
-     * @return the prompt timeout
-     */
-    public long getPromptTimeout() {
-        return timeout;
     }
 
     /**
@@ -112,25 +99,17 @@ class JVoiceXmlPromptAccumulator implements PromptAccumulator {
      * {@inheritDoc}
      */
     @Override
-    public void renderPrompts(final String sessionId,
+    public void renderPrompts(final SessionIdentifier sessionId,
             final DocumentServer server, final CallControlProperties callProps)
             throws BadFetchError, NoresourceError,
                 ConnectionDisconnectHangupEvent {
         final CallControl call = platform.getCallControl();
         if (!call.isCallActive()) {
             throw new NoresourceError(
-                    "cannot render prompts. call is no longer acttive");
+                    "cannot render prompts. call is no longer active");
         }
         final SystemOutput output = platform.getSystemOutput();
         for (SpeakableText speakable : prompts) {
-            if (speakable instanceof SpeakableSsmlText) {
-                final SpeakableSsmlText ssmlSpeakable =
-                        (SpeakableSsmlText) speakable;
-                final long currentTimeout = ssmlSpeakable.getTimeout();
-                if (currentTimeout >= 0) {
-                    timeout = currentTimeout;
-                }
-            }
             try {
                 call.play(output, callProps);
             } catch (IOException e) {
@@ -138,8 +117,8 @@ class JVoiceXmlPromptAccumulator implements PromptAccumulator {
             }
             output.queueSpeakable(speakable, sessionId, server);
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("timeout after prompt queuing: " + timeout);
-        }
+        
+        // Cleanup after rendering has been completed
+        prompts.clear();
     }
 }

@@ -23,6 +23,7 @@ package org.jvoicexml.implementation.text;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.jvoicexml.client.text.TextConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.ResourceFactory;
@@ -39,6 +40,10 @@ import org.jvoicexml.xml.srgs.ModeType;
  */
 public final class TextUserInputImplementationFactory
         implements ResourceFactory<UserInputImplementation> {
+	/** Logger for this class. */
+    private static final Logger LOGGER = Logger
+            .getLogger(TextUserInputImplementationFactory.class);
+    
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -68,6 +73,10 @@ public final class TextUserInputImplementationFactory
      */
     public void setGrammarParsers(final List<GrammarParser<?>> grammarParsers) {
         parsers = grammarParsers;
+        for (GrammarParser<?> parser : parsers) {
+            LOGGER.info("added grammar parser '" + parser.getClass()
+                + "' for grammar type '" + parser.getType() +"'");
+        }
     }
 
     /**

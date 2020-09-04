@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -26,10 +26,14 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.jvoicexml.DocumentDescriptor;
 import org.jvoicexml.DocumentServer;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.SemanticError;
 import org.jvoicexml.interpreter.datamodel.DataModel;
@@ -66,7 +70,7 @@ class ParamParser {
     private final DocumentServer server;
 
     /** The Id of the current JVoiceXML session. */
-    private final String sessionId;
+    private final SessionIdentifier sessionId;
 
     /**
      * Constructs a new object.
@@ -127,10 +131,14 @@ class ParamParser {
                         throw new BadFetchError("'" + value
                                 + "' is not a valid URI");
                     }
-                    final String type = param.getType();
-                    final DocumentDescriptor descriptor =
-                            new DocumentDescriptor(uri);
-                    value = server.getObject(sessionId, descriptor, type);
+                    try {
+                        final MimeType type = param.getTypeAsMimeType();
+                        final DocumentDescriptor descriptor =
+                                new DocumentDescriptor(uri, type);
+                        value = server.getObject(sessionId, descriptor);
+                    } catch (MimeTypeParseException e) {
+                        throw new BadFetchError(e.getMessage(), e);
+                    }
                 }
             }
             parameters.put(name, value);
@@ -177,10 +185,14 @@ class ParamParser {
                         throw new BadFetchError("'" + value
                                 + "' is not a valid URI");
                     }
-                    final String type = param.getType();
-                    final DocumentDescriptor descriptor =
-                            new DocumentDescriptor(uri);
-                    value = server.getObject(sessionId, descriptor, type);
+                    try {
+                        final MimeType type = param.getTypeAsMimeType();
+                        final DocumentDescriptor descriptor =
+                                new DocumentDescriptor(uri, type);
+                        value = server.getObject(sessionId, descriptor);
+                    } catch (MimeTypeParseException e) {
+                        throw new BadFetchError(e.getMessage(), e);
+                    }
                 }
             }
             parameters.add(value);

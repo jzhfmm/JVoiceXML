@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2011-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2011-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -20,9 +20,12 @@
  */
 package org.jvoicexml.interpreter.grammar;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
+
+import javax.activation.MimeType;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
@@ -31,6 +34,7 @@ import org.jvoicexml.DocumentServer;
 import org.jvoicexml.FetchAttributes;
 import org.jvoicexml.GrammarDocument;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.SemanticError;
 import org.jvoicexml.event.error.UnsupportedFormatError;
@@ -81,7 +85,7 @@ final class GrammarLoader {
                 return loadExternalGrammar(context, attributes, grammar);
             } else {
                 final Session session = context.getSession();
-                final String sessionId = session.getSessionId();
+                final SessionIdentifier sessionId = session.getSessionId();
                 final DocumentServer server = context.getDocumentServer();
                 return loadInternalGrammar(sessionId, server, grammar,
                         language);
@@ -115,7 +119,8 @@ final class GrammarLoader {
      * @throws URISyntaxException
      *             error generating the URI for the document
      */
-    private GrammarDocument loadInternalGrammar(final String sessionId,
+    private GrammarDocument loadInternalGrammar(
+            final SessionIdentifier sessionId,
             final DocumentServer server, final Grammar grammar,
             final Locale language)
             throws UnsupportedFormatError, URISyntaxException {
@@ -131,11 +136,15 @@ final class GrammarLoader {
 
         // Create an internal grammar document thereof and publicize it to the
         // server
-        final GrammarDocument document = new InternalGrammarDocument(grammar);
-        adaptGrammarAttributes(grammar, document);
-        server.addGrammarDocument(sessionId, document);
-
-        return document;
+        try {
+            final GrammarDocument document =
+                    new InternalGrammarDocument(grammar);
+            adaptGrammarAttributes(grammar, document);
+            server.addGrammarDocument(sessionId, document);
+            return document;
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedFormatError(e.getMessage(), e);
+        }
     }
 
     /**
@@ -176,8 +185,7 @@ final class GrammarLoader {
             // TODO add support for URI fragments
             LOGGER.warn("URI fragments are currently not supported: "
                     + "ignoring fragment");
-            src = new URI(src.getScheme(), src.getUserInfo(), src.getHost(),
-                    src.getPort(), src.getPath(), src.getQuery(), null);
+            src = new URI(src.getScheme(), src.getSchemeSpecificPart(), null);
         }
 
         // Maybe adapt a builtin grammar URI
@@ -191,8 +199,9 @@ final class GrammarLoader {
         LOGGER.info("loading grammar from source: '" + src + "'");
         final FetchAttributes adaptedAttributes = adaptFetchAttributes(
                 attributes, grammar);
+        final MimeType type = grammar.getTypeAsMimeType();
         final GrammarDocument document = context.acquireExternalGrammar(src,
-                adaptedAttributes);
+                type, adaptedAttributes);
         if (document == null) {
             throw new BadFetchError("Unable to load grammar '" + src + "'!");
         }

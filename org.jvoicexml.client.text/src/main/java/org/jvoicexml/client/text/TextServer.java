@@ -58,8 +58,8 @@ import org.xml.sax.SAXException;
  *
  * <p>
  * The {@link ConnectionInformation} object that has to be passed to the
- * {@link org.jvoicexml.JVoiceXml#createSession(ConnectionInformation)} method
- * can be obtained via the {@link #getConnectionInformation()} method.
+ * {@link org.jvoicexml.JVoiceXml#createSession(ConnectionInformation, org.jvoicexml.SessionIdentifier)}
+ * method can be obtained via the {@link #getConnectionInformation()} method.
  * </p>
  *
  * <p>
@@ -68,8 +68,8 @@ import org.xml.sax.SAXException;
  *
  * <p>
  * Usually, incoming SSML messages are acknowledge upon arrival. This behavior
- * can chaged via {@link #setAutoAcknowledge(boolean)}. Messages must be
- * acknowledged manuylly by {@link #acknowledge(int)}.
+ * can be changed via {@link #setAutoAcknowledge(boolean)}. Messages must be
+ * acknowledged manually by {@link #acknowledge(int)}.
  * </p>
  * 
  * @author Dirk Schnelle-Walka
@@ -381,12 +381,15 @@ public final class TextServer extends Thread {
                 final InetSocketAddress remote = (InetSocketAddress) client
                         .getRemoteSocketAddress();
                 calledId = TcpUriFactory.createUri(remote);
-                final InetSocketAddress local = (InetSocketAddress) client
-                        .getLocalSocketAddress();
-                callingId = TcpUriFactory.createUri(local);
-
-                LOGGER.info("connected to " + calledId);
-                fireConnected(remote);
+                synchronized (client) {
+                    if (client != null) {
+                        final InetSocketAddress local = (InetSocketAddress) client
+                                .getLocalSocketAddress();
+                        callingId = TcpUriFactory.createUri(local);
+                        LOGGER.info("connected to " + calledId);
+                        fireConnected(remote);
+                    }
+                }
 
                 if (readOutput()) {
                     break;

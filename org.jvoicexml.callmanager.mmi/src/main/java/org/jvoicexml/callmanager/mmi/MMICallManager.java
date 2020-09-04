@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL: https://svn.sourceforge.net/svnroot/jvoicexml/trunk/src/org/jvoicexml/Application.java$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2012 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2012-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -33,7 +28,10 @@ import org.apache.log4j.Logger;
 import org.jvoicexml.CallManager;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.JVoiceXml;
+import org.jvoicexml.JVoiceXmlCore;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
+import org.jvoicexml.UuidSessionIdentifier;
 import org.jvoicexml.client.ConnectionInformationCallMetadataModifiable;
 import org.jvoicexml.client.ConnectionInformationController;
 import org.jvoicexml.client.ConnectionInformationFactory;
@@ -195,7 +193,7 @@ public final class MMICallManager implements CallManager {
      * {@inheritDoc}
      */
     @Override
-    public void setJVoiceXml(final JVoiceXml jvoicexml) {
+    public void setJVoiceXml(final JVoiceXmlCore jvoicexml) {
         jvxml = jvoicexml;
 
     }
@@ -224,6 +222,14 @@ public final class MMICallManager implements CallManager {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isStarted() {
+        return mc != null;
+    }
+
+    /**
      * Creates a session. Created sessions must be cleaned up after the session
      * has ended using {@link #cleanupSession(Session)}.
      * 
@@ -249,7 +255,8 @@ public final class MMICallManager implements CallManager {
             modifiable.setProtocolName(data.getProtocolName());
             modifiable.setProtocolVersion(data.getProtocolVersion());
         }
-        final Session session = jvxml.createSession(info);
+        final SessionIdentifier id = new UuidSessionIdentifier();
+        final Session session = jvxml.createSession(info, id);
         sessions.put(session, controller);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("session '" + session.getSessionId() + "' created");

@@ -7,9 +7,15 @@ repositories {
     jcenter()
 }
 
+configurations.all {
+    exclude group: 'log4j', module: 'log4j'
+}
 
 dependencies {
-    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-jul', version: '2.11.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-1.2-api', version: '2.11.2'
     compile group: 'org.jdom', name: 'jdom2', version: '2.0.5'
     compile group: 'de.dfki.mary', name: 'marytts-client', version: '5.2'
     
@@ -35,8 +41,13 @@ jar {
 
     manifest {
         attributes("Implementation-Title": "JVoiceXML Talking Head",
-                   "Implementation-Vendor": "JVoiceXML group",
-                   "Implementation-Version": "JVOICEXML_VERSION")
+                   'Implementation-Vendor': 'switch',
+                   'Implementation-Version': JVOICEXML_VERSION,
+                   'Built-By'       : System.properties['user.name'],
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Created-By'     : "Gradle ${gradle.gradleVersion}",
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                   'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}")
     }
     baseName 'org.jvoicexml.talkinghead'
 }

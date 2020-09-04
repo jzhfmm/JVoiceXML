@@ -1,7 +1,11 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
+<<<<<<< HEAD
  * Copyright (C) 2008-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
+=======
+ * Copyright (C) 2008-2018 JVoiceXML group - http://jvoicexml.sourceforge.net
+>>>>>>> refs/heads/develop
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -62,15 +66,14 @@ import org.jvoicexml.xml.srgs.ModeType;
  */
 public final class TextTelephony implements CallControlImplementation {
     /** Logger for this class. */
-    private static final Logger LOGGER = Logger
-            .getLogger(TextTelephony.class);
+    private static final Logger LOGGER = Logger.getLogger(TextTelephony.class);
 
     /** Maximal number of milliseconds to wait for a connect. */
     private static final int MAX_TIMEOUT_CONNECT = 1000;
 
     /** Maximal number of milliseconds to wait for acknowledgment. */
     private static final int MAX_TIMEOUT_ACK = 100;
-    
+
     /** The connection to the client. */
     private Socket socket;
 
@@ -150,7 +153,9 @@ public final class TextTelephony implements CallControlImplementation {
 
     /**
      * Acknowledges the given message.
-     * @param message the message to acknowledge
+     * 
+     * @param message
+     *            the message to acknowledge
      */
     void addAcknowledgeMessage(final TextMessage message) {
         if (sender != null) {
@@ -160,7 +165,9 @@ public final class TextTelephony implements CallControlImplementation {
 
     /**
      * Adds the given sequence number to the list of pending messages.
-     * @param message the sent message
+     * 
+     * @param message
+     *            the sent message
      */
     void addPendingMessage(final PendingMessage message) {
         synchronized (pendingMessages) {
@@ -175,7 +182,9 @@ public final class TextTelephony implements CallControlImplementation {
 
     /**
      * Removes the given sequence number from the list of pending messages.
-     * @param sequenceNumber the sequence number to add.
+     * 
+     * @param sequenceNumber
+     *            the sequence number to add.
      * @return <code>true</code> if the message has been removed.
      */
     boolean removePendingMessage(final int sequenceNumber) {
@@ -187,8 +196,8 @@ public final class TextTelephony implements CallControlImplementation {
             if (removed) {
                 final SpeakableText speakable = pending.getSpeakable();
                 if (LOGGER.isDebugEnabled()) {
-                    final Collection<Integer> pengingSequenveNumbers =
-                            pendingMessages.keySet();
+                    final Collection<Integer> pengingSequenveNumbers = pendingMessages
+                            .keySet();
                     LOGGER.debug("removed pending message " + sequenceNumber
                             + " remaining " + pengingSequenveNumbers);
                 }
@@ -323,6 +332,7 @@ public final class TextTelephony implements CallControlImplementation {
 
     /**
      * Notifies all listeners about an unexpected disconnect.
+     * 
      * @since 0.7
      */
     synchronized void fireHungup() {
@@ -389,8 +399,8 @@ public final class TextTelephony implements CallControlImplementation {
     public boolean isBusy() {
         synchronized (pendingMessages) {
             return (sender != null && sender.isSending())
-            || !pendingMessages.isEmpty()
-            || (receiver != null && receiver.isRecording());
+                    || !pendingMessages.isEmpty()
+                    || (receiver != null && receiver.isRecording());
         }
     }
 
@@ -404,7 +414,7 @@ public final class TextTelephony implements CallControlImplementation {
         }
         return !sentHungup;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -443,24 +453,26 @@ public final class TextTelephony implements CallControlImplementation {
 
     /**
      * Opens a connection to a server socket on the client side.
-     * @param client connection info
+     * 
+     * @param client
+     *            connection info
      * @return created socket
      * @throws IOException
-     *         if the connection could not be established
+     *             if the connection could not be established
      * @since 0.7.3
      */
     private Socket openConnection(final TextConnectionInformation client)
-        throws IOException {
+            throws IOException {
         final InetAddress address = client.getAddress();
         final int port = client.getPort();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("connecting to '" + client.getCallingDevice()
-                    + "'...");
+            LOGGER.debug(
+                    "connecting to '" + client.getCallingDevice() + "'...");
         }
 
-        final SocketAddress socketAddress =
-            new InetSocketAddress(address, port);
+        final SocketAddress socketAddress = new InetSocketAddress(address,
+                port);
         final Socket endpoint = new Socket();
         endpoint.connect(socketAddress, MAX_TIMEOUT_CONNECT);
         return endpoint;
@@ -472,16 +484,15 @@ public final class TextTelephony implements CallControlImplementation {
     @Override
     public void connect(final ConnectionInformation info) throws IOException {
         if (info instanceof TextConnectionInformation) {
-            final TextConnectionInformation textClient =
-                (TextConnectionInformation) info;
+            final TextConnectionInformation textClient = (TextConnectionInformation) info;
             socket = openConnection(textClient);
-//        } else if (info instanceof ConnectedTextConnectionInformation) {
-//            final ConnectedTextConnectionInformation textClient =
-//                (ConnectedTextConnectionInformation) info;
-//            socket = textClient.getSocket();
+            // } else if (info instanceof ConnectedTextConnectionInformation) {
+            // final ConnectedTextConnectionInformation textClient =
+            // (ConnectedTextConnectionInformation) info;
+            // socket = textClient.getSocket();
         } else {
-            throw new IOException("Unsupported connection information '"
-                    + info + "'");
+            throw new IOException(
+                    "Unsupported connection information '" + info + "'");
         }
         receiver = new TextReceiverThread(socket, this);
         receiver.start();
@@ -590,7 +601,9 @@ public final class TextTelephony implements CallControlImplementation {
 
     /**
      * Notifies all registered listeners about the given event.
-     * @param event the event.
+     * 
+     * @param event
+     *            the event.
      */
     private void fireTelephonyEvent(final CallControlImplementationEvent event) {
         final Collection<CallControlImplementationListener> copy =

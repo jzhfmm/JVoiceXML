@@ -21,6 +21,7 @@
 
 package org.jvoicexml.event.plain.implementation;
 
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.implementation.UserInputImplementation;
 
@@ -28,8 +29,6 @@ import org.jvoicexml.implementation.UserInputImplementation;
  * Event generated from the {@link UserInputImplementation} implementation.
  * 
  * @author Dirk Schnelle-Walka
- * @version $Revision$
- * 
  */
 @SuppressWarnings("serial")
 public class UserInputEvent extends JVoiceXMLEvent {
@@ -59,7 +58,7 @@ public class UserInputEvent extends JVoiceXMLEvent {
     private final UserInputImplementation source;
 
     /** The id of the related session. */
-    private final String sessionId;
+    private final SessionIdentifier sessionId;
 
     /**
      * Constructs a new object.
@@ -74,7 +73,7 @@ public class UserInputEvent extends JVoiceXMLEvent {
      *                if an illegal event type is passed.
      */
     public UserInputEvent(final UserInputImplementation output,
-            final String detailedType, final String id)
+            final String detailedType, final SessionIdentifier id)
             throws IllegalArgumentException {
         source = output;
         detail = detailedType;
@@ -91,7 +90,8 @@ public class UserInputEvent extends JVoiceXMLEvent {
      * @exception IllegalArgumentException
      *                if an illegal event type is passed.
      */
-    public UserInputEvent(final UserInputImplementation output, final String id)
+    public UserInputEvent(final UserInputImplementation output, 
+            final SessionIdentifier id)
             throws IllegalArgumentException {
         source = output;
         detail = null;
@@ -113,7 +113,7 @@ public class UserInputEvent extends JVoiceXMLEvent {
      * @return the session id
      * @since 0.7.7
      */
-    public final String getSessionId() {
+    public final SessionIdentifier getSessionId() {
         return sessionId;
     }
 

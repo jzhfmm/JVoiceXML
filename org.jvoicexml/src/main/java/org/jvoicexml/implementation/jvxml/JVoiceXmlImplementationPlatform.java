@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -38,6 +38,7 @@ import org.jvoicexml.DtmfInput;
 import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.RecognitionResult;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.UserInput;
@@ -47,6 +48,7 @@ import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
+import org.jvoicexml.event.plain.NoinputEvent;
 import org.jvoicexml.event.plain.implementation.InputStartedEvent;
 import org.jvoicexml.event.plain.implementation.MarkerReachedEvent;
 import org.jvoicexml.event.plain.implementation.NomatchEvent;
@@ -243,6 +245,32 @@ public final class JVoiceXmlImplementationPlatform
     }
 
     /**
+     * Retrieves the session associated with this platform.
+     * @return the session
+     * @since 0.7.9
+     */
+    public Session getSession() {
+        return session;
+    }
+    
+    /**
+     * Checks if this platform has been closed.
+     * @return {@code true} if the platform has been closed
+     * @since 0.7.9
+     */
+    boolean isClosed() {
+        return closed;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isHungup() {
+        return hungup;
+    }
+    
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -282,8 +310,7 @@ public final class JVoiceXmlImplementationPlatform
 
             if (!hungup && !closed && output.isBusy()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("output still busy. returning when queue is"
-                            + " empty");
+                    LOGGER.debug("output still busy. Delaying return...");
                 }
                 maybeStartReaper();
             } else {
@@ -315,7 +342,7 @@ public final class JVoiceXmlImplementationPlatform
         if (reaper != null) {
             return;
         }
-        reaper = new ImplementationPlatformReaper(this);
+        reaper = new ImplementationPlatformReaper(this, input, output);
         reaper.start();
     }
     
@@ -424,9 +451,9 @@ public final class JVoiceXmlImplementationPlatform
 
             if (!hungup && !closed && input.isBusy()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("input still busy. returning when recognition"
-                            + " is stopped");
+                    LOGGER.debug("input still busy. delaying return");
                 }
+                maybeStartReaper();
             } else {
                 final JVoiceXmlUserInput userInput = input;
                 input = null;
@@ -662,10 +689,11 @@ public final class JVoiceXmlImplementationPlatform
 
         if (eventbus != null) {
             result.setMark(markname);
-
+            final SessionIdentifier id = session.getSessionId();
+            final UserInputImplementation userInputImplementation =
+                    input.getUserInputImplemenation(ModeType.VOICE);
             final RecognitionEvent recognitionEvent = new RecognitionEvent(
-                    input.getUserInputImplemenation(ModeType.VOICE),
-                    session.getSessionId(), result);
+                    userInputImplementation, id, result);
             eventbus.publish(recognitionEvent);
         }
 
@@ -687,9 +715,11 @@ public final class JVoiceXmlImplementationPlatform
 
         if (eventbus != null) {
             result.setMark(markname);
+            final SessionIdentifier id = session.getSessionId();
+            final UserInputImplementation userInputImplementation =
+                    input.getUserInputImplemenation(ModeType.VOICE);
             final NomatchEvent noMatchEvent = new NomatchEvent(
-                    input.getUserInputImplemenation(ModeType.VOICE), 
-                    session.getSessionId(), result);
+                    userInputImplementation, id, result);
             eventbus.publish(noMatchEvent);
         }
         synchronized (inputLock) {
@@ -839,17 +869,39 @@ public final class JVoiceXmlImplementationPlatform
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void timeout(final long timeout) {
+        LOGGER.info("timeout: no input detected for " + timeout + " msecs");
+        final NoinputEvent event = new NoinputEvent(timeout);
+        eventbus.publish(event);
+    }
+
+    /**
      * Starts the <code>noinput</code> timer with the given timeout that has
      * been collected by the {@link org.jvoicexml.PromptAccumulator}.
      */
     private synchronized void startTimer() {
+        // Avoid starting a second timer
         if (timer != null) {
             return;
         }
 
-        final long timeout = promptAccumulator.getPromptTimeout();
-        if (timeout > 0) {
-            timer = new TimerThread(eventbus, timeout);
+        if (input == null) {
+            return;
+        }
+        final Collection<UserInputImplementation> inputs =
+                input.getUserInputImplementations();
+        long minimalTimeout = Long.MAX_VALUE;
+        for (UserInputImplementation inputImplementation : inputs) {
+            final long timeout = inputImplementation.getNoInputTimeout();
+            if (timeout < minimalTimeout) {
+                minimalTimeout = timeout;
+            }
+        }
+        if ((minimalTimeout > 0) && (minimalTimeout != Long.MAX_VALUE)) {
+            timer = new TimerThread(this, minimalTimeout);
             timer.start();
         }
     }
@@ -902,9 +954,17 @@ public final class JVoiceXmlImplementationPlatform
             if (hungup) {
                 return;
             }
-            hungup = true;
         }
-        LOGGER.info("telephony connection closed");
+        LOGGER.info("telephony connection hung up " + event);
+
+        // Stop a possibly active recognition
+        if (input != null && input.isBusy()) {
+            final Collection<ModeType> types =
+                    new java.util.ArrayList<ModeType>();;
+            types.add(ModeType.VOICE);
+            types.add(ModeType.DTMF);
+            input.stopRecognition(types);
+        }
         
         // Publish a corresponding event
         if (eventbus != null) {
@@ -913,6 +973,10 @@ public final class JVoiceXmlImplementationPlatform
             eventbus.publish(hangupEvent);
         }
 
+        synchronized (this) {
+            hungup = true;
+        }
+        
         // Immediately return the resources
         LOGGER.info("returning aqcuired resources");
         returnSystemOutput();
@@ -1072,8 +1136,8 @@ public final class JVoiceXmlImplementationPlatform
      * {@inheritDoc}
      */
     @Override
-    public void setPromptTimeout(final long timeout) {
-        promptAccumulator.setPromptTimeout(timeout);
+    public void startPromptQueuing() {
+        promptAccumulator.startPromptQueuing();
     }
 
     /**
@@ -1088,7 +1152,7 @@ public final class JVoiceXmlImplementationPlatform
      * {@inheritDoc}
      */
     @Override
-    public void renderPrompts(final String sessionId,
+    public void renderPrompts(final SessionIdentifier sessionId,
             final DocumentServer server, final CallControlProperties props)
             throws BadFetchError, NoresourceError,
             ConnectionDisconnectHangupEvent {

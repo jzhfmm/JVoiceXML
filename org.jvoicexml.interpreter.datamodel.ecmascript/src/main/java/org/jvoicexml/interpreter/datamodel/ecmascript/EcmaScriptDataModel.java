@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2014-2015 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2014-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -21,20 +21,26 @@
 
 package org.jvoicexml.interpreter.datamodel.ecmascript;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import javax.activation.MimeType;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.jvoicexml.event.error.SemanticError;
 import org.jvoicexml.interpreter.datamodel.DataModel;
+import org.jvoicexml.interpreter.datamodel.DataModelObjectDeserializer;
 import org.jvoicexml.interpreter.datamodel.DataModelObjectSerializer;
 import org.jvoicexml.interpreter.scope.Scope;
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeJSON;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.RhinoException;
@@ -45,7 +51,6 @@ import org.mozilla.javascript.ScriptableObject;
  * ECMA Script data model for JVoiceXML.
  * 
  * @author Dirk Schnelle-Walka
- * @version $Revision: $
  * @since 0.7.7
  */
 public class EcmaScriptDataModel implements DataModel {
@@ -53,9 +58,7 @@ public class EcmaScriptDataModel implements DataModel {
     private static final Logger LOGGER = Logger
             .getLogger(EcmaScriptDataModel.class);
 
-    /** The javascript context. */
-    private final Context context;
-
+    /** The root scope. */
     private Scriptable rootScope;
 
     /** The topmost scope. */
@@ -66,6 +69,9 @@ public class EcmaScriptDataModel implements DataModel {
 
     /** The data object serializer. */
     private DataModelObjectSerializer serializer;
+
+    /** The known deserializers. */
+    private final Collection<DataModelObjectDeserializer> deserializers;
 
     static {
         if (!ContextFactory.hasExplicitGlobal()) {
@@ -80,9 +86,22 @@ public class EcmaScriptDataModel implements DataModel {
      */
     public EcmaScriptDataModel() {
         scopes = new java.util.HashMap<Scriptable, Scope>();
-        context = Context.enter();
-        context.setLanguageVersion(Context.VERSION_DEFAULT);
+        deserializers = new java.util.ArrayList<DataModelObjectDeserializer>();
+    }
 
+    /**
+     * Safe retrieval of the current context.
+     * 
+     * @return context
+     * @since 0.7.9
+     */
+    private Context getContext() {
+        Context context = Context.getCurrentContext();
+        if (context == null) {
+            context = Context.enter();
+            context.setLanguageVersion(Context.VERSION_DEFAULT);
+        }
+        return context;
     }
 
     /**
@@ -92,7 +111,7 @@ public class EcmaScriptDataModel implements DataModel {
     public DataModel newInstance() {
         return new EcmaScriptDataModel();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -106,9 +125,10 @@ public class EcmaScriptDataModel implements DataModel {
      */
     @Override
     public Object createNewObject() {
+        final Context context = getContext();
         return context.newObject(topmostScope);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -118,68 +138,62 @@ public class EcmaScriptDataModel implements DataModel {
             return createScope();
         }
         if (topmostScope == null) {
-            // create a initial scope if none present
+            // create an initial scope if none present
+            final Context context = getContext();
             rootScope = context.initStandardObjects();
             topmostScope = rootScope;
         }
 
         // Create the implicit variable as the scriptable on the scope stack.
-        final Scriptable newScope = createImplicitVariable(scope);
-        newScope.setParentScope(topmostScope);
+        final Context context = Context.getCurrentContext();
+        final Scriptable newScope = context.newObject(topmostScope);
         newScope.setPrototype(topmostScope);
-        topmostScope = newScope;
+        newScope.setParentScope(null);
+
+        // Create an implicit variable to access this scope if no anonymous
+        // scope
+        if (scope != Scope.ANONYMOUS) {
+            ScriptableObject.putProperty(newScope, scope.getName(), newScope);
+        }
 
         // Remember the new scope
+        topmostScope = newScope;
         scopes.put(topmostScope, scope);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("created scope '" + scope.name() + "'");
         }
-        return 0;
+        return NO_ERROR;
     }
 
     /**
-     * Creates an implicit variable for the given scope
-     * 
-     * @param scope
-     *            the scope for the implicit variable
+     * {@inheritDoc}
      */
-    private Scriptable createImplicitVariable(final Scope scope) {
-        // Do not create implicit variables for anonymous scopes
-        if (scope == Scope.ANONYMOUS) {
-            final Context context = Context.getCurrentContext();
-            return context.newObject(topmostScope);
+    @Override
+    public int copyValues(final DataModel model) throws SemanticError {
+        if (topmostScope == null) {
+            return ERROR_SCOPE_NOT_FOUND;
         }
 
-        // Create a template for the implicit variable
-        final Object template = new ImplicitVariable();
-        @SuppressWarnings("unchecked")
-        final Class<ScriptableObject> clazz = (Class<ScriptableObject>) template
-                .getClass();
-        try {
-            ScriptableObject.defineClass(rootScope, clazz);
-        } catch (IllegalAccessException | InstantiationException
-                | InvocationTargetException e) {
-            LOGGER.error(
-                    "unable to create an implicit variable: " + e.getMessage(),
-                    e);
-            final Context context = Context.getCurrentContext();
-            return context.newObject(topmostScope);
+        // Find all scopes in the right order.
+        Scriptable current = topmostScope;
+        List<Scriptable> scopeStack = new java.util.LinkedList<Scriptable>();
+        while (current != null) {
+            scopeStack.add(0, current);
+            current = current.getParentScope();
         }
-        final Scriptable scriptable = context.newObject(rootScope,
-                clazz.getSimpleName());
 
-        // Set required attributes in the object created from rhino to actually
-        // work
-        final ImplicitVariable implicit = (ImplicitVariable) scriptable;
-        implicit.setDatamodel(this);
-        implicit.setScope(scope);
-
-        // Create the variable in the given scope
-        final String name = scope.getName();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("creating implicit variable for '" + name + "'");
+        // Copy all values per scope.
+        for (Scriptable scriptable : scopeStack) {
+            final Scope scope = scopes.get(scriptable);
+            model.createScope(scope);
+            final Object[] ids = scriptable.getIds();
+            for (Object id : ids) {
+                final String name = id.toString();
+                final Object value = readVariable(name, scope, Object.class);
+                model.createVariable(name, value, scope);
+            }
         }
-        return implicit;
+        return 0;
     }
 
     /**
@@ -213,13 +227,13 @@ public class EcmaScriptDataModel implements DataModel {
         if (scope == null) {
             return deleteScope();
         }
-        
+
         // Is there such a scope?
         if (!scopes.values().contains(scope)) {
             return ERROR_SCOPE_NOT_FOUND;
         }
         if (topmostScope == null) {
-            return 0;
+            return NO_ERROR;
         }
 
         // See if we are already there.
@@ -227,8 +241,8 @@ public class EcmaScriptDataModel implements DataModel {
         if (topscope == null) {
             return ERROR_SCOPE_NOT_FOUND;
         }
+        topmostScope = topmostScope.getPrototype();
         if (topscope == scope) {
-            topmostScope = topmostScope.getParentScope();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("deleted scope '" + scope.name() + "'");
             }
@@ -236,7 +250,7 @@ public class EcmaScriptDataModel implements DataModel {
                 topmostScope = null;
                 rootScope = null;
             }
-            return 0;
+            return NO_ERROR;
         }
         // Dig deeper...
         return deleteScope(scope);
@@ -300,8 +314,8 @@ public class EcmaScriptDataModel implements DataModel {
             final String variableName) {
         if (!(variable instanceof Scriptable)) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("'" + variable
-                        + "' is not an instance of Scriptable");
+                LOGGER.debug(
+                        "'" + variable + "' is not an instance of Scriptable");
             }
             return ERROR_SCOPE_NOT_FOUND;
         }
@@ -317,8 +331,8 @@ public class EcmaScriptDataModel implements DataModel {
             final Object value) {
         if (!(variable instanceof Scriptable)) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("'" + variable
-                        + "' is not an instance of Scriptable");
+                LOGGER.debug(
+                        "'" + variable + "' is not an instance of Scriptable");
             }
             return ERROR_SCOPE_NOT_FOUND;
         }
@@ -367,14 +381,14 @@ public class EcmaScriptDataModel implements DataModel {
         if (LOGGER.isDebugEnabled()) {
             final String json = toString(wrappedValue);
             if (scope == null) {
-                LOGGER.debug("created '" + variableName + "' with '" + json
-                        + "'");
+                LOGGER.debug("created '" + variableName + "' in scope '"
+                        + getScope(subscope) + "' with '" + json + "'");
             } else {
                 LOGGER.debug("created '" + variableName + "' in scope '"
-                        + scope + "' with '" + json + "'");
+                        + getScope(subscope) + "' with '" + json + "'");
             }
         }
-        return 0;
+        return NO_ERROR;
     }
 
     /**
@@ -427,17 +441,17 @@ public class EcmaScriptDataModel implements DataModel {
         final NativeArray array = new NativeArray(dimension);
         ScriptableObject.putProperty(targetScope, name, array);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("created '" + arrayName + "' as an array of "
-                    + dimension);
+            LOGGER.debug("created '" + arrayName + "' in scope '"
+                    + getScope(targetScope) + "' as an array of " + dimension);
         }
 
         // Fill the array
         for (int i = 0; i < dimension; i++) {
-            final Context context = Context.getCurrentContext();
+            final Context context = getContext();
             final Scriptable scriptable = context.newObject(topmostScope);
             ScriptableObject.putProperty(array, i, scriptable);
         }
-        return 0;
+        return NO_ERROR;
     }
 
     /**
@@ -458,12 +472,27 @@ public class EcmaScriptDataModel implements DataModel {
         return resizeArray(arrayName, dimension, null, start);
     }
 
-    public int resizeArray(final String arrayName, final int dimension,
+    /**
+     * Resizes an array with the given dimension at the specified scope. All
+     * values are initialized with {@linkplain #getUndefinedValue()}.
+     * 
+     * @param arrayName
+     *            name of the array to create
+     * @param dimension
+     *            new dimension of the array after resizing
+     * @param scope
+     *            scope, where to create the variable
+     * @param start
+     *            scope, where to start looking for scope
+     * @return {@code NO_ERROR} upon success, failure status if the array could
+     *         not be found
+     */
+    private int resizeArray(final String arrayName, final int dimension,
             final Scope scope, final Scriptable start) {
         if (start == null) {
             return ERROR_SCOPE_NOT_FOUND;
         }
-        final Scriptable subcope = getAndCreateScope(start, arrayName);
+        final Scriptable subscope = getAndCreateScope(start, arrayName);
         final String name;
         int dotPos = arrayName.lastIndexOf('.');
         if (dotPos >= 0) {
@@ -471,14 +500,14 @@ public class EcmaScriptDataModel implements DataModel {
         } else {
             name = arrayName;
         }
-        if (!ScriptableObject.hasProperty(subcope, name)) {
+        if (!ScriptableObject.hasProperty(subscope, name)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("'" + arrayName + "' not found");
             }
             return ERROR_VARIABLE_NOT_FOUND;
         }
         final NativeArray oldArray;
-        final Object oldValue = ScriptableObject.getProperty(subcope, name);
+        final Object oldValue = ScriptableObject.getProperty(subscope, name);
         if (oldValue instanceof NativeArray) {
             oldArray = (NativeArray) oldValue;
         } else {
@@ -491,24 +520,50 @@ public class EcmaScriptDataModel implements DataModel {
                 final Object value = oldArray.get(i);
                 ScriptableObject.putProperty(array, i, value);
             } else {
-                final Context context = Context.getCurrentContext();
+                final Context context = getContext();
                 final Scriptable scriptable = context.newObject(topmostScope);
                 ScriptableObject.putProperty(array, i, scriptable);
             }
         }
-        ScriptableObject.putProperty(subcope, name, array);
+        ScriptableObject.putProperty(subscope, name, array);
         if (LOGGER.isDebugEnabled()) {
             if (scope == null) {
-                LOGGER.debug("resized '" + arrayName + "' to an array of "
-                        + dimension);
+                LOGGER.debug("resized '" + arrayName + "' in scope '"
+                        + getScope(subscope) + "' to an array of " + dimension);
             } else {
-                LOGGER.debug("resized '" + arrayName + "' in scope '" + scope
-                        + "' to an array of " + dimension);
+                LOGGER.debug("resized '" + arrayName + "' in scope '"
+                        + getScope(subscope) + "' to an array of " + dimension);
             }
         }
-        return 0;
+        return NO_ERROR;
     }
 
+    /**
+     * Retrieves the scope that is identified by the given scriptable.
+     * 
+     * @param scriptable
+     *            the scriptable
+     * @return determined scope.
+     * @since 0.7.9
+     */
+    private Scope getScope(Scriptable scriptable) {
+        final Scope scope = scopes.get(scriptable);
+        if (scope != null) {
+            return scope;
+        }
+        return scopes.get(topmostScope);
+    }
+
+    /**
+     * Retrieves the scope identified by the variable's full name.
+     * 
+     * @param scope
+     *            the scope to start searching
+     * @param name
+     *            the fully qualified name of a variable
+     * @return found scope, {@code null} if no such scope exists
+     * @since 0.7.7
+     */
     private Scriptable getScope(final Scriptable scope, final String name) {
         int dotPos = name.indexOf('.');
         if (dotPos >= 0) {
@@ -570,7 +625,8 @@ public class EcmaScriptDataModel implements DataModel {
      * {@inheritDoc}
      */
     @Override
-    public boolean existsVariable(final String variableName, final Scope scope) {
+    public boolean existsVariable(final String variableName,
+            final Scope scope) {
         final Scriptable start = getScriptable(scope);
         return existsVariable(variableName, scope, start);
     }
@@ -641,8 +697,8 @@ public class EcmaScriptDataModel implements DataModel {
             if (scope == null) {
                 LOGGER.debug("deleted '" + variableName + "'");
             } else {
-                LOGGER.debug("deleted '" + variableName + "' in scope '"
-                        + scope + "'");
+                LOGGER.debug("deleted '" + variableName + "' in scope '" + scope
+                        + "'");
             }
         }
         return 0;
@@ -652,7 +708,8 @@ public class EcmaScriptDataModel implements DataModel {
      * {@inheritDoc}
      */
     @Override
-    public int updateVariable(final String variableName, final Object newValue) {
+    public int updateVariable(final String variableName,
+            final Object newValue) {
         return updateVariable(variableName, newValue, null, topmostScope);
     }
 
@@ -674,8 +731,8 @@ public class EcmaScriptDataModel implements DataModel {
             final String variableName, final Object newValue) {
         if (!(variable instanceof Scriptable)) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("'" + variable
-                        + "' is not an instance of Scriptable");
+                LOGGER.debug(
+                        "'" + variable + "' is not an instance of Scriptable");
             }
             return ERROR_SCOPE_NOT_FOUND;
         }
@@ -683,8 +740,8 @@ public class EcmaScriptDataModel implements DataModel {
         return updateVariable(variableName, newValue, null, scriptable);
     }
 
-    private int updateVariable(final String variableName,
-            final Object newValue, final Scope scope, final Scriptable start) {
+    private int updateVariable(final String variableName, final Object newValue,
+            final Scope scope, final Scriptable start) {
         if (start == null) {
             return ERROR_SCOPE_NOT_FOUND;
         }
@@ -707,10 +764,11 @@ public class EcmaScriptDataModel implements DataModel {
         if (LOGGER.isDebugEnabled()) {
             final String json = toString(jsValue);
             if (scope == null) {
-                LOGGER.debug("set '" + variableName + "' to '" + json + "'");
+                LOGGER.debug("set '" + variableName + "' in scope '"
+                        + getScope(subscope) + "' to '" + json + "'");
             } else {
-                LOGGER.debug("set '" + variableName + "' in scope '" + scope
-                        + "' to '" + json + "'");
+                LOGGER.debug("set '" + variableName + "' in scope '"
+                        + getScope(subscope) + "' to '" + json + "'");
             }
         }
         return 0;
@@ -722,7 +780,8 @@ public class EcmaScriptDataModel implements DataModel {
     @Override
     public int updateArray(final String variableName, final int position,
             final Object newValue) {
-        return updateArray(variableName, position, newValue, null, topmostScope);
+        return updateArray(variableName, position, newValue, null,
+                topmostScope);
     }
 
     /**
@@ -732,7 +791,6 @@ public class EcmaScriptDataModel implements DataModel {
     public int updateArray(final String variableName, final int position,
             final Object newValue, final Scope scope) {
         final Scriptable start = getScriptable(scope);
-        ;
         return updateArray(variableName, position, newValue, scope, start);
     }
 
@@ -756,12 +814,12 @@ public class EcmaScriptDataModel implements DataModel {
             return ERROR_VARIABLE_NOT_FOUND;
         }
         final Object jsValue = Context.javaToJS(newValue, subscope);
-        final NativeArray array = (NativeArray) ScriptableObject.getProperty(
-                subscope, property);
+        final NativeArray array = (NativeArray) ScriptableObject
+                .getProperty(subscope, property);
         if (!ScriptableObject.hasProperty(array, position)) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("'" + variableName + "' has no position "
-                        + position);
+                LOGGER.debug(
+                        "'" + variableName + "' has no position " + position);
             }
             return ERROR_VARIABLE_NOT_FOUND;
         }
@@ -769,11 +827,11 @@ public class EcmaScriptDataModel implements DataModel {
         if (LOGGER.isDebugEnabled()) {
             final String json = toString(jsValue);
             if (scope == null) {
-                LOGGER.debug("set '" + variableName + "[" + position
-                        + "]' to '" + json + "'");
+                LOGGER.debug("set '" + variableName + "[" + position + "]' to '"
+                        + json + "'");
             } else {
-                LOGGER.debug("set '" + variableName + "[" + position
-                        + "]' to '" + json + "' in scope '" + scope + "'");
+                LOGGER.debug("set '" + variableName + "[" + position + "]' to '"
+                        + json + "' in scope '" + scope + "'");
             }
         }
         return 0;
@@ -801,8 +859,8 @@ public class EcmaScriptDataModel implements DataModel {
     private <T extends Object> T readVariable(String variableName, Scope scope,
             final Scriptable start, final Class<T> type) throws SemanticError {
         if (start == null) {
-            throw new SemanticError("no scope '" + scope
-                    + "' present to read '" + variableName + "'");
+            throw new SemanticError("no scope '" + scope + "' present to read '"
+                    + variableName + "'");
         }
         final Scriptable subcope = getScope(topmostScope, variableName);
         if (subcope == null) {
@@ -850,19 +908,19 @@ public class EcmaScriptDataModel implements DataModel {
             final Scope scope, final Scriptable start, final Class<T> type)
             throws SemanticError {
         if (start == null) {
-            throw new SemanticError("no scope '" + scope
-                    + "' present to read '" + arrayName + "'");
+            throw new SemanticError("no scope '" + scope + "' present to read '"
+                    + arrayName + "'");
         }
         final Scriptable targetScope = getFullScope(topmostScope, arrayName);
         if (targetScope == null) {
             throw new SemanticError("'" + arrayName + "' not found");
         }
         if (!ScriptableObject.hasProperty(targetScope, position)) {
-            throw new SemanticError("'" + arrayName + "' has no position "
-                    + position);
+            throw new SemanticError(
+                    "'" + arrayName + "' has no position " + position);
         }
-        final Object value = ScriptableObject
-                .getProperty(targetScope, position);
+        final Object value = ScriptableObject.getProperty(targetScope,
+                position);
         if (value == getUndefinedValue()) {
             return null;
         }
@@ -871,6 +929,13 @@ public class EcmaScriptDataModel implements DataModel {
         return t;
     }
 
+    /**
+     * Perform some unified cleanup and adaptation of the given expression.
+     * 
+     * @param expr
+     *            the expression to prepare
+     * @return prepared expression
+     */
     private String prepareExpression(final String expr) {
         if (expr == null) {
             return null;
@@ -919,6 +984,7 @@ public class EcmaScriptDataModel implements DataModel {
             return null;
         }
         try {
+            final Context context = getContext();
             final Object value = context.evaluateString(start,
                     preparedExpression, "expr", 1, null);
             if (value == getUndefinedValue()) {
@@ -1038,6 +1104,25 @@ public class EcmaScriptDataModel implements DataModel {
     }
 
     /**
+     * Converts a JSON formatted string into a {@link ScriptableObject}.
+     * @param json JSON formatted string
+     * @return converted object
+     * @since 0.7.9
+     */
+    public ScriptableObject fromJSON(final String json) {
+        final Context context = getContext();
+        final Callable reviver = new Callable() {
+            @Override
+            public Object call(Context cx, Scriptable scope, Scriptable thisObj,
+                    Object[] args) {
+                return args[1];
+            }
+        };
+        return (ScriptableObject) NativeJSON.parse(context, topmostScope, json,
+                reviver);
+    }
+
+    /**
      * Sets the serializer.
      * 
      * @param value
@@ -1053,5 +1138,40 @@ public class EcmaScriptDataModel implements DataModel {
     @Override
     public DataModelObjectSerializer getSerializer() {
         return serializer;
+    }
+
+    /**
+     * Sets the deserializers.
+     * 
+     * @param values
+     *            the deserializers
+     */
+    public void setDeserializers(
+            final Collection<DataModelObjectDeserializer> values) {
+        for (DataModelObjectDeserializer deserializer : values) {
+            final MimeType type = deserializer.getMimeType();
+            deserializers.add(deserializer);
+            LOGGER.info("added deserializer '" + deserializer.getClass().getCanonicalName()
+                    + "' for type '" + type + "'");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DataModelObjectDeserializer getDeserializer(final MimeType type) {
+        if (type == null) {
+            return null;
+        }
+        for (DataModelObjectDeserializer deserializer : deserializers) {
+            final MimeType current = deserializer.getMimeType();
+            if (type.match(current)) {
+                return deserializer;
+            }
+        }
+        
+        LOGGER.warn("no deserializer known for type '" + type + "'");
+        return null;
     }
 }

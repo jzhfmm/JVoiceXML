@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL: https://svn.code.sf.net/p/jvoicexml/code/trunk/org.jvoicexml/unittests/src/org/jvoicexml/interpreter/TestObjectExecutorThread.java $
- * Version: $LastChangedRevision: 4097 $
- * Date:    $Date: 2014-01-09 14:17:19 +0100 (Thu, 09 Jan 2014) $
- * Author:  $LastChangedBy: schnelle $
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2014 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2014-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -35,6 +30,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.jvoicexml.Configuration;
 import org.jvoicexml.ImplementationPlatform;
+import org.jvoicexml.SessionIdentifier;
+import org.jvoicexml.UuidSessionIdentifier;
 import org.jvoicexml.event.EventBus;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.plain.jvxml.ReturnEvent;
@@ -58,8 +55,6 @@ import org.mockito.Mockito;
  * Test case for {@link org.jvoicexml.interpreter.SubdialogExecutorThread}.
  * 
  * @author Dirk Schnelle-Walka
- * @version $Revision: 4097 $
- * @since 0.7.7
  */
 @Ignore("Unmaintained test is currently failing. TODO: Fix or delete")
 public class TestSubdialogExecutorThread {
@@ -83,8 +78,9 @@ public class TestSubdialogExecutorThread {
         Mockito.when(profile.getSsmlParsingStrategyFactory()).thenReturn(
                 factory);
 
+        final SessionIdentifier id = new UuidSessionIdentifier();
         final JVoiceXmlSession session = new JVoiceXmlSession(platform, jvxml,
-                null, profile);
+                null, profile, id);
         final Configuration configuration = Mockito.mock(Configuration.class);
         context = new VoiceXmlInterpreterContext(session, configuration);
     }
@@ -134,7 +130,7 @@ public class TestSubdialogExecutorThread {
         application.addDocument(new URI("test"), doc);
 
         final SubdialogExecutorThread executor = new SubdialogExecutorThread(
-                uri, context, application, params, eventbus);
+                uri, context, application, params, eventbus, null);
 
         executor.start();
         executor.join();

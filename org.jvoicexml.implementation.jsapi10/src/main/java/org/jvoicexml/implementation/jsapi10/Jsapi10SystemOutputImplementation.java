@@ -44,6 +44,7 @@ import javax.speech.synthesis.SynthesizerModeDesc;
 import org.apache.log4j.Logger;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.DocumentServer;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableSsmlText;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.event.ErrorEvent;
@@ -167,7 +168,7 @@ public final class Jsapi10SystemOutputImplementation
     private final Object endplayLock;
 
     /** The Id of the current session. */
-    private String sessionId;
+    private SessionIdentifier sessionId;
 
     static {
         SPEAK_FACTORY = new org.jvoicexml.implementation.jsapi10.speakstrategy.JVoiceXmlSpeakStratgeyFactory();
@@ -287,7 +288,7 @@ public final class Jsapi10SystemOutputImplementation
      * @return the Id of the current session
      * @since 0.7.5
      */
-    public String getSessionid() {
+    public SessionIdentifier getSessionid() {
         return sessionId;
     }
 
@@ -318,7 +319,7 @@ public final class Jsapi10SystemOutputImplementation
      * output or for plain text output.
      */
     @Override
-    public void queueSpeakable(final SpeakableText speakable, final String id,
+    public void queueSpeakable(final SpeakableText speakable, final SessionIdentifier id,
             final DocumentServer server) throws NoresourceError, BadFetchError {
         if (synthesizer == null) {
             throw new NoresourceError("no synthesizer: cannot speak");

@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -26,7 +26,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Map;
 
@@ -143,12 +145,16 @@ public final class JVoiceXmlConfiguration implements Configuration {
         }
         if (resource.exists()) {
             try {
-                context = new FileSystemXmlApplicationContext(
-                        canonicalFile.toURI().toString());
+                final URI uri = canonicalFile.toURI();
+                final String uriPath = uri.toString();
+                context = new FileSystemXmlApplicationContext(uriPath);
             } catch (BeansException e) {
                 LOGGER.error("unable to load configuration", e);
                 context = null;
             }
+        } else {
+            LOGGER.error("main configruation file '" + resource 
+                    + "' does not seam to exist. Cannot create xontext.");
         }
         try {
             configurationRepository = new ConfigurationRepository(configFolder);
@@ -158,7 +164,37 @@ public final class JVoiceXmlConfiguration implements Configuration {
         }
     }
 
-
+    /**
+     * Retrieves the parent class loader to use.
+     * @return parent class loader
+     * @since 0.7.9
+     */
+    @SuppressWarnings("resource")
+    private ClassLoader getParentClassLoader() {
+        // Must use the classloader of this class as parent to ensure that all
+        // all repos use the same basis regardless if called via
+        // loadObjects directly or indirectly from an init method of a loaded
+        // class
+        // The class loader of this class is the app launcher class loader
+        final ClassLoader parent = JVoiceXmlConfiguration.class.getClassLoader();
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("parent class loader '" + parent + "'");
+            if (parent instanceof URLClassLoader) {
+                final URLClassLoader urlLoader = (URLClassLoader) parent;
+                final URL[] urls = urlLoader.getURLs();
+                if (urls.length == 0) {
+                    LOGGER.trace("parent class loader entry: none");
+                } else {
+                    for (URL url : urls) {
+                        LOGGER.trace("parent class loader entry: '" + url
+                                + "'");
+                    }
+                }
+            }
+        }
+        return parent;
+    }
+    
     /**
      * Retrieves the class loader to use for the given loader repository.
      * @param repository name of the loader repository
@@ -166,19 +202,33 @@ public final class JVoiceXmlConfiguration implements Configuration {
      */
     private JVoiceXmlClassLoader getClassLoader(final String repository) {
         if (repository == null) {
-            final Thread thread = Thread.currentThread();
-            final ClassLoader parent = thread.getContextClassLoader();
+            final ClassLoader parent = getParentClassLoader();
             return new JVoiceXmlClassLoader(parent);
-        }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("using loader repository '" + repository + "'");
         }
         JVoiceXmlClassLoader loader = loaderRepositories.get(repository);
         if (loader == null) {
-            final Thread thread = Thread.currentThread();
-            final ClassLoader parent = thread.getContextClassLoader();
-            loader = new JVoiceXmlClassLoader(parent);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("creating new loader repository '" + repository
+                        + "'");
+            }
+            final ClassLoader parent = getParentClassLoader();
+            loader = new JVoiceXmlClassLoader(parent, repository);
             loaderRepositories.put(repository, loader);
+            // TODO resolve why the delegate principle does not work in RMI
+            // As a workaround copy the path entries from the parent loader
+            // to this instance
+            // see https://stackoverflow.com/questions/58648325/delegation-of-custom-class-loader-in-rmi
+            if (parent instanceof URLClassLoader) {
+                final URLClassLoader parentLoader = (URLClassLoader) parent;
+                for (URL url : parentLoader.getURLs()) {
+                    loader.addURL(url);
+                }
+            }
+        } else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("adding to loader repository '" + repository
+                        + "'");
+            }
         }
         return loader;
     }

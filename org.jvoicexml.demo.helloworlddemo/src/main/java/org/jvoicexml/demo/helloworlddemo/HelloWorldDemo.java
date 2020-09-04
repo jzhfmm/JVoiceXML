@@ -1,7 +1,7 @@
 /*
  * JVoiceXML Demo - Demo for the free VoiceXML implementation JVoiceXML
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2020 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,12 +23,15 @@ package org.jvoicexml.demo.helloworlddemo;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.rmi.RemoteException;
 
 import javax.naming.NamingException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
+import org.jvoicexml.UuidSessionIdentifier;
 import org.jvoicexml.client.GenericClient;
 import org.jvoicexml.client.UnsupportedResourceIdentifierException;
 import org.jvoicexml.event.ErrorEvent;
@@ -58,18 +61,20 @@ public final class HelloWorldDemo {
      * 
      * @param args
      *            Command line arguments. None expected.
+     * @throws RemoteException 
      */
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws RemoteException {
         LOGGER.info("Starting 'hello world' demo for JVoiceXML...");
-        LOGGER.info("(c) 2005-2017 by JVoiceXML group - "
+        LOGGER.info("(c) 2005-2020 by JVoiceXML group - "
                 + "http://jvoicexml.sourceforge.net/");
 
         final GenericClient client = new GenericClient();
         try {
             final URI dialog = HelloWorldDemo.class
                     .getResource("/helloworld.vxml").toURI();
-            Session session = client.call(dialog, "jsapi20", "jsapi20",
-                    "desktop");
+            final SessionIdentifier id = new UuidSessionIdentifier();
+            final Session session = client.call(dialog, "jsapi20", "jsapi20",
+                    "desktop", id);
             session.waitSessionEnd();
             session.hangup();
         } catch (NamingException e) {

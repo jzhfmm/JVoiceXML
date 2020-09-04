@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL: https://svn.code.sf.net/p/jvoicexml/code/trunk/org.jvoicexml/unittests/src/org/jvoicexml/interpreter/tagstrategy/TagStrategyTestBase.java $
- * Version: $LastChangedRevision: 4318 $
- * Date:    $Date: 2014-10-16 13:32:35 +0200 (Thu, 16 Oct 2014) $
- * Author:  $LastChangedBy: schnelle $
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2014 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2020 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -26,25 +21,33 @@
 
 package org.jvoicexml.profile.vxml21.tagstrategy;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.activation.MimeType;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.jvoicexml.DocumentDescriptor;
 import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.Session;
 import org.jvoicexml.event.JVoiceXMLEvent;
+import org.jvoicexml.event.error.SemanticError;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.interpreter.Dialog;
 import org.jvoicexml.interpreter.FormInterpretationAlgorithm;
 import org.jvoicexml.interpreter.VoiceXmlInterpreter;
 import org.jvoicexml.interpreter.VoiceXmlInterpreterContext;
 import org.jvoicexml.interpreter.datamodel.DataModel;
+import org.jvoicexml.interpreter.datamodel.DataModelObjectDeserializer;
 import org.jvoicexml.interpreter.datamodel.DataModelObjectSerializer;
 import org.jvoicexml.interpreter.dialog.ExecutablePlainForm;
-import org.jvoicexml.mock.implementation.MockImplementationPlatform;
 import org.jvoicexml.profile.Profile;
 import org.jvoicexml.profile.TagStrategy;
 import org.jvoicexml.profile.TagStrategyFactory;
+import org.jvoicexml.profile.vxml21.VoiceXml21Profile;
 import org.jvoicexml.xml.VoiceXmlNode;
 import org.jvoicexml.xml.vxml.Block;
 import org.jvoicexml.xml.vxml.Form;
@@ -61,7 +64,7 @@ import org.mockito.Mockito;
  */
 public abstract class TagStrategyTestBase {
     /** The implementation platform. */
-    private MockImplementationPlatform platform;
+    private ImplementationPlatform platform;
 
     /** The VoiceXML interpreter context. */
     private VoiceXmlInterpreterContext context;
@@ -126,24 +129,35 @@ public abstract class TagStrategyTestBase {
      */
     @Before
     public final void baseSetUp() throws Exception {
-        platform = new MockImplementationPlatform();
-        profile = Mockito.mock(Profile.class);
+        platform = Mockito.mock(ImplementationPlatform.class);
+        profile = new VoiceXml21Profile();
         final TagStrategyFactory taginitfactory = Mockito
                 .mock(TagStrategyFactory.class);
-        Mockito.when(profile.getInitializationTagStrategyFactory()).thenReturn(
-                taginitfactory);
-        context = Mockito.mock(VoiceXmlInterpreterContext.class);
-        Mockito.when(context.getProfile()).thenReturn(profile);
+        final VoiceXml21Profile vxml21Profile = (VoiceXml21Profile) profile;
+        vxml21Profile.setInitializationTagStrategyFactory(taginitfactory);        
         final Session session = Mockito.mock(Session.class);
+        context = Mockito.mock(VoiceXmlInterpreterContext.class);
         Mockito.when(context.getSession()).thenReturn(session);
+        Mockito.when(context.getProfile()).thenReturn(new VoiceXml21Profile());
+        Mockito.when(context.getImplementationPlatform()).thenReturn(platform);
         interpreter = new VoiceXmlInterpreter(context);
         model = Mockito.mock(DataModel.class);
         final DataModelObjectSerializer serializer = Mockito
                 .mock(DataModelObjectSerializer.class);
         Mockito.when(model.getSerializer()).thenReturn(serializer);
-        Mockito.when(context.getDataModel()).thenReturn(model);
-    }
+        DataModelObjectDeserializer deserializer = new DataModelObjectDeserializer() {
+            @Override
+            public MimeType getMimeType() {
+                return DocumentDescriptor.MIME_TYPE_JSON;
+            }
 
+            @Override
+            public Object deserialize(DataModel model, MimeType type,
+                    Object object) throws SemanticError {
+                return object;
+            }
+        };
+    }
     /**
      * Sets the output listener to add once the system output is obtained.
      * 
@@ -152,7 +166,21 @@ public abstract class TagStrategyTestBase {
      */
     public final void setSystemOutputListener(
             final SystemOutputImplementationListener listener) {
-        platform.setSystemOutputListener(listener);
+        DataModelObjectDeserializer deserializer = new DataModelObjectDeserializer() {
+            @Override
+            public MimeType getMimeType() {
+                return DocumentDescriptor.MIME_TYPE_JSON;
+            }
+
+            @Override
+            public Object deserialize(DataModel model, MimeType type,
+                    Object object) throws SemanticError {
+                return object;
+            }
+        };
+        Mockito.when(model.getDeserializer(Mockito.any()))
+                .thenReturn(deserializer);
+        Mockito.when(context.getDataModel()).thenReturn(model);
     }
 
     /**
@@ -256,4 +284,28 @@ public abstract class TagStrategyTestBase {
         strategy.validateAttributes(model);
         strategy.execute(context, interpreter, fia, null, node);
     }
+
+    /**
+     * Reads the specified resource as a string.
+     * @param name name of the resource to read
+     * @return read resource as a string
+     * @throws IOException if the reosurce cold not be found
+     * @since 0.7.9
+     */
+    protected String readResource(final String name) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final InputStream input = TestScriptStrategy.class
+                .getResourceAsStream(name);
+        final byte[] buffer = new byte[1024];
+        int read;
+        do {
+            read = input.read(buffer);
+            if (read > 0) {
+                out.write(buffer, 0, read);
+            }
+        } while (read >= 0);
+        return out.toString();
+    }
+
+
 }

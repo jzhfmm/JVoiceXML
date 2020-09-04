@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2010-2012 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2010-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  * The JVoiceXML group hereby disclaims all copyright interest in the
  * library `JVoiceXML' (a free VoiceXML implementation).
  * JVoiceXML group, $Date$, Dirk Schnelle-Walka, project lead
@@ -30,7 +25,6 @@ package org.jvoicexml.implementation.jsapi20;
 
 import java.io.IOException;
 import java.util.Locale;
-import java.util.UUID;
 
 import javax.speech.EngineException;
 import javax.speech.EngineManager;
@@ -43,8 +37,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.jvoicexml.DocumentServer;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableSsmlText;
 import org.jvoicexml.SpeakableText;
+import org.jvoicexml.UuidSessionIdentifier;
 import org.jvoicexml.documentserver.JVoiceXmlDocumentServer;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.plain.implementation.OutputEndedEvent;
@@ -60,7 +56,6 @@ import org.jvoicexml.xml.vxml.BargeInType;
 /**
  * Test cases for {@link Jsapi20SystemOutputImplementation}.
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.7.4
  *
 * <p>
@@ -75,7 +70,7 @@ public final class TestJsapi20SynthesizedOutput {
         Logger.getLogger(TestJsapi20SynthesizedOutput.class);
 
     /** Timeout to wait for the listener. */
-    private static final int TIMEOUT = 1000;
+    private static final int TIMEOUT = 5000;
 
     /** The test object. */
     private Jsapi20SystemOutputImplementation output;
@@ -87,7 +82,7 @@ public final class TestJsapi20SynthesizedOutput {
     private DocumentServer documentServer;
 
     /** The session id. */
-    private String sessionId;
+    private SessionIdentifier sessionId;
 
     /**
      * Global initialization.
@@ -99,7 +94,7 @@ public final class TestJsapi20SynthesizedOutput {
     @BeforeClass
     public static void init() throws EngineException, IOException {
         final TestProperties properties = new TestProperties();
-        final String factory = properties.get("jsapi2.tts.engineListFactory");
+        final String factory = properties.get("JVOICEXML_IMPLEMENTATION_JSAPI20_TTS_ENGINE_LIST_FACTORY");
         LOGGER.info("registering engine factory: '" + factory + "'");
         EngineManager.registerEngineListFactory(factory);
         System.setProperty("java.library.path", "3rdparty/jsr113jsebase/lib");
@@ -125,7 +120,7 @@ public final class TestJsapi20SynthesizedOutput {
         listener = new MockSynthesizedOutputListener();
         output.addListener(listener);
         documentServer = new JVoiceXmlDocumentServer();
-        sessionId = UUID.randomUUID().toString();
+        sessionId = new UuidSessionIdentifier();
     }
 
     /**

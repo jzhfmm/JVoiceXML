@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -22,9 +22,9 @@
 package org.jvoicexml.jndi;
 
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 
 import org.jvoicexml.DtmfInput;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.client.jndi.RemoteDtmfInput;
 
 /**
@@ -33,16 +33,13 @@ import org.jvoicexml.client.jndi.RemoteDtmfInput;
  * @author Dirk Schnelle-Walka
  * @since 0.5
  */
-public final class DtmfInputSkeleton extends UnicastRemoteObject
-        implements RemoteDtmfInput, Skeleton {
-    /** The serial version UID. */
-    private static final long serialVersionUID = -5497137347016070409L;
-
+public final class DtmfInputSkeleton
+        implements RemoteDtmfInput {
     /** The character input device. */
     private final DtmfInput input;
 
     /** The session ID. */
-    private String sessionID;
+    private SessionIdentifier sessionIdentifier;
 
     /**
      * Constructs a new object.
@@ -64,15 +61,16 @@ public final class DtmfInputSkeleton extends UnicastRemoteObject
      * @throws RemoteException
      *             Error creating the skeleton.
      */
-    public DtmfInputSkeleton(final String id, final DtmfInput characterInput)
-            throws RemoteException {
-        sessionID = id;
+    public DtmfInputSkeleton(final SessionIdentifier id,
+            final DtmfInput characterInput) throws RemoteException {
+        sessionIdentifier = id;
         input = characterInput;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addCharacter(final char dtmf) throws RemoteException {
         if (input == null) {
             throw new RemoteException("No input! Cannot process dtmf: " + dtmf);
@@ -81,9 +79,11 @@ public final class DtmfInputSkeleton extends UnicastRemoteObject
     }
 
     /**
-     * {@inheritDoc}
+     * Retrieves the name of this skeleton.
+     * @return name of the skeleton
      */
-    public String getSkeletonName() throws RemoteException {
-        return RemoteDtmfInput.class.getSimpleName() + "." + sessionID;
+    public String getSkeletonName() {
+        return RemoteDtmfInput.class.getSimpleName() + "." 
+                + sessionIdentifier.getId();
     }
 }

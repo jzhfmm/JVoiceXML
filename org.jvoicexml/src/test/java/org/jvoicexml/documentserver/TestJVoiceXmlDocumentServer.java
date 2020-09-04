@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2018 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URL;
-import java.util.UUID;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -31,12 +30,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.jvoicexml.DocumentDescriptor;
-import org.jvoicexml.DocumentServer;
 import org.jvoicexml.Session;
-import org.jvoicexml.documentserver.jetty.DocumentStorage;
+import org.jvoicexml.SessionIdentifier;
+import org.jvoicexml.UuidSessionIdentifier;
 import org.jvoicexml.documentserver.schemestrategy.DocumentMap;
-import org.jvoicexml.documentserver.schemestrategy.FileSchemeStrategy;
 import org.jvoicexml.documentserver.schemestrategy.MappedDocumentStrategy;
+import org.jvoicexml.documentserver.schemestrategy.ResourceDocumentStrategy;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.xml.vxml.Form;
@@ -51,7 +50,6 @@ import org.xml.sax.InputSource;
  * Test case for {@link org.jvoicexml.documentserver.JVoiceXmlDocumentServer}.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.6
  */
 public final class TestJVoiceXmlDocumentServer {
@@ -73,8 +71,7 @@ public final class TestJVoiceXmlDocumentServer {
 
         server = new JVoiceXmlDocumentServer();
         server.addSchemeStrategy(new MappedDocumentStrategy());
-        server.addSchemeStrategy(new FileSchemeStrategy());
-        server.setDocumentStorage(Mockito.mock(DocumentStorage.class));
+        server.addSchemeStrategy(new ResourceDocumentStrategy());
         server.start();
     }
 
@@ -94,9 +91,9 @@ public final class TestJVoiceXmlDocumentServer {
         final URI uri = map.getUri("/test");
         map.addDocument(uri, test);
 
-        final DocumentDescriptor descriptor = new DocumentDescriptor(uri);
-        Object object = server.getObject(null, descriptor,
-                DocumentServer.TEXT_PLAIN);
+        final DocumentDescriptor descriptor = new DocumentDescriptor(uri,
+                DocumentDescriptor.MIME_TYPE_TEXT_PLAIN);
+        Object object = server.getObject(null, descriptor);
         Assert.assertEquals(test, object);
     }
 
@@ -119,9 +116,9 @@ public final class TestJVoiceXmlDocumentServer {
         final URI uri = map.getUri("/test");
         map.addDocument(uri, document);
 
-        final DocumentDescriptor descriptor = new DocumentDescriptor(uri);
-        Object object = server.getObject(null, descriptor,
-                DocumentServer.TEXT_XML);
+        final DocumentDescriptor descriptor = new DocumentDescriptor(uri,
+                DocumentDescriptor.MIME_TYPE_XML);
+        Object object = server.getObject(null, descriptor);
         Assert.assertTrue("object should be a document",
                 object instanceof Document);
         final Document other = (Document) object;
@@ -144,10 +141,9 @@ public final class TestJVoiceXmlDocumentServer {
      */
     @Test
     public void testGetObjectBinary() throws JVoiceXMLEvent, Exception {
-        final URL file = this.getClass().getResource("/test.wav");
-        final URI uri = file.toURI();
-        final DocumentDescriptor descriptor = new DocumentDescriptor(uri);
-        final Object object = server.getObject(null, descriptor, null);
+        final URI uri = new URI("res://test.wav");
+        final DocumentDescriptor descriptor = new DocumentDescriptor(uri, null);
+        final Object object = server.getObject(null, descriptor);
         Assert.assertTrue(object instanceof ReadBuffer);
         final ReadBuffer buffer = (ReadBuffer) object;
         Assert.assertFalse(buffer.isAscii());
@@ -185,13 +181,13 @@ public final class TestJVoiceXmlDocumentServer {
      */
     @Test
     public void testGetAudioInputStream() throws Exception, JVoiceXMLEvent {
-        final URL file = this.getClass().getResource("/test.wav");
+        final URI uri = new URI("res://test.wav");
         final Session session = Mockito.mock(Session.class);
         Mockito.when(session.getSessionId()).thenReturn(
-                UUID.randomUUID().toString());
-        final String sessionId = session.getSessionId();
+                new UuidSessionIdentifier());
+        final SessionIdentifier sessionId = session.getSessionId();
         final AudioInputStream in = server.getAudioInputStream(sessionId,
-                file.toURI());
+                uri);
         Assert.assertNotNull(in);
     }
 
@@ -209,11 +205,12 @@ public final class TestJVoiceXmlDocumentServer {
         final VoiceXmlDocument document = new VoiceXmlDocument();
         final URI uri = map.getUri("/test");
         map.addDocument(uri, document);
-        final DocumentDescriptor descriptor = new DocumentDescriptor(uri);
+        final DocumentDescriptor descriptor = new DocumentDescriptor(uri,
+                DocumentDescriptor.MIME_TYPE_XML);
         final Session session = Mockito.mock(Session.class);
         Mockito.when(session.getSessionId()).thenReturn(
-                UUID.randomUUID().toString());
-        final String sessionId = session.getSessionId();
+                new UuidSessionIdentifier());
+        final SessionIdentifier sessionId = session.getSessionId();
         final VoiceXmlDocument retrievedDocument = server.getDocument(
                 sessionId, descriptor);
         Assert.assertEquals(document.toString(), retrievedDocument.toString());
@@ -235,11 +232,11 @@ public final class TestJVoiceXmlDocumentServer {
         map.addDocument(uri, document);
         final URI fragmentUri = new URI(uri.toString() + "#fragment");
         final DocumentDescriptor descriptor = new DocumentDescriptor(
-                fragmentUri);
+                fragmentUri, DocumentDescriptor.MIME_TYPE_XML);
         final Session session = Mockito.mock(Session.class);
         Mockito.when(session.getSessionId()).thenReturn(
-                UUID.randomUUID().toString());
-        final String sessionId = session.getSessionId();
+                new UuidSessionIdentifier());
+        final SessionIdentifier sessionId = session.getSessionId();
         final VoiceXmlDocument retrievedDocument = server.getDocument(
                 sessionId, descriptor);
         Assert.assertEquals(document.toString(), retrievedDocument.toString());
@@ -263,11 +260,12 @@ public final class TestJVoiceXmlDocumentServer {
         final VoiceXmlDocument document = new VoiceXmlDocument(input);
         final URI uri = map.getUri("/test");
         map.addDocument(uri, document);
-        final DocumentDescriptor descriptor = new DocumentDescriptor(uri);
+        final DocumentDescriptor descriptor = new DocumentDescriptor(uri,
+                DocumentDescriptor.MIME_TYPE_XML);
         final Session session = Mockito.mock(Session.class);
         Mockito.when(session.getSessionId()).thenReturn(
-                UUID.randomUUID().toString());
-        final String sessionId = session.getSessionId();
+                new UuidSessionIdentifier());
+        final SessionIdentifier sessionId = session.getSessionId();
         final VoiceXmlDocument retrievedDocument = server.getDocument(
                 sessionId, descriptor);
         Assert.assertEquals(document, retrievedDocument);

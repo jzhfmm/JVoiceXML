@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $LastChangedDate $
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2014 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -27,16 +22,28 @@
 package org.jvoicexml.interpreter.grammar;
 
 import java.io.File;
-import java.net.URL;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.jvoicexml.*;
+import org.jvoicexml.Configuration;
+import org.jvoicexml.GrammarDocument;
+import org.jvoicexml.ImplementationPlatform;
+import org.jvoicexml.JVoiceXmlCore;
+import org.jvoicexml.SessionIdentifier;
+import org.jvoicexml.UserInput;
+import org.jvoicexml.UuidSessionIdentifier;
 import org.jvoicexml.event.JVoiceXMLEvent;
+import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.interpreter.JVoiceXmlSession;
 import org.jvoicexml.interpreter.VoiceXmlInterpreterContext;
@@ -58,6 +65,8 @@ import org.jvoicexml.xml.vxml.Form;
 import org.jvoicexml.xml.vxml.VoiceXmlDocument;
 import org.jvoicexml.xml.vxml.Vxml;
 import org.mockito.Mockito;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 /**
  * The <code>TestGrammarProcessor</code> provides tests for the
@@ -65,8 +74,6 @@ import org.mockito.Mockito;
  *
  * @author Christoph Buente
  * @author Dirk Schnelle-Walka
- *
- * @version $Revision$
  */
 public final class TestGrammarProcessor {
     /**
@@ -151,8 +158,7 @@ public final class TestGrammarProcessor {
         final Grammar grammar = document.getGrammar();
         grammar.setType(GrammarType.SRGS_XML);
         grammar.setRoot("city");
-        final URL file = this.getClass().getResource("/irp_srgs10/conformance-1.grxml");
-        grammar.setSrc(file.toURI());
+        grammar.setSrc("res://irp_srgs10/conformance-1.grxml");
         final GrammarDocument processed = processor.process(context, null,
                 grammar, Locale.US);
         final GrammarType type = processed.getMediaType();
@@ -174,8 +180,7 @@ public final class TestGrammarProcessor {
         final Grammar grammar = document.getGrammar();
         grammar.setType(GrammarType.SRGS_XML);
         grammar.setRoot("city");
-        final URL file = this.getClass().getResource("/irp_srgs10/conformance-1.grxml");
-        grammar.setSrc(file.toURI().toString() + "#main");
+        grammar.setSrc("res://irp_srgs10/conformance-1.grxml#main");
         final GrammarDocument processed = processor.process(context, null,
                 grammar, Locale.US);
 
@@ -209,10 +214,39 @@ public final class TestGrammarProcessor {
     }
 
     /**
+     * Reads a {@link Document} from the given {@link InputStream}.
+     * 
+     * @param uri
+     *            the URI of the file to read
+     * @return read document.
+     * @since 0.7.9
+     */
+    private Document readXml(final URI uri) {
+        try {
+            File file = new File(uri);
+            InputStream in = new FileInputStream(file);
+            final DocumentBuilderFactory factory = DocumentBuilderFactory
+                    .newInstance();
+            factory.setNamespaceAware(true);
+            final DocumentBuilder builder;
+            builder = factory.newDocumentBuilder();
+            final InputSource source = new InputSource(in);
+            Document doc = builder.parse(source);
+            return doc;
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+            return null;
+        } 
+    }
+
+    /**
      * {@inheritDoc}
+     * 
+     * @throws BadFetchError
+     *             setup failed
      */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception, BadFetchError {
         processor = new JVoiceXmlGrammarProcessor();
 
         final GrammarIdentifierCentral identifier = new GrammarIdentifierCentral();
@@ -225,10 +259,11 @@ public final class TestGrammarProcessor {
         final Profile profile = Mockito.mock(Profile.class);
         final SsmlParsingStrategyFactory factory = Mockito
                 .mock(SsmlParsingStrategyFactory.class);
-        Mockito.when(profile.getSsmlParsingStrategyFactory()).thenReturn(
-                factory);
+        Mockito.when(profile.getSsmlParsingStrategyFactory())
+                .thenReturn(factory);
+        final SessionIdentifier id = new UuidSessionIdentifier();
         final JVoiceXmlSession session = new JVoiceXmlSession(platform, jvxml,
-                null, profile);
+                null, profile, id);
 
         Configuration configuration = Mockito.mock(Configuration.class);
         DataModel dataModel = Mockito.mock(DataModel.class);
@@ -236,5 +271,6 @@ public final class TestGrammarProcessor {
                 .thenReturn(Collections.singleton(dataModel));
 
         context = new VoiceXmlInterpreterContext(session, configuration);
+
     }
 }

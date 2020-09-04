@@ -22,13 +22,13 @@
 package org.jvoicexml.xml.srgs;
 
 /**
- * A factory for grammar types.
+ * A factory for mode types.
  * @author Dirk Schnelle-Walka
  * @since 0.7
  */
 public interface GrammarTypeFactory {
     /**
-     * Creates a grammar for the given attribute.
+     * Creates a mode type for the given attribute.
      * @param attribute name of the attribute.
      * @return corresponding grammar type or <code>null</code> if the
      *         attribute can not be converted to a grammar type.

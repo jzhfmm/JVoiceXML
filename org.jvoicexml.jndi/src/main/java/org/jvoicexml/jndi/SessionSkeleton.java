@@ -26,16 +26,19 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import javax.naming.Context;
+import javax.naming.NamingException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.Application;
 import org.jvoicexml.DtmfInput;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.client.jndi.ApplicationStub;
 import org.jvoicexml.client.jndi.DtmfInputStub;
+import org.jvoicexml.client.jndi.RemoteApplication;
+import org.jvoicexml.client.jndi.RemoteDtmfInput;
 import org.jvoicexml.client.jndi.RemoteSession;
-import org.jvoicexml.client.jndi.Stub;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
@@ -47,11 +50,8 @@ import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
  * @since 0.4
  * @see org.jvoicexml.Session
  */
-final class SessionSkeleton extends UnicastRemoteObject
-        implements RemoteSession, Skeleton {
-    /** The serial version UID. */
-    private static final long serialVersionUID = 7903915853416003896L;
-
+final class SessionSkeleton
+        implements RemoteSession {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(SessionSkeleton.class);
@@ -89,16 +89,18 @@ final class SessionSkeleton extends UnicastRemoteObject
     }
 
     /**
-     * {@inheritDoc}
+     * Retrieves the name of this skeleton.
+     * @return name of the skeleton
      */
     public String getSkeletonName() {
         return RemoteSession.class.getSimpleName() + "."
-                + session.getSessionId();
+                + session.getSessionId().getId();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Application call(final URI uri) throws RemoteException {
         if (session == null) {
             return null;
@@ -106,12 +108,23 @@ final class SessionSkeleton extends UnicastRemoteObject
 
         try {
             final Application application = session.call(uri);
-            final String id = session.getSessionId();
-            final ApplicationSkeleton skeleton = new ApplicationSkeleton(id,
+            final SessionIdentifier id = session.getSessionId();
+            final RemoteApplication skeleton = new ApplicationSkeleton(id,
                     application);
-            final ApplicationStub stub = new ApplicationStub(id);
-            JVoiceXmlJndiSupport.bind(context, skeleton, stub);
-            return stub;
+            final RemoteApplication stub = (RemoteApplication) 
+                    UnicastRemoteObject.exportObject(skeleton, 0);
+            final String name = 
+                    ((ApplicationSkeleton) skeleton).getSkeletonName();
+            try {
+                context.rebind(name, stub);
+            } catch (NamingException e) {
+                throw new RemoteException(e.getMessage(), e);
+            }
+            LOGGER.info("bound '" + name + "' to '" 
+                    + stub.getClass().getCanonicalName() + "'"
+                    + "(" + ApplicationSkeleton.class.getCanonicalName()
+                    + ")'");
+            return new ApplicationStub(id);
         } catch (ErrorEvent event) {
             LOGGER.error(event.getMessage(), event);
 
@@ -141,15 +154,22 @@ final class SessionSkeleton extends UnicastRemoteObject
         }
 
         try {
-            final String id = session.getSessionId();
+            final SessionIdentifier id = session.getSessionId();
             final DtmfInput input = session.getDtmfInput();
-            final Skeleton skeleton = new DtmfInputSkeleton(id, input);
-            final DtmfInput characterInput = new DtmfInputStub(id);
-            final Stub stub = (Stub) characterInput;
+            final RemoteDtmfInput skeleton = new DtmfInputSkeleton(id, input);
+            final RemoteSession stub = (RemoteSession) 
+                    UnicastRemoteObject.exportObject(skeleton, 0);
+            final String name = 
+                    ((DtmfInputSkeleton) skeleton).getSkeletonName();
+            try {
+                context.rebind(name, stub);
+            } catch (NamingException e) {
+                throw new RemoteException(e.getMessage(), e);
+            }
+            LOGGER.info("bound '" + name + "' to '" 
+                    + stub.getClass().getCanonicalName() + "'");
 
-            JVoiceXmlJndiSupport.bind(context, skeleton, stub);
-
-            return characterInput;
+            return new DtmfInputStub(id);
         } catch (NoresourceError error) {
             throw new RemoteException(error.getMessage(), error);
         } catch (ConnectionDisconnectHangupEvent error) {
@@ -160,6 +180,7 @@ final class SessionSkeleton extends UnicastRemoteObject
     /**
      * {@inheritDoc}
      */
+    @Override
     public void waitSessionEnd() throws RemoteException {
         if (session == null) {
             return;
@@ -205,6 +226,7 @@ final class SessionSkeleton extends UnicastRemoteObject
     /**
      * {@inheritDoc}
      */
+    @Override
     public void hangup() throws RemoteException {
         if (session == null) {
             return;

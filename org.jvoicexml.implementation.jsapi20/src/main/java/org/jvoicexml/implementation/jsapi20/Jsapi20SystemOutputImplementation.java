@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import javax.sound.sampled.AudioFormat;
 import javax.speech.AudioException;
@@ -51,6 +51,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.DocumentServer;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableSsmlText;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.event.ErrorEvent;
@@ -69,6 +70,7 @@ import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.ssml.Speak;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
+import org.jvoicexml.xml.vxml.PriorityType;
 
 /**
  * Audio output that uses the JSAPI 2.0 to address the TTS engine.
@@ -111,16 +113,16 @@ public final class Jsapi20SystemOutputImplementation
     private final Object emptyLock;
 
     /** Queued speakables. */
-    private final Queue<SpeakableText> queuedSpeakables;
+    private final List<SpeakableText> queuedSpeakables;
 
     /** A map of queued speakables to their id returned in speak requests. */
-    private final Map<SpeakableText, Integer> queueIds;
+    private final Map<SpeakableText, Integer> queuedIds;
 
     /** <code>true</code> if the synthesizer supports SSML. */
     private boolean supportsMarkup;
 
     /** The current session id. */
-    private String sessionId;
+    private SessionIdentifier sessionId;
 
     /**
      * Constructs a new audio output.
@@ -135,7 +137,7 @@ public final class Jsapi20SystemOutputImplementation
         desc = defaultDescriptor;
         listeners = new java.util.ArrayList<SystemOutputImplementationListener>();
         queuedSpeakables = new java.util.LinkedList<SpeakableText>();
-        queueIds = new java.util.HashMap<SpeakableText, Integer>();
+        queuedIds = new java.util.HashMap<SpeakableText, Integer>();
         emptyLock = new Object();
     }
 
@@ -221,7 +223,9 @@ public final class Jsapi20SystemOutputImplementation
         }
 
         waitQueueEmpty();
-        queueIds.clear();
+        synchronized (queuedIds) {
+            queuedIds.clear();
+        }
 
         LOGGER.info("deallocating  JSAPI 2.0 synthesizer...");
 
@@ -273,7 +277,7 @@ public final class Jsapi20SystemOutputImplementation
      */
     @Override
     public void queueSpeakable(final SpeakableText speakable,
-            final String sessId, final DocumentServer documentServer)
+            final SessionIdentifier sessId, final DocumentServer documentServer)
             throws NoresourceError, BadFetchError {
         if (synthesizer == null) {
             throw new NoresourceError("no synthesizer: cannot speak");
@@ -283,7 +287,18 @@ public final class Jsapi20SystemOutputImplementation
         sessionId = sessId;
 
         synchronized (queuedSpeakables) {
-            queuedSpeakables.offer(speakable);
+            final PriorityType priority = speakable.getPriority();
+            if (priority.equals(PriorityType.CLEAR)) {
+                final Collection<SpeakableText> pendingSpeakables =
+                        queuedIds.keySet();
+                queuedSpeakables.retainAll(pendingSpeakables);
+            }
+            if (priority.equals(PriorityType.CLEAR)
+                    || priority.equals(PriorityType.APPEND)) {
+                queuedSpeakables.add(speakable);
+            } else if (priority.equals(PriorityType.PREPEND)) {
+                queuedSpeakables.add(0, speakable);
+            }
             // Do not process the speakable if there is some ongoing processing
             if (queuedSpeakables.size() > 1) {
                 return;
@@ -291,6 +306,15 @@ public final class Jsapi20SystemOutputImplementation
         }
 
         // Otherwise process the added speakable asynchronous.
+        startSpeaking();
+    }
+
+    /**
+     * Start processing the queued speakables.
+     * 
+     * @since 0.7.9
+     */
+    private void startSpeaking() {
         final Runnable runnable = new Runnable() {
             /**
              * {@inheritDoc}
@@ -336,14 +360,13 @@ public final class Jsapi20SystemOutputImplementation
         }
         final SsmlDocument document = ssmlText.getDocument();
         final String doc = document.toString();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("speaking SSML");
-            LOGGER.debug(doc);
-        }
+        LOGGER.info("speaking " + doc);
         try {
             synthesizer.resume();
             int id = synthesizer.speakMarkup(doc, null);
-            queueIds.put(ssmlText, id);
+            synchronized (queuedIds) {
+                queuedIds.put(ssmlText, id);
+            }
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("queued id '" + id + "'");
             }
@@ -379,7 +402,7 @@ public final class Jsapi20SystemOutputImplementation
                 }
                 return;
             }
-            speakable = queuedSpeakables.peek();
+            speakable = queuedSpeakables.get(0);
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -486,13 +509,13 @@ public final class Jsapi20SystemOutputImplementation
         final SsmlDocument ssml = speakable.getDocument();
         final Speak speak = ssml.getSpeak();
         final String text = speak.getTextContent();
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("speaking '" + text + "'...");
-        }
+        LOGGER.info("speaking '" + text + "'...");
         try {
             synthesizer.resume();
             int id = synthesizer.speak(text, null);
-            queueIds.put(speakable, id);
+            synchronized (queuedIds) {
+                queuedIds.put(speakable, id);
+            }
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("queued id '" + id + "'");
             }
@@ -519,10 +542,10 @@ public final class Jsapi20SystemOutputImplementation
             throw new NoresourceError("no synthesizer: cannot cancel output");
         }
         synchronized (queuedSpeakables) {
-            final SpeakableText curent = queuedSpeakables.peek();
-            if (curent == null) {
+            if (queuedSpeakables.isEmpty()) {
                 return;
             }
+            final SpeakableText curent = queuedSpeakables.get(0);
             if (!curent.isBargeInEnabled(bargeInType)) {
                 return;
             }
@@ -540,7 +563,10 @@ public final class Jsapi20SystemOutputImplementation
 
             queuedSpeakables.removeAll(skipped);
             for (SpeakableText speakable : skipped) {
-                final Integer id = queueIds.get(speakable);
+                final Integer id;
+                synchronized (queuedIds) {
+                    id = queuedIds.get(speakable);
+                }
                 if (id != null) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(
@@ -583,10 +609,10 @@ public final class Jsapi20SystemOutputImplementation
     @Override
     public void waitNonBargeInPlayed() {
         synchronized (queuedSpeakables) {
-            final SpeakableText speakable = queuedSpeakables.peek();
-            if (speakable == null) {
+            if (queuedSpeakables.isEmpty()) {
                 return;
             }
+            final SpeakableText speakable = queuedSpeakables.get(0);
             if (!speakable.isBargeInEnabled(BargeInType.SPEECH)
                     && !speakable.isBargeInEnabled(BargeInType.HOTWORD)) {
                 return;
@@ -744,20 +770,25 @@ public final class Jsapi20SystemOutputImplementation
         SpeakableText speakable = null;
         if (id == SpeakableEvent.SPEAKABLE_STARTED) {
             synchronized (queuedSpeakables) {
-                speakable = queuedSpeakables.peek();
+                speakable = queuedSpeakables.get(0);
             }
             fireOutputStarted(speakable);
         } else if (id == SpeakableEvent.SPEAKABLE_ENDED) {
             synchronized (queuedSpeakables) {
-                speakable = queuedSpeakables.poll();
-                final Integer queueId = queueIds.remove(speakable);
+                speakable = queuedSpeakables.remove(0);
+                final Integer queueId;
+                synchronized (queuedIds) {
+                    queueId= queuedIds.remove(speakable);
+                }
                 if (LOGGER.isDebugEnabled() && queueId != null) {
                     LOGGER.debug(
                             "queued id '" + queueId.intValue() + "' ended ");
                 }
             }
 
-            fireOutputEnded(speakable);
+            if (speakable != null) { 
+                fireOutputEnded(speakable);
+            }
             try {
                 processNextSpeakable();
             } catch (NoresourceError e) {

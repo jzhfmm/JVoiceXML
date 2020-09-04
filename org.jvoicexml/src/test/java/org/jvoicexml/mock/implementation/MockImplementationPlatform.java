@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2014 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -30,10 +25,11 @@ import java.util.List;
 
 import org.jvoicexml.CallControl;
 import org.jvoicexml.CallControlProperties;
-import org.jvoicexml.DtmfInput;
 import org.jvoicexml.DocumentServer;
+import org.jvoicexml.DtmfInput;
 import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.UserInput;
@@ -48,7 +44,6 @@ import org.jvoicexml.implementation.SystemOutputImplementationListener;
  * purposes.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.6
  */
 public final class MockImplementationPlatform
@@ -174,7 +169,7 @@ public final class MockImplementationPlatform
      * {@inheritDoc}
      */
     @Override
-    public void setPromptTimeout(final long timeout) {
+    public void startPromptQueuing() {
         prompts = null;
     }
 
@@ -193,7 +188,7 @@ public final class MockImplementationPlatform
      * {@inheritDoc}
      */
     @Override
-    public void renderPrompts(final String sessionId,
+    public void renderPrompts(final SessionIdentifier sessionId,
             final DocumentServer server, final CallControlProperties callProps)
             throws BadFetchError, NoresourceError,
                 ConnectionDisconnectHangupEvent {
@@ -205,5 +200,11 @@ public final class MockImplementationPlatform
             out.queueSpeakable(speakable, sessionId, server);
         }
         prompts = null;
+    }
+
+    @Override
+    public boolean isHungup() {
+        // TODO Auto-generated method stub
+        return false;
     }
 }

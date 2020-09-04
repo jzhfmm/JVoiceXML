@@ -73,11 +73,22 @@ public final class KinectUserInputImplementation implements UserInputImplementat
     /** Reference to the Kinect. */
     private KinectRecognizer recognizer;
 
+    /** The no input timeout. */
+    private long timeout = -1;
+
     /**
      * Constructs a new object
      */
     public KinectUserInputImplementation() {
         listeners = new java.util.ArrayList<UserInputImplementationListener>();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getNoInputTimeout() {
+        return timeout;
     }
 
     /**
@@ -233,6 +244,7 @@ public final class KinectUserInputImplementation implements UserInputImplementat
         } catch (KinectRecognizerException e) {
             throw new NoresourceError(e.getMessage(), e);
         }
+        timeout = speech.getNoInputTimeoutAsMsec();
         recognizer.startRecognition();
 
         final UserInputEvent event = new RecognitionStartedEvent(this, null);

@@ -50,4 +50,14 @@ public interface UserInputImplementationListener {
      * @since 0.7.4
      */
     void inputError(ErrorEvent error);
+
+    /**
+     * Notification that the user did not provide input in the specified
+     * time.
+     * 
+     * @param timeout the timeout
+     * 
+     * @since 0.7.9
+     */
+    void timeout(long timeout);
 }

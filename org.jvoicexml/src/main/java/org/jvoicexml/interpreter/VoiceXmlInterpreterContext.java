@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2018 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -25,7 +25,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+import javax.activation.MimeType;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,6 +43,7 @@ import org.jvoicexml.FetchAttributes;
 import org.jvoicexml.GrammarDocument;
 import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeechRecognizerProperties;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.EventBus;
@@ -120,27 +124,7 @@ public class VoiceXmlInterpreterContext {
      */
     public VoiceXmlInterpreterContext(final JVoiceXmlSession currentSession,
             final Configuration config) {
-        session = currentSession;
-        configuration = config;
-        scopeObserver = session.getScopeObserver();
-
-        grammars = new ActiveGrammarSet(scopeObserver);
-
-        // Add a grammar deactivator as observer to the active grammar set
-        // that will deactivate grammars once a scope is left.
-        final ImplementationPlatform platform = session
-                .getImplementationPlatform();
-        final GrammarDeactivator deactivator = new GrammarDeactivator(
-                platform);
-        grammars.addActiveGrammarSetObserver(deactivator);
-
-        // Subscribe the default event handler to all events of the event bus.
-        eventbus = new EventBus();
-        properties = new ScopedMap<String, String>(scopeObserver);
-        final DataModel dataModel = getDataModel();
-        eventHandler = new org.jvoicexml.interpreter.event.JVoiceXmlEventHandler(
-                dataModel, scopeObserver);
-        eventbus.subscribe("", eventHandler);
+        this(currentSession, config, currentSession.getScopeObserver(), null);
     }
 
     /**
@@ -153,12 +137,16 @@ public class VoiceXmlInterpreterContext {
      *            the configuration to use
      * @param observer
      *            the scope observer
+     * @param dataModel
+     *            the data model
      */
     public VoiceXmlInterpreterContext(final JVoiceXmlSession currentSession,
-            final Configuration config, final ScopeObserver observer) {
+            final Configuration config, final ScopeObserver observer,
+            final DataModel dataModel) {
         session = currentSession;
         scopeObserver = observer;
         configuration = config;
+        model = dataModel;
 
         grammars = new ActiveGrammarSet(scopeObserver);
 
@@ -167,7 +155,7 @@ public class VoiceXmlInterpreterContext {
         final ImplementationPlatform platform = session
                 .getImplementationPlatform();
         final GrammarDeactivator deactivator = new GrammarDeactivator(
-                platform);
+                platform, grammars);
         grammars.addActiveGrammarSetObserver(deactivator);
         properties = new ScopedMap<String, String>(scopeObserver);
 
@@ -177,6 +165,8 @@ public class VoiceXmlInterpreterContext {
                 new org.jvoicexml.interpreter.event.JVoiceXmlEventHandler(
                         model, scopeObserver);
         eventbus.subscribe("", eventHandler);
+        eventbus.subscribe(ConnectionDisconnectHangupEvent.EVENT_TYPE,
+                deactivator);
     }
 
     /**
@@ -515,7 +505,8 @@ public class VoiceXmlInterpreterContext {
         model.createVariable("lastresult$.inputmode", null, Scope.APPLICATION);
         model.createVariable("lastresult$.interpretation", null,
                 Scope.APPLICATION);
-
+        exposeLoadedDocuments();
+        
         // The main loop to interpret single- and multi-document applications
         DocumentDescriptor descriptor = null;
         while (document != null) {
@@ -628,7 +619,8 @@ public class VoiceXmlInterpreterContext {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("loading root document...");
         }
-        final DocumentDescriptor descriptor = new DocumentDescriptor(uri);
+        final DocumentDescriptor descriptor = new DocumentDescriptor(uri,
+                DocumentDescriptor.MIME_TYPE_XML);
         final VoiceXmlDocument document = acquireVoiceXmlDocument(descriptor);
         // If a document's application attribute refers to a document that also
         // has an application attribute specified, an error.semantic event is
@@ -682,10 +674,46 @@ public class VoiceXmlInterpreterContext {
         if (application != null) {
             final URI resolvedUri = application.resolve(uri);
             application.addDocument(resolvedUri, doc);
+            exposeLoadedDocuments();
         }
         return doc;
     }
 
+    /**
+     * Saves the URIs of the loaded documents to the model. 
+     * 
+     * @since 0.7.9
+     */
+    private void exposeLoadedDocuments() {
+        final String loadedDocumentURIs = "loadedDocumentURIs$";
+        final List<URI> uris = application.getLoadedDocuments();
+        final int size = uris.size();
+        if (model.existsVariable(loadedDocumentURIs)) {
+            int rc = model.resizeArray(loadedDocumentURIs, size,
+                    Scope.APPLICATION);
+            if (rc != DataModel.NO_ERROR) {
+                LOGGER.warn("unable to resize array for loaded URIs: " + rc);
+                return;
+            }
+        } else {
+            int rc = model.createArray(loadedDocumentURIs, size, Scope.APPLICATION);
+            if (rc != DataModel.NO_ERROR) {
+                LOGGER.warn("unable to create array for loaded URIs: " + rc);
+                return;
+            }
+        }
+        for (int i = 0; i < size; i++) {
+            final URI uri = uris.get(i);
+            int rc = model.updateArray(loadedDocumentURIs, i, uri.toString(),
+                    Scope.APPLICATION);
+            if (rc != DataModel.NO_ERROR) {
+                LOGGER.warn("unable to update array for loaded URIs at " + i
+                        + ": " + rc);
+                return;
+            }
+        }
+    }
+    
     /**
      * Retrieves a reference to the document server.
      * 
@@ -720,7 +748,7 @@ public class VoiceXmlInterpreterContext {
         }
         descriptor.setURI(nextUri);
         final DocumentServer server = session.getDocumentServer();
-        final String sessionId = session.getSessionId();
+        final SessionIdentifier sessionId = session.getSessionId();
         return server.getDocument(sessionId, descriptor);
     }
 
@@ -734,6 +762,8 @@ public class VoiceXmlInterpreterContext {
      *
      * @param uri
      *            URI of the next document to process.
+     * @param type
+     *            the MIME type of the grammar
      * @param attributes
      *            attributes governing the fetch.
      *
@@ -744,7 +774,8 @@ public class VoiceXmlInterpreterContext {
      * @since 0.3
      */
     public GrammarDocument acquireExternalGrammar(final URI uri,
-            final FetchAttributes attributes) throws BadFetchError {
+            final MimeType type, final FetchAttributes attributes)
+                    throws BadFetchError {
         final DocumentServer server = session.getDocumentServer();
         final URI grammarUri;
         if (application == null) {
@@ -752,8 +783,9 @@ public class VoiceXmlInterpreterContext {
         } else {
             grammarUri = application.resolve(uri);
         }
-        final String sessionId = session.getSessionId();
-        return server.getGrammarDocument(sessionId, grammarUri, attributes);
+        final SessionIdentifier sessionId = session.getSessionId();
+        return server.getGrammarDocument(sessionId, grammarUri, type,
+                attributes);
     }
 
     /**
@@ -804,7 +836,8 @@ public class VoiceXmlInterpreterContext {
                 }
             } catch (GotoNextDocumentEvent e) {
                 final URI uri = e.getUri();
-                return new DocumentDescriptor(uri);
+                return new DocumentDescriptor(uri,
+                        DocumentDescriptor.MIME_TYPE_XML);
             } catch (SubmitEvent e) {
                 return e.getDocumentDescriptor();
             } finally {

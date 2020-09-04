@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -30,7 +30,6 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.Application;
-import org.jvoicexml.LastResult;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.interpreter.scope.Scope;
 import org.jvoicexml.interpreter.scope.ScopeObserver;
@@ -69,15 +68,11 @@ public final class JVoiceXmlApplication
     /** The scope observer. */
     private final transient ScopeObserver observer;
 
-    /** The last results. */
-    private List<LastResult> lastresults;
-
     /**
      * Constructs a new object.
      */
     public JVoiceXmlApplication() {
-        observer = null;
-        loadedDocuments = new java.util.HashMap<URI, VoiceXmlDocument>();
+        this(null);
     }
 
     /**
@@ -92,6 +87,7 @@ public final class JVoiceXmlApplication
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addDocument(final URI uri, final VoiceXmlDocument doc)
         throws BadFetchError {
         if (uri == null) {
@@ -148,6 +144,7 @@ public final class JVoiceXmlApplication
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setRootDocument(final VoiceXmlDocument document)
         throws BadFetchError {
         if (root != null) {
@@ -155,7 +152,8 @@ public final class JVoiceXmlApplication
         }
 
         root = document;
-        loadedDocuments.put(getApplication(), root);
+        final URI applicationUri = getApplication();
+        loadedDocuments.put(applicationUri, root);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("loaded documents:");
             final Collection<URI> keys = loadedDocuments.keySet();
@@ -170,13 +168,23 @@ public final class JVoiceXmlApplication
     /**
      * {@inheritDoc}
      */
-    public URI getApplication() {
+    @Override
+    public URI getApplication() throws BadFetchError {
         return resolve(application);
     }
 
+    @Override
+    public List<URI> getLoadedDocuments() {
+        final Collection<URI> keys = loadedDocuments.keySet();
+        List<URI> list = new java.util.ArrayList<URI>();
+        list.addAll(keys);
+        return list;
+    }
+    
     /**
      * {@inheritDoc}
      */
+    @Override
     public URI getXmlBase() {
         return baseUri;
     }
@@ -184,6 +192,7 @@ public final class JVoiceXmlApplication
     /**
      * {@inheritDoc}
      */
+    @Override
     public VoiceXmlDocument getCurrentDocument() {
         return current;
     }
@@ -191,7 +200,8 @@ public final class JVoiceXmlApplication
     /**
      * {@inheritDoc}
      */
-    public URI resolve(final URI uri) {
+    @Override
+    public URI resolve(final URI uri) throws BadFetchError {
         return resolve(baseUri, uri);
     }
 
@@ -219,7 +229,8 @@ public final class JVoiceXmlApplication
     /**
      * {@inheritDoc}
      */
-    public URI resolve(final URI base, final URI uri) {
+    @Override
+    public URI resolve(final URI base, final URI uri) throws BadFetchError {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("resolving URI '" + uri + "'...");
         }
@@ -247,7 +258,19 @@ public final class JVoiceXmlApplication
             currentBase = base;
         }
 
-        final URI resolvedUri = currentBase.resolve(uri);
+        final String host = currentBase.getHost();
+        final URI resolvedUri;
+        if ((host == null) && !uri.isAbsolute()) {
+            final String scheme = currentBase.getScheme();
+            final String path = uri.getSchemeSpecificPart();
+            try {
+                resolvedUri = new URI(scheme + "://" + path);
+            } catch (URISyntaxException e) {
+                throw new BadFetchError(e.getMessage(), e);
+            }
+        } else {
+            resolvedUri = currentBase.resolve(uri);
+        }
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("resolved to '" + resolvedUri + "'");
@@ -259,6 +282,7 @@ public final class JVoiceXmlApplication
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isLoaded(final URI uri) {
         if (uri == null) {
             return false;
@@ -282,21 +306,5 @@ public final class JVoiceXmlApplication
         }
 
         return "Unknown application";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLastResult(final List<LastResult> result) {
-        lastresults = result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<LastResult> getLastResult() {
-        return lastresults;
     }
 }

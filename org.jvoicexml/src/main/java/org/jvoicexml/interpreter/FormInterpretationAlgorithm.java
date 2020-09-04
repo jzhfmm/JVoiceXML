@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2018 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -43,6 +43,7 @@ import org.jvoicexml.DtmfRecognizerProperties;
 import org.jvoicexml.GrammarDocument;
 import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeechRecognizerProperties;
 import org.jvoicexml.UserInput;
 import org.jvoicexml.event.ErrorEvent;
@@ -55,6 +56,7 @@ import org.jvoicexml.event.error.UnsupportedFormatError;
 import org.jvoicexml.event.error.UnsupportedLanguageError;
 import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
 import org.jvoicexml.event.plain.implementation.RecordingStartedEvent;
+import org.jvoicexml.event.plain.jvxml.GotoNextDocumentEvent;
 import org.jvoicexml.event.plain.jvxml.GotoNextFormEvent;
 import org.jvoicexml.event.plain.jvxml.GotoNextFormItemEvent;
 import org.jvoicexml.event.plain.jvxml.InternalExitEvent;
@@ -118,9 +120,6 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(FormInterpretationAlgorithm.class);
-
-    /** The default prompt timeout in msec. */
-    private static final int DEFAULT_PROMPT_TIMEOUT = 30000;
 
     /** The default recording maxtime. */
     private static final int DEFAULT_RECORDING_MAXTIME = 30000;
@@ -373,9 +372,7 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
             throw new BadFetchError("Duplicate form item name '" + name + "'");
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("initializing form item '" + name + "'");
-        }
+        LOGGER.info("initializing form item '" + name + "'");
         final DataModel model = context.getDataModel();
         formItem.init(model);
         if (formItem instanceof FieldFormItem) {
@@ -475,7 +472,7 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
                             node.getChildren();
                     final DataModel model = context.getDataModel();
                     initializeNodes(model, children);
-                    
+
                     // Execute the form item
                     interpreter.setState(InterpreterState.WAITING);
                     collect(item);
@@ -485,10 +482,15 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
                 } catch (InternalExitEvent e) {
                     LOGGER.info("exiting...");
                     break;
+                } catch (GotoNextDocumentEvent e) {
+                    LOGGER.info("going to document '" + e.getUri() + "'...");
+                    throw e;
                 } catch (GotoNextFormEvent e) {
                     LOGGER.info("going to form '" + e.getForm() + "'...");
                     throw e;
                 } catch (GotoNextFormItemEvent e) {
+                    // we must stay here to retain the variables at dialog
+                    // scope as only the fraction part was specified
                     gotoFormItemName = e.getItem();
                     LOGGER.info("going to form item '" + gotoFormItemName
                             + "'...");
@@ -500,6 +502,8 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
                         eventbus.publish(e);
                         processEvent(e);
                     } catch (GotoNextFormItemEvent ie) {
+                        // we must stay here to retain the variables at dialog
+                        // scope as only the fraction part was specified
                         gotoFormItemName = ie.getItem();
                         LOGGER.info("going to form item '" + gotoFormItemName
                                 + "'...");
@@ -838,20 +842,47 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
                 context);
         final Collection<VoiceXmlNode> prompts = promptChooser.collect();
 
-        // Set the timeout to use for the prompts
+        // Now, we may start queuing
         final ImplementationPlatform platform = context
                 .getImplementationPlatform();
-        final long timeout = getPromptTimeout();
-        platform.setPromptTimeout(timeout);
+        platform.startPromptQueuing();
 
         // Actually queue the prompts
+        Prompt lastPrompt = null;
         for (VoiceXmlNode node : prompts) {
+            if (node instanceof Prompt) {
+                lastPrompt = (Prompt)node;
+            }
             executor.executeTagStrategy(context, interpreter, this, formItem,
                     node);
         }
+
+        // Determine the timeout to use for the next speech recognition task
+        long timeout = getPromptTimeout();
+        if (lastPrompt != null) {
+            final long lastTimeout = lastPrompt.getTimeoutAsMsec();
+            if (lastTimeout > 0) {
+                timeout = lastTimeout;
+            }
+        }
+
+        // Set the timeout value in the speech recognizer and DTMF properties
+        try {
+            final SpeechRecognizerProperties speechProperties =
+                    context.getSpeechRecognizerProperties(this);
+            speechProperties.setNoInputTimeout(timeout);
+            final DtmfRecognizerProperties dtmfProperties =
+                    context.getDtmfRecognizerProperties(this);
+            dtmfProperties.setNoInputTimeout(timeout);
+        } catch (ConfigurationException e) {
+            LOGGER.error("error setting the timeout value", e);
+            throw new BadFetchError("error setting the timeout value", e);
+        }
+
+        
         final DocumentServer server = context.getDocumentServer();
         final Session session = context.getSession();
-        final String sessionId = session.getSessionId();
+        final SessionIdentifier sessionId = session.getSessionId();
         try {
             final CallControlProperties callProps = context
                     .getCallControlProperties(this);
@@ -866,10 +897,15 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
     }
 
     /**
-     * Checks if the FIA is currently queuing prompts. The behaviour of the
+     * Checks if the FIA is currently queuing prompts. The behavior of the
      * {@link TagStrategy}s might be different dependent on the queuing mode.
+     * <p>
+     * In prompt queuing mode, prompts are collected as actual {@code <prompt>}
+     * nodes. Otherwise, they are rendered directly, e.g. as pure text
+     * within a {@code <block>}.
+     * </p>
      * 
-     * @return <code>true</code> if the FIA is currently queiung prompts.
+     * @return <code>true</code> if the FIA is currently queuing prompts.
      */
     public boolean isQueuingPrompts() {
         return queuingPrompts;
@@ -883,7 +919,7 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
     private long getPromptTimeout() {
         final String timeout = context.getProperty(Prompt.ATTRIBUTE_TIMEOUT);
         if (timeout == null) {
-            return DEFAULT_PROMPT_TIMEOUT;
+            return SpeechRecognizerProperties.DEFAULT_NO_INPUT_TIMEOUT;
         }
         final TimeParser timeParser = new TimeParser(timeout);
         return timeParser.parse();
@@ -1205,8 +1241,8 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
             LOGGER.debug("visiting block '" + block.getName() + "'...");
         }
 
-        context.enterScope(Scope.ANONYMOUS);
         block.setVisited();
+        context.enterScope(Scope.ANONYMOUS);
         final ImplementationPlatform platform = context
                 .getImplementationPlatform();
         final EventBus eventbus = context.getEventBus();
@@ -1377,7 +1413,7 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
         final RecordingReceiverThread recording = new RecordingReceiverThread(
                 eventbus, maxTime);
         final Session session = context.getSession();
-        final String sessionId = session.getSessionId();
+        final SessionIdentifier sessionId = session.getSessionId();
         final RecordingStartedEvent started =
                 new RecordingStartedEvent(sessionId);
         eventbus.publish(started);
@@ -1397,6 +1433,7 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void visitSubdialogFormItem(final SubdialogFormItem subdialog)
             throws JVoiceXMLEvent {
         if (LOGGER.isDebugEnabled()) {
@@ -1431,7 +1468,8 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
         final Map<String, Object> parameters = parser.getParameters();
 
         // Prepare running the subdialog in an own thread.
-        final DocumentDescriptor descriptor = new DocumentDescriptor(uri);
+        final DocumentDescriptor descriptor = new DocumentDescriptor(uri,
+                DocumentDescriptor.MIME_TYPE_XML);
         descriptor.addParameters(parameters);
         final VoiceXmlDocument doc = context.loadDocument(descriptor);
         application.addDocument(resolvedUri, doc);
@@ -1439,13 +1477,14 @@ public final class FormInterpretationAlgorithm implements FormItemVisitor {
         final ScopeObserver observer = new ScopeObserver();
         // TODO acquire the configuration object
         final Configuration configuration = context.getConfiguration();
+        final DataModel subdialogModel = model.newInstance();
         final VoiceXmlInterpreterContext subdialogContext =
                 new VoiceXmlInterpreterContext(session, configuration,
-                        observer);
+                        observer, subdialogModel);
         final EventBus bus = context.getEventBus();
         // Start the subdialog thread
         final Thread thread = new SubdialogExecutorThread(resolvedUri,
-                subdialogContext, application, parameters, bus);
+                subdialogContext, application, parameters, bus, model);
         thread.start();
     }
 

@@ -87,6 +87,9 @@ public class BufferedDtmfInput implements DtmfInput, UserInputImplementation {
     /** The data model in use. */
     private DataModel model;
 
+    /** The no input timeout. */
+    private long timeout = -1;
+
     /**
      * Constructs a new object.
      */
@@ -104,6 +107,13 @@ public class BufferedDtmfInput implements DtmfInput, UserInputImplementation {
     @Override
     public ModeType getModeType() {
         return ModeType.DTMF;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getNoInputTimeout() {
+        return timeout;
     }
     
     /**
@@ -219,7 +229,9 @@ public class BufferedDtmfInput implements DtmfInput, UserInputImplementation {
      */
     char getNextCharacter() throws InterruptedException {
         synchronized (buffer) {
-            buffer.wait();
+            if (buffer.isEmpty()) {
+                buffer.wait();
+            }
             return buffer.remove(0);
         }
     }
@@ -232,6 +244,7 @@ public class BufferedDtmfInput implements DtmfInput, UserInputImplementation {
             final SpeechRecognizerProperties speech,
             final DtmfRecognizerProperties dtmf)
             throws NoresourceError, BadFetchError {
+        timeout = dtmf.getNoInputTimeoutAsMsec();
         model = dataModel;
         props = dtmf;
         inputThread = new DtmfInputThread(this, props);
@@ -283,6 +296,7 @@ public class BufferedDtmfInput implements DtmfInput, UserInputImplementation {
             interDigitTimeout = null;
         }
         props = null;
+        timeout = -1;
         LOGGER.info("stopped DTMF recognition");
     }
 

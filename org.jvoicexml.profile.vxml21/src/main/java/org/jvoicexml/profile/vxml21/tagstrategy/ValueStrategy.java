@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -31,11 +31,13 @@ import org.jvoicexml.ConfigurationException;
 import org.jvoicexml.DocumentServer;
 import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableSsmlText;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.error.SemanticError;
+import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
 import org.jvoicexml.interpreter.FormInterpretationAlgorithm;
 import org.jvoicexml.interpreter.FormItem;
 import org.jvoicexml.interpreter.VoiceXmlInterpreter;
@@ -47,10 +49,8 @@ import org.jvoicexml.profile.SsmlParsingStrategy;
 import org.jvoicexml.profile.vxml21.VoiceXml21SsmlParser;
 import org.jvoicexml.xml.SsmlNode;
 import org.jvoicexml.xml.TextContainer;
-import org.jvoicexml.xml.TimeParser;
 import org.jvoicexml.xml.VoiceXmlNode;
 import org.jvoicexml.xml.ssml.SsmlDocument;
-import org.jvoicexml.xml.vxml.Prompt;
 import org.jvoicexml.xml.vxml.Value;
 
 /**
@@ -116,17 +116,37 @@ public final class ValueStrategy extends AbstractTagStrategy
         }
         final SpeakableSsmlText speakable = new SpeakableSsmlText(document,
                 false, null);
-        final long timeout = getTimeout();
-        speakable.setTimeout(timeout);
         if (!speakable.isSpeakableTextEmpty()) {
-            final ImplementationPlatform platform = context
-                    .getImplementationPlatform();
-            if (!fia.isQueuingPrompts()) {
-                platform.setPromptTimeout(-1);
-            }
-            platform.queuePrompt(speakable);
+            queueSpeakable(context, fia, speakable);
+        }
+    }
+
+    /**
+     * Queues the speakable to be played back in the {@link ImplementationPlatform}
+     * @param context the current context
+     * @param fia the current FIA
+     * @param speakable the speakable to be queued
+     * @exception BadFetchError
+     *            error queuing the prompt
+     * @exception NoresourceError
+     *            Output device is not available.
+     * @exception ConnectionDisconnectHangupEvent
+     *            the user hung up
+     * @since 0.7.9
+     */
+    private void queueSpeakable(final VoiceXmlInterpreterContext context,
+            final FormInterpretationAlgorithm fia,
+            final SpeakableSsmlText speakable) throws BadFetchError,
+            NoresourceError, ConnectionDisconnectHangupEvent {
+        final ImplementationPlatform platform = context
+                .getImplementationPlatform();
+        if (!fia.isQueuingPrompts()) {
+            platform.startPromptQueuing();
+        }
+        platform.queuePrompt(speakable);
+        if (!fia.isQueuingPrompts()) {
             final Session session = context.getSession();
-            final String sessionId = session.getSessionId();
+            final SessionIdentifier sessionId = session.getSessionId();
             try {
                 final CallControlProperties callProps = context
                         .getCallControlProperties(fia);
@@ -182,21 +202,5 @@ public final class ValueStrategy extends AbstractTagStrategy
                     + parent.getClass() + "!");
         }
         return null;
-    }
-
-    /**
-     * Retrieves the timeout attribute.
-     * 
-     * @return timeout to use for this prompt.
-     * @since 0.7
-     */
-    private long getTimeout() {
-        final String timeoutAttribute = (String) getAttribute(Prompt.ATTRIBUTE_TIMEOUT);
-        if (timeoutAttribute == null) {
-            return -1;
-        } else {
-            final TimeParser timeParser = new TimeParser(timeoutAttribute);
-            return timeParser.parse();
-        }
     }
 }

@@ -62,6 +62,19 @@ import org.jvoicexml.xml.vxml.BargeInType;
  */
 public interface UserInputImplementation extends ExternalResource {
     /**
+     * Retrieves the no input timeout that was provided in the
+     * {@link org.jvoicexml.SpeechRecognizerProperties} when recognition was
+     * started. This value will be used to start a no input timer if the
+     * platform is not able to handle this. In case the platform is able
+     * to prove a behavior as specified at
+     * <a href="https://www.w3.org/TR/voicexml20/#dml4.1.7">https://www.w3.org/TR/voicexml20/#dml4.1.7</a>
+     * a value smaller than 0 may be returned.
+     * @return no input timeout to be used by the no input timer
+     * @since 0.7.9
+     */
+    long getNoInputTimeout();
+
+    /**
      * Retrieves the mode type for this user input implementation.
      * @return the mode type
      * @since 0.7.9

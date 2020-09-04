@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2016 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2020 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -23,6 +23,8 @@ package org.jvoicexml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +35,6 @@ import java.util.ServiceLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.event.ErrorEvent;
-import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.interpreter.GrammarProcessor;
 import org.jvoicexml.profile.Profile;
@@ -116,7 +117,8 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
     public JVoiceXmlMain(final Configuration config) {
         LOGGER.info("----------------------------------------------------");
         LOGGER.info("starting VoiceXML interpreter " + getVersion() + "...");
-
+        reportEnvironmentInformation();
+        
         shutdownSemaphore = new Object();
         setName(JVoiceXmlMain.class.getSimpleName());
         configuration = config;
@@ -150,6 +152,35 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
     }
 
     /**
+     * Provides logging information about the used environment like host system
+     * and sued Java version
+     * 
+     * @since 0.7.9
+     */
+    private void reportEnvironmentInformation() {
+        final Package pkg = Runtime.class.getPackage();
+        final String version = pkg.getImplementationVersion();
+        final String vendor = pkg.getImplementationVendor();
+        final String title = pkg.getImplementationTitle();
+        LOGGER.info("Java:\t\t\t" + title + " " + version);
+        LOGGER.info("Java vendor:\t\t" + vendor);
+        final String os = System.getProperty("os.name", "generic");
+        LOGGER.info("Operating system:\t" + os);
+        if (LOGGER.isDebugEnabled()) {
+            final ClassLoader loader = getClass().getClassLoader();
+            LOGGER.debug("Class loader: " + loader);
+            if (loader instanceof URLClassLoader) {
+                @SuppressWarnings("resource")
+                final URLClassLoader urlloader = (URLClassLoader) loader;
+                final URL[] urls = urlloader.getURLs();
+                for (URL url : urls) {
+                    LOGGER.debug("- " + url);
+                }
+            }
+        }
+    }
+    
+    /**
      * Adds the given listener.
      * 
      * @param listener
@@ -173,38 +204,47 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Session createSession(final ConnectionInformation info)
-            throws ErrorEvent {
+    public Session createSession(ConnectionInformation info,
+            SessionIdentifier id) throws ErrorEvent {
         if (state != InterpreterState.RUNNING) {
             throw new NoresourceError(
                     "JVoiceXML not running. Can't create a session!");
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("creating new session...");
+        final ImplementationPlatform platform = implementationPlatformFactory
+                .getImplementationPlatform(info);
+        return createSession(info, platform, id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Session createSession(final ConnectionInformation info,
+            final ImplementationPlatform platform, final SessionIdentifier id)
+                    throws ErrorEvent {
+        if (state != InterpreterState.RUNNING) {
+            throw new NoresourceError(
+                    "JVoiceXML not running. Can't create a session!");
         }
+        LOGGER.info("creating new session...");
 
         // Create the session and link it with the implementation platform
         final String profileName = info.getProfile();
         final Profile profile = profiles.get(profileName);
         if (profile == null) {
-            throw new BadFetchError(
+            throw new NoresourceError(
                     "Unable to find a profile named '" + profileName + "'");
         }
-        final ImplementationPlatform platform = implementationPlatformFactory
-                .getImplementationPlatform(info);
         final Session session = new org.jvoicexml.interpreter.JVoiceXmlSession(
-                platform, this, info, profile);
+                platform, this, info, profile, id);
         platform.setSession(session);
-        LOGGER.info("created session " + session.getSessionId());
+        LOGGER.info("created session " + session.getSessionId().getId());
 
         return session;
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -223,6 +263,7 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
                 }
             } catch (ServiceConfigurationError e) {
                 LOGGER.error("unable to load configuration", e);
+                return null;
             }
         }
         return configuration;
@@ -246,6 +287,14 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
         return grammarProcessor;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ImplementationPlatformFactory getImplementationPlatformFactory() {
+        return implementationPlatformFactory;
+    }
+    
     /**
      * Sets the implementation platform factory.
      * <p>
@@ -327,13 +376,7 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
 
         try {
             // Load configuration
-            documentServer = config.loadObject(DocumentServer.class);
-            if (documentServer == null) {
-                final Exception exception = new ConfigurationException(
-                        "no document server available");
-                abortStartup(exception);
-            }
-            documentServer.start();
+            initDocumentServer(config);
             implementationPlatformFactory = configuration
                     .loadObject(ImplementationPlatformFactory.class);
             if (implementationPlatformFactory == null) {
@@ -379,6 +422,31 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
         }
     }
 
+    /**
+     * Initializes the call manager.
+     * 
+     * @param config
+     *            current configuration.
+     * @exception NoresourceError
+     *                error starting the call manager
+     * @throws Exception 
+     *          error starting the document server
+     */
+    private void initDocumentServer(final Configuration config)
+            throws NoresourceError, Exception {
+        documentServer = config.loadObject(DocumentServer.class);
+        if (documentServer == null) {
+            final Exception exception = new ConfigurationException(
+                    "no document server available");
+            abortStartup(exception);
+        }
+        if (documentServer instanceof Configurable) {
+            final Configurable configurable = (Configurable) documentServer;
+            configurable.init(config);
+        }
+        documentServer.start();
+    }
+    
     /**
      * Initialization of the JNDI hook.
      * 
@@ -508,12 +576,6 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
         // Stop all call managers to stop further calls.
         shutdownCallManager();
 
-        // Shutdown JNDI support to block further connections
-        if (jndi != null) {
-            jndi.shutdown();
-            jndi = null;
-        }
-
         // Release all references to the allocated resources.
         grammarProcessor = null;
         documentServer = null;
@@ -522,6 +584,7 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
             implementationPlatformFactory = null;
         }
 
+      
         // Adapt the interpreter state
         state = InterpreterState.STOPPED;
         LOGGER.info("interpreter state " + state);
@@ -529,9 +592,16 @@ public final class JVoiceXmlMain extends Thread implements JVoiceXmlCore {
         synchronized (shutdownSemaphore) {
             shutdownSemaphore.notifyAll();
         }
-
         // Notify that we are done
         fireJVoiceXmlTerminated();
+        
+        // Finally terminate JNDI 
+        if (jndi != null) {
+            jndi.shutdown();
+            jndi = null;
+        }
+
+        
     }
 
     /**

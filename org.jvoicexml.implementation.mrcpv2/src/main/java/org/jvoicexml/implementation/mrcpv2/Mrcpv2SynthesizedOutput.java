@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -21,22 +21,14 @@
 
 package org.jvoicexml.implementation.mrcpv2;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.DocumentServer;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableSsmlText;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.client.mrcpv2.Mrcpv2ConnectionInformation;
@@ -49,7 +41,11 @@ import org.jvoicexml.event.plain.implementation.QueueEmptyEvent;
 import org.jvoicexml.event.plain.implementation.SystemOutputEvent;
 import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
+import org.jvoicexml.xml.Text;
+import org.jvoicexml.xml.XmlNode;
 import org.jvoicexml.xml.srgs.ModeType;
+import org.jvoicexml.xml.ssml.Audio;
+import org.jvoicexml.xml.ssml.Speak;
 import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.BargeInType;
 import org.mrcp4j.client.MrcpInvocationException;
@@ -58,13 +54,6 @@ import org.speechforge.cairo.client.SessionManager;
 import org.speechforge.cairo.client.SpeechClient;
 import org.speechforge.cairo.client.SpeechEventListener;
 import org.speechforge.cairo.client.recog.RecognitionResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import net.sourceforge.halef.HalefDbWriter;
 
 /**
  * Audio output that uses the MRCPv2 to address the TTS engine.
@@ -91,14 +80,6 @@ public final class Mrcpv2SynthesizedOutput
     /** Type of this resources. */
     private String type;
 
-    /**
-     * Flag to indicate that TTS output and audio can be canceled.
-     * 
-     * @todo Replace this by a solution that does not cancel output without
-     *       bargein, if there is mixed output.
-     */
-    private boolean enableBargeIn;
-
     /** The session manager. */
     private SessionManager sessionManager;
 
@@ -108,7 +89,7 @@ public final class Mrcpv2SynthesizedOutput
     /** Number of queued prompts. */
     private int queueCount;
 
-    /** Synchronisation of speech events from the MRCPv2 server. */
+    /** Synchronization of speech events from the MRCPv2 server. */
     private final Object lock;
 
     /**
@@ -117,9 +98,6 @@ public final class Mrcpv2SynthesizedOutput
     public Mrcpv2SynthesizedOutput() {
         listeners = new java.util.ArrayList<SystemOutputImplementationListener>();
         lock = new Object();
-        // TODO Should there be a queue here on the client side too? There is
-        // one on the server.
-        // queuedSpeakables = new java.util.ArrayList<SpeakableText>();
     }
 
     /**
@@ -172,84 +150,25 @@ public final class Mrcpv2SynthesizedOutput
      */
     @Override
     public void queueSpeakable(final SpeakableText speakable,
-            final String sessionId, final DocumentServer documentServer)
-            throws NoresourceError, BadFetchError {
+            final SessionIdentifier sessionId,
+            final DocumentServer documentServer)
+                    throws NoresourceError, BadFetchError {
         String speakText = null;
         boolean urlPrompt = false;
         queueCount++;
-        LOGGER.info("Queue count incremented,, now " + queueCount);
+        LOGGER.info("Queue count incremented, now " + queueCount);
         try {
-            // TODO Pass on the entire SSML doc (and remove the code that
-            // extracts the text)
-            // The following code extract the text from the SSML since
-            // the mrcp server (cairo) does not support SSML yet
-            // (really the tts engine needs to support it i.e freetts)
             if (speakable instanceof SpeakableSsmlText) {
-                InputStream is = null;
-                String temp = speakable.getSpeakableText();
-                byte[] b = temp.getBytes();
-                is = new ByteArrayInputStream(b);
-                InputSource src = new InputSource(is);
-                SsmlDocument ssml = new SsmlDocument(src);
-                speakText = ssml.getSpeak().getTextContent();
-
-                LOGGER.info("Text content is " + speakText);
-
-                // TODO Implement a better way of detecting and extracting
-                // audio URLs
-                DocumentBuilderFactory factory = DocumentBuilderFactory
-                        .newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document document = builder
-                        .parse(new InputSource(new StringReader(temp)));
-                NodeList list = document.getElementsByTagName("audio");
-                if (list != null && list.getLength() > 0) {
-                    Element audioTag = (Element) list.item(0);
-                    String url = audioTag.getAttribute("src");
-                    try {
-                        new URI(url);
-                        speakText = url;
-                        urlPrompt = true;
-                    } catch (URISyntaxException e) {
-                        LOGGER.error("'src' attribute is not a valid URI");
-                    }
-                }
+                final SpeakableSsmlText text = (SpeakableSsmlText) speakable;
+                queuePrompts(text);
             }
-
             if (urlPrompt) {
                 LOGGER.info(String.format("Using URL: %s", speakText));
-
-                // HALEF Event logging
-                final String hevent = String.format(
-                        "INSERT INTO haleflogs"
-                                + " (databasedate, machineIP, machinedate, class, level,"
-                                + " message) VALUES(%s, \"%s\", %s,"
-                                + " \"%s\", \"%s\", \"%s\")",
-                        "now()", System.getenv("IP"), "now()",
-                        "implementation.mrcpv2.Mrcpv2SynthesizedOutput", "INFO",
-                        "Using URL!: " + speakText);
-                HalefDbWriter.execute(hevent);
             } else {
                 LOGGER.info(String.format("Using TTS!: %s", speakText));
-
-                // HALEF Event logging
-                final String hevent = String.format(
-                        "INSERT INTO haleflogs"
-                                + " (databasedate, machineIP, machinedate, class, level,"
-                                + " message) VALUES(%s, \"%s\", %s,"
-                                + " \"%s\", \"%s\", \"%s\")",
-                        "now()", System.getenv("IP"), "now()",
-                        "implementation.mrcpv2.Mrcpv2SynthesizedOutput", "INFO",
-                        "Using TTS!: " + speakText);
-                HalefDbWriter.execute(hevent);
             }
 
             speechClient.queuePrompt(urlPrompt, speakText);
-
-        } catch (ParserConfigurationException e) {
-            throw new NoresourceError(e.getMessage(), e);
-        } catch (SAXException e) {
-            throw new NoresourceError(e.getMessage(), e);
         } catch (MrcpInvocationException e) {
             throw new NoresourceError(e.getMessage(), e);
         } catch (IOException e) {
@@ -261,6 +180,99 @@ public final class Mrcpv2SynthesizedOutput
         }
     }
 
+    /**
+     * Queues the given speakable to the audio stream.
+     * @param text the text to be queued
+     * @throws MrcpInvocationException
+     *          error invoking the MRCP
+     * @throws IOException
+     *          error opening a file
+     * @throws InterruptedException
+     *          execution was interrupted
+     * @throws NoMediaControlChannelException
+     *          no media accessible
+     * @since 0.7.9
+     */
+    private void queuePrompts(final SpeakableSsmlText speakable) 
+            throws MrcpInvocationException, IOException, InterruptedException,
+                NoMediaControlChannelException {
+        // TODO Pass on the entire SSML doc (and remove the code that
+        // extracts the text)
+        // The following code extract the text from the SSML since
+        // the mrcp server (cairo) does not support SSML yet
+        // (really the tts engine needs to support it i.e freetts)
+        final SsmlDocument ssml = speakable.getDocument();
+        final Speak speak = ssml.getSpeak();
+        final Collection<XmlNode> children = speak.getChildren();
+        for (XmlNode node : children) {
+            if (node instanceof Text) {
+                final Text text = (Text) node;
+                queuePrompt(text);
+            } else if (node instanceof Audio) {
+                final Audio audio = (Audio) node;
+                queuePrompt(audio);
+            }
+        }
+    }
+    
+    /**
+     * Queues the given text prompt to the audio stream.
+     * @param text the text to be queued
+     * @throws MrcpInvocationException
+     *          error invoking the MRCP
+     * @throws IOException
+     *          error opening a file
+     * @throws InterruptedException
+     *          execution was interrupted
+     * @throws NoMediaControlChannelException
+     *          no media accessible
+     * @since 0.7.9
+     */
+    private void queuePrompt(final Text text)
+            throws MrcpInvocationException, IOException, InterruptedException,
+                NoMediaControlChannelException {
+        final String value = text.getNodeValue();
+        final String prompt = value.trim();
+        if (prompt.isEmpty()) {
+            return;
+        }
+        LOGGER.info("queueing URL '" + prompt + "'");
+        speechClient.queuePrompt(false, prompt);
+        synchronized (lock) {
+            queueCount++;
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("queue size " + queueCount);
+            }
+        }
+    }
+
+    /**
+     * Queues the given text prompt to the audio stream.
+     * @param text the text to be queued
+     * @throws MrcpInvocationException
+     *          error invoking the MRCP
+     * @throws IOException
+     *          error opening a file
+     * @throws InterruptedException
+     *          execution was interrupted
+     * @throws NoMediaControlChannelException
+     *          no media accessible
+     * @since 0.7.9
+     */
+    private void queuePrompt(final Audio audio)
+            throws MrcpInvocationException, IOException, InterruptedException,
+                NoMediaControlChannelException {
+        final String src = audio.getSrc();
+        LOGGER.info("queueing URL '" + src + "'");
+        speechClient.queuePrompt(true, src);
+        synchronized (lock) {
+            queueCount++;
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("queue size " + queueCount);
+            }
+        }
+    }
+    
     /**
      * Notifies all listeners that output has started.
      * 
@@ -319,7 +331,7 @@ public final class Mrcpv2SynthesizedOutput
     }
 
     /**
-     * Notifies all listeners that output queue us empty.
+     * Notifies all listeners that output queue is empty.
      */
     private void fireQueueEmpty() {
         final SystemOutputEvent event = new QueueEmptyEvent(this, null);
@@ -355,16 +367,7 @@ public final class Mrcpv2SynthesizedOutput
      */
     @Override
     public void waitNonBargeInPlayed() {
-        synchronized (lock) {
-            while (queueCount > 0) {
-                try {
-                    checkInterrupted();
-                    lock.wait();
-                } catch (InterruptedException e) {
-                    LOGGER.warn("q count " + queueCount);
-                }
-            }
-        }
+        waitQueueEmpty();
     }
 
     /**
@@ -372,41 +375,43 @@ public final class Mrcpv2SynthesizedOutput
      */
     @Override
     public void waitQueueEmpty() {
+        LOGGER.info("waiting for empty queue...");
         synchronized (lock) {
             while (queueCount > 0) {
                 try {
-                    checkInterrupted();
                     lock.wait();
                 } catch (InterruptedException e) {
-                    LOGGER.warn("q count " + queueCount);
+                    LOGGER.warn("waiting interrupted", e);
+                    return;
                 }
             }
         }
+        LOGGER.info("...queue empty");
     }
-
-    private void checkInterrupted() throws InterruptedException {
-        if (Thread.interrupted()) {
-            throw new InterruptedException();
-        }
-    }
-
+    
     /**
      * {@inheritDoc}
      */
+    @Override
     public void activate() {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void passivate() {
         listeners.clear();
-        queueCount = 0;
+        synchronized (lock) {
+            queueCount = 0;
+            lock.notifyAll();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void connect(final ConnectionInformation client) throws IOException {
         // If the connection is already established, use this connection.
 
@@ -425,6 +430,7 @@ public final class Mrcpv2SynthesizedOutput
      * {@inheritDoc}
      */
     public void disconnect(final ConnectionInformation client) {
+        queueCount = 0;
         // If the connection is already established, do not touch this
         // connection.
         if (client instanceof Mrcpv2ConnectionInformation) {
@@ -471,11 +477,13 @@ public final class Mrcpv2SynthesizedOutput
      */
     public boolean isBusy() {
         // TODO query server to determine if queue is non-empty
-        LOGGER.info("Is busy : " + queueCount);
-        return queueCount > 0;
+        synchronized (lock) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("is busy : " + queueCount);
+            }
+            return queueCount > 0;
+        }
     }
-
-    // Cairo Client Speech event methods (from SpeechEventListener i/f)
 
     /**
      * {@inheritDoc}
@@ -486,27 +494,40 @@ public final class Mrcpv2SynthesizedOutput
             LOGGER.debug("Speech synth event " + event);
         }
         if (event == SpeechEventType.SPEAK_COMPLETE) {
-            // TODO get the speakable object from the event?
-            // fireOutputStarted(new SpeakablePlainText());
-            // TODO Should there be a queue here in the client or over on the
-            // server or both?
-            queueCount--;
-            LOGGER.info("Queue count decremented, now " + queueCount);
-            synchronized (lock) {
-                lock.notifyAll();
-            }
-            if (queueCount == 0) {
-                fireQueueEmpty();
-            }
-            // TODO Handle speech markers
-            // } else if
-            // (MrcpEventName.SPEECH_MARKER.equals(event.getEventName())) {
-            // fireMarkerReached(mark);
+            processSpeakComplete(event);
         } else {
             LOGGER.warn("Unhandled mrcp speech synth event " + event);
         }
+        // TODO Handle speech markers
+        // } else if
+        // (MrcpEventName.SPEECH_MARKER.equals(event.getEventName())) {
+        // fireMarkerReached(mark);
     }
 
+    /**
+     * A {@code SpeechEventType.SPEAK_COMPLETE} event has been received.
+     * @param event the received event.
+     * @since 0.7.9
+     */
+    private void processSpeakComplete(final SpeechEventType event) {
+        // TODO get the speakable object from the event?
+        // fireOutputStarted(new SpeakablePlainText());
+        // TODO Should there be a queue here in the client or over on the
+        // server or both?
+        LOGGER.info("speakable completed");
+        synchronized (lock) {
+            queueCount--;
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("queue size " + queueCount);
+            }
+            
+            if (queueCount == 0) {
+                fireQueueEmpty();
+            }
+            lock.notifyAll();
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */

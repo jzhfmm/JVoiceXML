@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2014-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2014-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,6 +19,8 @@
  *
  */
 package org.jvoicexml.interpreter.datamodel;
+
+import javax.activation.MimeType;
 
 import org.jvoicexml.event.error.SemanticError;
 import org.jvoicexml.interpreter.scope.Scope;
@@ -50,6 +52,9 @@ import org.jvoicexml.interpreter.scope.Scope;
  * @since 0.7.7
  */
 public interface DataModel {
+    /** No error. */
+    int NO_ERROR = 0;
+    
     /** A specified scope could not be found. */
     int ERROR_SCOPE_NOT_FOUND = -1;
 
@@ -75,9 +80,10 @@ public interface DataModel {
     Object getUndefinedValue();
 
     /**
-     * Retrieves a new empty object for this data model.
+     * Retrieves a new empty object that may contain,e.g., other variables as
+     * members for this data model.
      * 
-     * @return new object
+     * @return newly created object
      */
     Object createNewObject();
 
@@ -96,7 +102,7 @@ public interface DataModel {
      * 
      * @param scope
      *            the scope to create
-     * @return {@code 0} upon success, failure status if a scope already exists
+     * @return {@code NO_ERROR} upon success, failure status if a scope already exists
      *         with the specified name.
      */
     int createScope(Scope scope);
@@ -106,14 +112,14 @@ public interface DataModel {
      * scope is anonymous and may be accessed only when it on the top of the
      * scope stack.
      * 
-     * @return {@code 0} upon success
+     * @return {@code NO_ERROR} upon success
      */
     int createScope();
 
     /**
      * Removes a topmost scope from the scope stack.
      * 
-     * @return {@code 0} upon success
+     * @return {@code NO_ERROR} upon success
      */
     int deleteScope();
 
@@ -122,8 +128,8 @@ public interface DataModel {
      * 
      * @param scope
      *            the scope to remove
-     * @return {@code 0} upon success, failure status if the stack is empty or
-     *         no scope with the specified name exists
+     * @return {@code NO_ERROR} upon success, failure status if the stack is 
+     *          empty or no scope with the specified name exists
      */
     int deleteScope(Scope scope);
 
@@ -134,8 +140,8 @@ public interface DataModel {
      * 
      * @param variableName
      *            name of the variable to create
-     * @return {@code 0} upon success, failure status if a variable of the same
-     *         name already exists
+     * @return {@code NO_ERROR} upon success, failure status if a variable of
+     *         the same name already exists
      */
     int createVariable(String variableName);
 
@@ -150,8 +156,8 @@ public interface DataModel {
      *            to create the variable
      * @param variableName
      *            name of the variable to create
-     * @return {@code 0} upon success, failure status if a variable of the same
-     *         name already exists
+     * @return {@code NO_ERROR} upon success, failure status if a variable of
+     *          the same name already exists
      */
     int createVariableFor(Object variable, String variableName);
 
@@ -163,8 +169,8 @@ public interface DataModel {
      *            name of the variable to create
      * @param value
      *            initial value of the variable
-     * @return {@code 0} upon success, failure status if a variable of the same
-     *         name already exists
+     * @return {@code NO_ERROR} upon success, failure status if a variable of
+     *          the same name already exists
      */
     int createVariable(String variableName, Object value);
 
@@ -179,8 +185,8 @@ public interface DataModel {
      *            name of the variable to create
      * @param value
      *            initial value of the variable
-     * @return {@code 0} upon success, failure status if a variable of the same
-     *         name already exists
+     * @return {@code NO_ERROR} upon success, failure status if a variable of
+     *         the same name already exists
      */
     int createVariableFor(Object variable, String variableName, Object value);
 
@@ -195,8 +201,8 @@ public interface DataModel {
      *            initial value of the variable, maybe {@code null}
      * @param scope
      *            scope, where to create the variable
-     * @return {@code 0} upon success, failure status if a variable of the same
-     *         name already exists in the specified scope
+     * @return {@code NO_ERROR} upon success, failure status if a variable of
+     *          the same name already exists in the specified scope
      */
     int createVariable(String variableName, Object value, Scope scope);
 
@@ -208,8 +214,8 @@ public interface DataModel {
      *            name of the array to create
      * @param dimension
      *            initial dimension of the array
-     * @return {@code 0} upon success, failure status if a variable of the same
-     *         name already exists
+     * @return {@code NO_ERROR} upon success, failure status if a variable of
+     *          the same name already exists
      */
     int createArray(String arrayName, int dimension);
 
@@ -223,8 +229,8 @@ public interface DataModel {
      *            initial dimension of the array
      * @param scope
      *            scope, where to create the array
-     * @return {@code 0} upon success, failure status if a variable of the same
-     *         name already exists in the specified scope
+     * @return {@code NO_ERROR} upon success, failure status if a variable of
+     *          the same name already exists in the specified scope
      */
     int createArray(String arrayName, int dimension, Scope scope);
 
@@ -236,8 +242,8 @@ public interface DataModel {
      *            name of the array to create
      * @param dimension
      *            new dimension of the array after resizing
-     * @return {@code 0} upon success, failure status if the array could not be
-     *         found
+     * @return {@code NO_ERROR} upon success, failure status if the array could
+     *           not be found
      */
     int resizeArray(String arrayName, int dimension);
 
@@ -251,8 +257,8 @@ public interface DataModel {
      *            new dimension of the array after resizing
      * @param scope
      *            scope, where to create the variable
-     * @return {@code 0} upon success, failure status if the array could not be
-     *         found
+     * @return {@code NO_ERROR} upon success, failure status if the array could
+     *           not be found
      */
     int resizeArray(String arrayName, int dimension, Scope scope);
 
@@ -282,8 +288,8 @@ public interface DataModel {
      * 
      * @param variableName
      *            the variable to delete
-     * @return {@code 0} upon success, failure status if no variable with the
-     *         specified name exists
+     * @return {@code NO_ERROR} upon success, failure status if no variable with
+     *           the specified name exists
      */
     int deleteVariable(String variableName);
 
@@ -294,8 +300,8 @@ public interface DataModel {
      *            the variable to delete
      * @param scope
      *            scope, where to delete the variable
-     * @return {@code 0} upon success, failure status if no variable with the
-     *         specified name exists
+     * @return {@code NO_ERROR} upon success, failure status if no variable with
+     *           the specified name exists
      */
     int deleteVariable(String variableName, Scope scope);
 
@@ -307,8 +313,8 @@ public interface DataModel {
      *            the variable to update
      * @param newValue
      *            new value of the variable
-     * @return {@code 0} upon success, failure status if the specified variable
-     *         or scope cannot be found.
+     * @return {@code NO_ERROR} upon success, failure status if the specified
+     *           variable or scope cannot be found.
      */
     int updateVariable(String variableName, Object newValue);
 
@@ -322,8 +328,8 @@ public interface DataModel {
      *            the variable to update
      * @param newValue
      *            new value of the variable
-     * @return {@code 0} upon success, failure status if the specified variable
-     *         or scope cannot be found.
+     * @return {@code NO_ERROR} upon success, failure status if the specified
+     *           variable or scope cannot be found.
      */
     int updateVariableFor(Object variable, String variableName,
             Object newValue);
@@ -337,8 +343,8 @@ public interface DataModel {
      *            new value of the variable
      * @param scope
      *            scope, where to update the variable
-     * @return {@code 0} upon success, failure status if no variable with the
-     *         specified name exists
+     * @return {@code NO_ERROR} upon success, failure status if no variable with
+     *           the specified name exists
      */
     int updateVariable(String variableName, Object newValue, Scope scope);
 
@@ -352,8 +358,8 @@ public interface DataModel {
      *            the position in the array to update
      * @param newValue
      *            new value of the variable
-     * @return {@code 0} upon success, failure status if the specified variable,
-     *         field, or scope cannot be found.
+     * @return {@code NO_ERROR} upon success, failure status if the specified
+     *           variable, field, or scope cannot be found.
      */
     int updateArray(String variableName, int position, Object newValue);
 
@@ -369,8 +375,8 @@ public interface DataModel {
      *            new value of the variable
      * @param scope
      *            scope, where to update the variable
-     * @return {@code 0} upon success, failure status if no variable with the
-     *         specified name exists
+     * @return {@code NO_ERROR} upon success, failure status if no variable
+     *          with the specified name exists
      */
     int updateArray(String variableName, int position, Object newValue,
             Scope scope);
@@ -495,4 +501,26 @@ public interface DataModel {
      * @return serializer to use
      */
     DataModelObjectSerializer getSerializer();
+
+    /**
+     * Retrieves a deserializer for the given {@link MimeType}.
+     * @param type the MIME type of the object to deserialize
+     * @return deserializer to use
+     * @since 0.7.9
+     */
+    DataModelObjectDeserializer getDeserializer(final MimeType type);
+    
+    /**
+     * Copies all values from the current data model to the given datamodel
+     * preserving the scope stack.
+     * 
+     * @param model 
+     *            target data model 
+     * @return {@code 0} upon success, failure status if the specified variable,
+     *         field, or scope cannot be found.
+     * @exception SemanticError
+     *          error copying values
+     * @since 0.7.9
+     */
+    int copyValues(final DataModel model) throws SemanticError;
 }

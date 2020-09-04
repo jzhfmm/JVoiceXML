@@ -106,6 +106,9 @@ public final class Jsapi10UserInputImplementation
     /** The encapsulated streamable input. */
     private StreamableSpokenInput streamableInput;
 
+    /** The no input timeout. */
+    private long timeout = -1;
+
     static {
         BARGE_IN_TYPES = new java.util.ArrayList<BargeInType>();
         BARGE_IN_TYPES.add(BargeInType.SPEECH);
@@ -124,6 +127,14 @@ public final class Jsapi10UserInputImplementation
     public Jsapi10UserInputImplementation(final RecognizerModeDesc defaultDescriptor) {
         desc = defaultDescriptor;
         listener = new java.util.ArrayList<UserInputImplementationListener>();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getNoInputTimeout() {
+        return timeout;
     }
 
     /**
@@ -398,6 +409,9 @@ public final class Jsapi10UserInputImplementation
             LOGGER.debug("starting recognition...");
         }
 
+        // completeTimeout
+        timeout = speech.getCompletetimeoutAsMsec();
+        
         try {
             recognizer.commitChanges();
         } catch (GrammarException ge) {
@@ -446,6 +460,8 @@ public final class Jsapi10UserInputImplementation
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("stopping recognition...");
         }
+
+        timeout = -1;
 
         // If a result listener exists: Remove it.
         if (resultListener != null) {

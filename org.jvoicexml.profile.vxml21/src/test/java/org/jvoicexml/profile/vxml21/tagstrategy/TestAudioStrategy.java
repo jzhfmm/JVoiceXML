@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL: https://svn.code.sf.net/p/jvoicexml/code/trunk/org.jvoicexml/unittests/src/org/jvoicexml/interpreter/tagstrategy/TestAudioStrategy.java $
- * Version: $LastChangedRevision: 4233 $
- * Date:    $Date: 2014-09-02 09:14:31 +0200 (Tue, 02 Sep 2014) $
- * Author:  $LastChangedBy: schnelle $
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2008-2010 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2008-2 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -28,9 +23,9 @@ package org.jvoicexml.profile.vxml21.tagstrategy;
 
 import java.net.URI;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.jvoicexml.Application;
+import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.SpeakableSsmlText;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.event.ErrorEvent;
@@ -46,6 +41,7 @@ import org.jvoicexml.xml.ssml.SsmlDocument;
 import org.jvoicexml.xml.vxml.Block;
 import org.jvoicexml.xml.vxml.VoiceXmlDocument;
 import org.jvoicexml.xml.vxml.Vxml;
+import org.mockito.Mockito;
 
 /**
  * Test case for {@link PromptStrategy}.
@@ -54,11 +50,7 @@ import org.jvoicexml.xml.vxml.Vxml;
  * @version $Revision: 4233 $
  * @since 0.6
  */
-public final class TestAudioStrategy extends TagStrategyTestBase
-    implements SystemOutputImplementationListener {
-    /** The queued speakable. */
-    private SpeakableText queuedSpeakable;
-
+public final class TestAudioStrategy extends TagStrategyTestBase {
     /**
      * Test method for
      * {@link org.jvoicexml.interpreter.tagstrategy.PromptStrategy#execute(org.jvoicexml.interpreter.VoiceXmlInterpreterContext, org.jvoicexml.interpreter.VoiceXmlInterpreter, org.jvoicexml.interpreter.FormInterpretationAlgorithm, org.jvoicexml.interpreter.FormItem, org.jvoicexml.xml.VoiceXmlNode)}.
@@ -74,8 +66,9 @@ public final class TestAudioStrategy extends TagStrategyTestBase
         audio.setSrc("godfather.wav");
         audio.addText("the godfather");
 
-        setSystemOutputListener(this);
         final AudioTagStrategy strategy = new AudioTagStrategy();
+        final ImplementationPlatform platform = getImplementationPlatform();
+        platform.startPromptQueuing();
         executeTagStrategy(audio, strategy);
 
         final SsmlDocument ssml = new SsmlDocument();
@@ -85,7 +78,7 @@ public final class TestAudioStrategy extends TagStrategyTestBase
         ssmlAudio.addText("the godfather");
 
         final SpeakableSsmlText speakable = new SpeakableSsmlText(ssml);
-        Assert.assertEquals(speakable, queuedSpeakable);
+        Mockito.verify(platform).queuePrompt(Mockito.eq(speakable));
     }
 
     /**
@@ -106,13 +99,14 @@ public final class TestAudioStrategy extends TagStrategyTestBase
         audio.setSrc("godfather.wav");
         audio.addText("the godfather");
 
-        setSystemOutputListener(this);
         final Application application = new JVoiceXmlApplication(null);
         final VoiceXmlInterpreterContext ctx = getContext();
         ctx.process(application);
         final URI uri = new URI("http://acme.com/start.vxml");
         application.addDocument(uri, document);
         final AudioTagStrategy strategy = new AudioTagStrategy();
+        final ImplementationPlatform platform = getImplementationPlatform();
+        platform.startPromptQueuing();
         executeTagStrategy(audio, strategy);
 
         final SsmlDocument ssml = new SsmlDocument();
@@ -122,23 +116,6 @@ public final class TestAudioStrategy extends TagStrategyTestBase
         ssmlAudio.addText("the godfather");
 
         final SpeakableSsmlText speakable = new SpeakableSsmlText(ssml);
-        Assert.assertEquals(speakable, queuedSpeakable);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void outputStatusChanged(final SystemOutputEvent event) {
-        if (event.isType(OutputStartedEvent.EVENT_TYPE)) {
-            final OutputStartedEvent started = (OutputStartedEvent) event;
-            queuedSpeakable = started.getSpeakable();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void outputError(final ErrorEvent error) {
+        Mockito.verify(platform).queuePrompt(Mockito.eq(speakable));
     }
 }

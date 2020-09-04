@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2009-2014 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2009-2020 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -26,6 +21,7 @@
 
 package org.jvoicexml.event.plain.implementation;
 
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.implementation.SystemOutputImplementation;
 
@@ -33,7 +29,6 @@ import org.jvoicexml.implementation.SystemOutputImplementation;
  * Notification that the output of a {@link SpeakableText} has started.
  * 
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.7.1
  */
 @SuppressWarnings("serial")
@@ -66,7 +61,8 @@ public final class OutputStartedEvent extends SystemOutputEvent {
      *            the speakable that has ended
      */
     public OutputStartedEvent(final SystemOutputImplementation output,
-            final String sessionId, final SpeakableText speakableText) {
+            final SessionIdentifier sessionId,
+            final SpeakableText speakableText) {
         super(output, DETAIL, sessionId);
         speakable = speakableText;
     }

@@ -1,7 +1,7 @@
 /*
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2017 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -30,62 +30,70 @@ import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
 /**
  * A session begins when the user starts to interact with a VoiceXML interpreter
  * context, continues as documents are loaded and processed, and ends when
- * requested by the user, a document, or the interpreter context. Note, that
- * a session is only valid for a single call and <b>cannot be reused for
+ * requested by the user, a document, or the interpreter context. Note, that a
+ * session is only valid for a single call and <b>cannot be reused for
  * subsequent calls</b>.
  *
  * <p>
  * A <code>Session</code> can be obtained via the
- * {@linkplain JVoiceXml#createSession(ConnectionInformation)} method.
+ * {@linkplain JVoiceXml#createSession(ConnectionInformation, SessionIdentifier)}
+ * method.
  * </p>
  *
  * <p>
- * A client usually performs the following method calls to interact with
- * the interpreter:
+ * A client usually performs the following method calls to interact with the
+ * interpreter:
  * </p>
  * <ol>
- * <li>{@link #call(URI) call}</li>
- * <li>{@link #hangup() hangup}</li>
+ * <li>{@link #call(URI)}</li>
+ * <li>{@link #waitSessionEnd()}</li>
+ * <li>{@link #hangup()}</li>
  * </ol>
  *
  * <p>
- * Note, that a call to {@link #call(URI)} <b>must</b> be followed by
- * a call to {@link #hangup()} in order to free resources such as ASR and TTS.
+ * Note, that a call to {@link #call(URI)} <b>must</b> be followed by a call to
+ * {@link #hangup()} in order to free resources such as ASR and TTS.
  * </p>
  * 
  * <p>
- * The call method returns immediately. In case of an error the client
- * does not get notified. In order to monitor the call and retrieve error
- * messages, clients should use the {@link #waitSessionEnd() waitSessionEnd}
- * method. This may be done synchronously right after the
- * <code>call</code> method call or asynchronously in a thread.
+ * The call method returns immediately. In case of an error the client does not
+ * get notified. In order to monitor the call and retrieve error messages,
+ * clients should use the {@link #waitSessionEnd() waitSessionEnd} method. This
+ * may be done synchronously right after the <code>call</code> method call or
+ * asynchronously in a thread.
  * </p>
  *
  * @author Dirk Schnelle-Walka
- * @see org.jvoicexml.JVoiceXml#createSession(ConnectionInformation)
+ * @see org.jvoicexml.JVoiceXml#createSession(ConnectionInformation,
+ *      SessionIdentifier)
  *
  */
 public interface Session {
     /**
      * Adds the session listener.
-     * @param listener the session listener to add.
+     * 
+     * @param listener
+     *            the session listener to add.
      * @since 0.7.3
      */
     void addSessionListener(SessionListener listener);
 
     /**
      * Removes the session listener.
-     * @param listener the session listener to remove.
+     * 
+     * @param listener
+     *            the session listener to remove.
      * @since 0.7.3
      */
     void removeSessionListener(SessionListener listener);
 
     /**
      * Retrieves the universal unique identifier for this session.
+     * 
      * @return Universal unique identifier for this session.
      * @since 0.4
      */
-    String getSessionId();
+    SessionIdentifier getSessionId();
 
     /**
      * Handles a call request.
@@ -102,21 +110,22 @@ public interface Session {
      * option relies on the concrete implementation.
      * </p>
      * <p>
-     * Ensure that you call {@link #hangup()} after this call
-     * to ensure that resources like ASR and TTS are released.
+     * Ensure that you call {@link #hangup()} after this call to ensure that
+     * resources like ASR and TTS are released.
      * </p>
-     * @param uri URI of the first document to load.
+     * 
+     * @param uri
+     *            canonical URI of the first document to load. Relative URIs are
+     *            not supported
      * @return called application
      * @exception ErrorEvent
-     *            Error initiating the call.
+     *                Error initiating the call.
      */
-    Application call(URI uri)
-            throws ErrorEvent;
-
+    Application call(URI uri) throws ErrorEvent;
 
     /**
-     * Closes this session. After a session is closed, it can not be
-     * reopened e.g., to call another application.
+     * Closes this session. After a session is closed, it can not be reopened
+     * e.g., to call another application.
      *
      * @since 0.4
      */
@@ -124,6 +133,7 @@ public interface Session {
 
     /**
      * Retrieves the application that is currently being processed.
+     * 
      * @return the current application
      * @since 0.7.7
      */
@@ -131,11 +141,12 @@ public interface Session {
 
     /**
      * Retrieves the DTMF input device.
+     * 
      * @return DTMF input device.
      * @exception NoresourceError
-     *            Input device is not available.
+     *                Input device is not available.
      * @exception ConnectionDisconnectHangupEvent
-     *            the user hung up
+     *                the user hung up
      * @since 0.5
      */
     DtmfInput getDtmfInput()
@@ -143,6 +154,7 @@ public interface Session {
 
     /**
      * Checks if this session has ended.
+     * 
      * @return <code>true</code> if the session has ended.
      * @since 0.7.5
      */
@@ -150,21 +162,21 @@ public interface Session {
 
     /**
      * Delays until the session ends.
+     * 
      * @exception ErrorEvent
-     *            Error waiting for the end of the call.
+     *                Error waiting for the end of the call.
      * @since 0.4
      */
-    void waitSessionEnd()
-            throws ErrorEvent;
+    void waitSessionEnd() throws ErrorEvent;
 
     /**
      * Retrieves an error, if any, that happened during call processing.
+     * 
      * @return an error that happened during call processing, <code>null</code>
      *         if there was no error.
      * @exception ErrorEvent
-     *            Error reading the last error.
+     *                Error reading the last error.
      * @since 0.7
      */
-    ErrorEvent getLastError()
-        throws ErrorEvent;
+    ErrorEvent getLastError() throws ErrorEvent;
 }

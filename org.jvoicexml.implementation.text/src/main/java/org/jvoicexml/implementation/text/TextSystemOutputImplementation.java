@@ -28,6 +28,7 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.log4j.Logger;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.DocumentServer;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableSsmlText;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.client.text.TextConnectionInformation;
@@ -41,6 +42,7 @@ import org.jvoicexml.implementation.SystemOutputImplementation;
 import org.jvoicexml.implementation.SystemOutputImplementationListener;
 import org.jvoicexml.xml.srgs.ModeType;
 import org.jvoicexml.xml.vxml.BargeInType;
+import org.jvoicexml.xml.vxml.PriorityType;
 
 /**
  * Text based implementation for a {@link SystemOutputImplementation}.
@@ -144,9 +146,9 @@ final class TextSystemOutputImplementation
      */
     @Override
     public void queueSpeakable(final SpeakableText speakable,
-            final String sessionId, final DocumentServer documentServer)
-        throws NoresourceError,
-            BadFetchError {
+            final SessionIdentifier sessionId,
+                final DocumentServer documentServer)
+                        throws NoresourceError, BadFetchError {
         final Object o;
         if (speakable instanceof SpeakableSsmlText) {
             SpeakableSsmlText ssml = (SpeakableSsmlText) speakable;
@@ -155,6 +157,19 @@ final class TextSystemOutputImplementation
             o = speakable.getSpeakableText();
         }
 
+        final PriorityType priority = speakable.getPriority();
+        if (priority.equals(PriorityType.PREPEND)) {
+            LOGGER.debug("priority '" + PriorityType.PREPEND 
+                    + "' not supported. Appending instead.");
+            
+        }
+        if (priority.equals(PriorityType.CLEAR)) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("priority '" + PriorityType.CLEAR 
+                        + "': clearing queue");
+            }
+            texts.clear();
+        }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("queuing object " + o);
         }
@@ -296,7 +311,9 @@ final class TextSystemOutputImplementation
                 }
                 // Delay until the next text is removed or processing ended.
                 synchronized (texts) {
-                    texts.wait();
+                    if (isBusy()) {
+                        texts.wait();
+                    }
                 }
             } catch (InterruptedException e) {
                 return;

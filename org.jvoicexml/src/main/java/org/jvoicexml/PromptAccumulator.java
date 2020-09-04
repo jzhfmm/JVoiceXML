@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2010-2012 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2010-2020 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -38,21 +33,20 @@ import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
  */
 public interface PromptAccumulator {
     /**
-     * Sets the default timeout to use.
+     * Starts the prompt queuing with the specified default timeout to use.
      * <p>
      * This method is intended to be called prior to queuing prompts
      * via {@link #queuePrompt(SpeakableText)}, so it also clears the list of
      * queued prompts.
      * </p>
-     * @param timeout default timeout.
      */
-    void setPromptTimeout(final long timeout);
+    void startPromptQueuing();
 
     /**
-     * Queues the given prompt without rendereing it.
+     * Queues the given prompt without rendering it.
      * <p>
      * After all prompts have been queued, the end of prompt queuing must be
-     * indicated by {@link #renderPrompts(String, DocumentServer, CallControlProperties)}.
+     * indicated by {@link #renderPrompts(SessionIdentifier, DocumentServer, CallControlProperties)}.
      * </p>
      * @param speakable the prompt to queue.
      */
@@ -60,7 +54,7 @@ public interface PromptAccumulator {
 
     /**
      * Notifies the implementation platform about the end of the prompt
-     * queuing that has been started by {@link #setPromptTimeout(long)}.
+     * queuing that has been started by {@link #startPromptQueuing()}.
      * <p>
      * It is assumed that the {@link PromptAccumulator} has knowledge about
      * the {@link ImplementationPlatform} to render the output.
@@ -75,8 +69,8 @@ public interface PromptAccumulator {
      * @exception ConnectionDisconnectHangupEvent
      *            the user hung up
      */
-    void renderPrompts(final String sessionId, final DocumentServer server,
-            final CallControlProperties callProps)
+    void renderPrompts(final SessionIdentifier sessionId,
+            final DocumentServer server, final CallControlProperties callProps)
             throws BadFetchError, NoresourceError,
                 ConnectionDisconnectHangupEvent;
 }

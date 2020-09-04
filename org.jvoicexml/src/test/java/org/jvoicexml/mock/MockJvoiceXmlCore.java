@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2011 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -29,13 +24,13 @@ import org.jvoicexml.Configuration;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.DocumentServer;
 import org.jvoicexml.ImplementationPlatform;
+import org.jvoicexml.ImplementationPlatformFactory;
 import org.jvoicexml.JVoiceXmlCore;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.documentserver.JVoiceXmlDocumentServer;
-import org.jvoicexml.documentserver.jetty.DocumentStorage;
-import org.jvoicexml.documentserver.schemestrategy.FileSchemeStrategy;
-import org.jvoicexml.documentserver.schemestrategy.HttpSchemeStrategy;
 import org.jvoicexml.documentserver.schemestrategy.MappedDocumentStrategy;
+import org.jvoicexml.documentserver.schemestrategy.ResourceDocumentStrategy;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.interpreter.GrammarProcessor;
 import org.jvoicexml.interpreter.JVoiceXmlSession;
@@ -51,26 +46,35 @@ import org.mockito.Mockito;
  * This class provides a dummy implementation for {@link JVoiceXmlCore}.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  * @since 0.6
  */
 public final class MockJvoiceXmlCore implements JVoiceXmlCore {
     /** The document server. */
-    private JVoiceXmlDocumentServer documentServer;
+    private DocumentServer documentServer;
 
     /** The grammar processor. */
     private GrammarProcessor grammarProcessor;
 
     /**
+     * Sets the document server.
+     * @param server the document server
+     * @since 0.7.9
+     */
+    public void setDocumentServer(final DocumentServer server) {
+        documentServer = server;
+    }
+    
+    /**
      * {@inheritDoc}
      */
+    @Override
     public DocumentServer getDocumentServer() {
         if (documentServer == null) {
             documentServer = new JVoiceXmlDocumentServer();
-            documentServer.addSchemeStrategy(new MappedDocumentStrategy());
-            documentServer.addSchemeStrategy(new FileSchemeStrategy());
-            documentServer.addSchemeStrategy(new HttpSchemeStrategy());
-            documentServer.setDocumentStorage(Mockito.mock(DocumentStorage.class));
+            ((JVoiceXmlDocumentServer)documentServer).addSchemeStrategy(
+                    new MappedDocumentStrategy());
+            ((JVoiceXmlDocumentServer)documentServer).addSchemeStrategy(
+                    new ResourceDocumentStrategy());
             try {
                 documentServer.start();
             } catch (Exception e) {
@@ -85,6 +89,7 @@ public final class MockJvoiceXmlCore implements JVoiceXmlCore {
     /**
      * {@inheritDoc}
      */
+    @Override
     public GrammarProcessor getGrammarProcessor() {
         if (grammarProcessor == null) {
             final JVoiceXmlGrammarProcessor processor = new JVoiceXmlGrammarProcessor();
@@ -100,7 +105,9 @@ public final class MockJvoiceXmlCore implements JVoiceXmlCore {
     /**
      * {@inheritDoc}
      */
-    public Session createSession(final ConnectionInformation info)
+    @Override
+    public Session createSession(final ConnectionInformation info,
+            final SessionIdentifier id)
             throws ErrorEvent {
         final ImplementationPlatform platform = new MockImplementationPlatform();
         final Profile profile = Mockito.mock(Profile.class);
@@ -109,12 +116,13 @@ public final class MockJvoiceXmlCore implements JVoiceXmlCore {
         Mockito.when(profile.getSsmlParsingStrategyFactory()).thenReturn(
                 factory);
 
-        return new JVoiceXmlSession(platform, this, info, profile);
+        return new JVoiceXmlSession(platform, this, info, profile, id);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getVersion() {
         return null;
     }
@@ -122,6 +130,7 @@ public final class MockJvoiceXmlCore implements JVoiceXmlCore {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void shutdown() {
     }
 
@@ -130,6 +139,21 @@ public final class MockJvoiceXmlCore implements JVoiceXmlCore {
      */
     @Override
     public Configuration getConfiguration() {
+        return null;
+    }
+
+    @Override
+    public ImplementationPlatformFactory getImplementationPlatformFactory() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    @Override
+    public Session createSession(ConnectionInformation info,
+            ImplementationPlatform platform, SessionIdentifier id)
+            throws ErrorEvent {
+        // TODO Auto-generated method stub
         return null;
     }
 

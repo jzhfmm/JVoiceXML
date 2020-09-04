@@ -39,10 +39,11 @@ xslt {
     input "${projectDir}/src/main/config/jvxml-jndi.xml"
     output "${project(':org.jvoicexml').copyConfiguration.destinationDir}/jvxml-jndi.xml"
     parameters(
-        repositoryname: "text",
+        repositoryname: JVOICEXML_JNDI_REPOSITORY,
         version: JVOICEXML_VERSION,
         buildpath: "${buildDir}/libs",
-        port: System.getenv("JVOICEXML_JNDI_PORT") ?: "1099"
+        port: JVOICEXML_JNDI_PORT,
+        classServerPort: JVOICEXML_JNDI_CLASSERVER_PORT
     )
 }
 
@@ -52,16 +53,14 @@ task xsltDistribution(type: com.github.eerohele.SaxonXsltTask) {
     output "${project(':main').buildDir}/config/jvxml-jndi.xml"
     parameters(
         buildpath: "lib",
-        repositoryname: "text",
+        repositoryname: JVOICEXML_JNDI_REPOSITORY,
         version: JVOICEXML_VERSION,
-        port: System.getenv("JVOICEXML_JNDI_PORT") ?: "1099"
+        port: JVOICEXML_JNDI_PORT,
+        classServerPort: JVOICEXML_JNDI_CLASSERVER_PORT
     )
 }
 
 task copyConfiguration(type: Copy) {
-    from configurations.jvxmlConfiguration.files {
-        include "jndi.properties"
-    }
     into "${project(':org.jvoicexml').copyConfiguration.destinationDir}"
 }
 
@@ -83,8 +82,13 @@ jar {
     
     manifest {
         attributes("Implementation-Title": "JVoiceXML JNDI library",
-                   "Implementation-Vendor": "JVoiceXML group",
-                   "Implementation-Version": JVOICEXML_VERSION)
+                   'Implementation-Vendor': 'switch',
+                   'Implementation-Version': JVOICEXML_VERSION,
+                   'Built-By'       : System.properties['user.name'],
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Created-By'     : "Gradle ${gradle.gradleVersion}",
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                   'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}")
     }
     baseName 'org.jvoicexml.jndi'
 }

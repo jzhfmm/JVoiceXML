@@ -21,6 +21,7 @@
 
 package org.jvoicexml.event.plain.implementation;
 
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.implementation.SystemOutputImplementation;
 
@@ -45,7 +46,7 @@ public class SystemOutputEvent extends JVoiceXMLEvent {
     private final SystemOutputImplementation source;
 
     /** The id of the related session. */
-    private final String sessionId;
+    private final SessionIdentifier sessionId;
 
     /**
      * Constructs a new object.
@@ -60,7 +61,7 @@ public class SystemOutputEvent extends JVoiceXMLEvent {
      *                if an illegal event type is passed.
      */
     public SystemOutputEvent(final SystemOutputImplementation output,
-            final String detailedType, final String id)
+            final String detailedType, final SessionIdentifier id)
             throws IllegalArgumentException {
         source = output;
         detail = detailedType;
@@ -82,7 +83,7 @@ public class SystemOutputEvent extends JVoiceXMLEvent {
      * @return the session id
      * @since 0.7.5
      */
-    public final String getSessionId() {
+    public final SessionIdentifier getSessionId() {
         return sessionId;
     }
 

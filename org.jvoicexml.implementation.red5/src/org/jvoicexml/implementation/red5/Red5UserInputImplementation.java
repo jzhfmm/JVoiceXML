@@ -228,4 +228,10 @@ public final class Red5UserInputImplementation implements UserInputImplementatio
         return null;
     }
 
+    @Override
+    public long getNoInputTimeout() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 }

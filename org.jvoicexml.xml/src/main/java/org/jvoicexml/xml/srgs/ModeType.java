@@ -97,7 +97,7 @@ public final class ModeType {
         final ServiceLoader<ModeTypeFactory> factories =
             ServiceLoader.load(ModeTypeFactory.class);
         for (ModeTypeFactory factory : factories) {
-            final ModeType type = factory.getGrammarType(attribute);
+            final ModeType type = factory.getModeType(attribute);
             if (type != null) {
                 return type;
             }
@@ -106,7 +106,7 @@ public final class ModeType {
         // If there is none, try it with internal modes
         final JVoiceXmlModeTypeFactory factory =
             new JVoiceXmlModeTypeFactory();
-        final ModeType type = factory.getGrammarType(attribute);
+        final ModeType type = factory.getModeType(attribute);
         if (type != null) {
             return type;
         }

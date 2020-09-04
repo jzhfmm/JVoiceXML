@@ -28,6 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvoicexml.DocumentServer;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SpeakableText;
 import org.jvoicexml.SystemOutput;
 import org.jvoicexml.event.error.BadFetchError;
@@ -80,8 +81,9 @@ final class JVoiceXmlSystemOutput
     /**
      * {@inheritDoc}
      */
+    @Override
     public void queueSpeakable(final SpeakableText speakable,
-            final String sessionId, final DocumentServer documentServer)
+            final SessionIdentifier sessionId, final DocumentServer documentServer)
         throws NoresourceError, BadFetchError {
         for (SystemOutputImplementation output : outputs) {
             output.queueSpeakable(speakable, sessionId, documentServer);

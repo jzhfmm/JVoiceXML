@@ -20,8 +20,14 @@
  */
 package org.jvoicexml.implementation.jvxml;
 
+import java.util.Collection;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jvoicexml.SessionIdentifier;
+import org.jvoicexml.event.error.NoresourceError;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.xml.vxml.BargeInType;
 
 /**
  * Reaper for external resources to return them after a timeout when the
@@ -35,36 +41,65 @@ class ImplementationPlatformReaper extends Thread {
             .getLogger(ImplementationPlatformReaper.class);
 
     /** Delay to wait before returning the platform. */
-    private static final long REAPING_DELAY = 120 * 1000;
+    private static final long DEFAULT_REAPING_DELAY = 120 * 1000;
     
     /** The platform. */
     private final JVoiceXmlImplementationPlatform platform;
 
     /** The waiting lock. */
-    private Object wait;
+    private final Object lock;
     
     /** Flag if the platform closed normally. */
     private boolean stopReaping;
+
+    /** The used input. */
+    private final JVoiceXmlUserInput input;
+    /** The used output. */
+    private final JVoiceXmlSystemOutput output;
+    
+    /** The actually used reaping delay. */
+    private long reapingDelay;
 
     /**
      * Creates a new object.
      * @param impl the implementation platform
      */
     ImplementationPlatformReaper(
-            final JVoiceXmlImplementationPlatform impl) {
+            final JVoiceXmlImplementationPlatform impl, final JVoiceXmlUserInput in,
+            final JVoiceXmlSystemOutput out) {
+        lock = new Object();
         platform = impl;
+        input = in;
+        output = out;
+        final org.jvoicexml.Session session = impl.getSession();
+        final SessionIdentifier id = session.getSessionId();
+        setName("platform-reaper-" + id);
         setDaemon(true);
+        reapingDelay = DEFAULT_REAPING_DELAY;
     }
 
+    /**
+     * Sets the reaping delay to use.
+     * @param delay the delay in msecs to use.
+     * @since 0.7.9
+     */
+    public void setReapingDelay(final long delay) {
+        reapingDelay = delay;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void run() {
-        LOGGER.info("implementation platform reaper started");
-        synchronized (wait) {
+        LOGGER.info("implementation platform reaper started with a delay of "
+                + reapingDelay + " msecs");
+        synchronized (lock) {
             try {
-                wait.wait(REAPING_DELAY);
+                lock.wait(reapingDelay);
                 if (!stopReaping) {
-                    LOGGER.info("delay exceeded: triggering hangup");
-                    platform.telephonyCallHungup(null);
+                    LOGGER.info("delay exceeded: cleaning up");
+                    forceReturnResources();
                 }
             } catch (InterruptedException e) {
                 return;
@@ -74,13 +109,38 @@ class ImplementationPlatformReaper extends Thread {
     }
     
     /**
+     * Force return of the external resources.
+     * 
+     * @since 0.7.9
+     */
+    private void forceReturnResources() {
+        LOGGER.warn("force returning resources");
+        if ((input != null) && input.isBusy()) {
+            Collection<UserInputImplementation> inputs =
+                    input.getUserInputImplementations();
+            for (UserInputImplementation currentImplementation : inputs) {
+                currentImplementation.stopRecognition();
+            }
+        }
+        if ((output != null) && output.isBusy()) {
+            try {
+                output.cancelOutput(BargeInType.SPEECH);
+            } catch (NoresourceError e) {
+                LOGGER.warn("error canceling output while reaping", e);
+            }
+        }
+        // Try again...
+        platform.telephonyCallHungup(null);
+    }
+
+    /**
      * Stops reaping if the platform closed normally.
      */
     public void stopReaping() {
-        synchronized (wait) {
+        synchronized (lock) {
             LOGGER.info("stopping reaper");
             stopReaping = true;
-            wait.notifyAll();
+            lock.notifyAll();
         }
     }
 }

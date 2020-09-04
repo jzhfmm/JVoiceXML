@@ -23,7 +23,6 @@ package org.jvoicexml.interpreter;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,12 +35,12 @@ import org.jvoicexml.DtmfInput;
 import org.jvoicexml.ImplementationPlatform;
 import org.jvoicexml.JVoiceXmlCore;
 import org.jvoicexml.Session;
+import org.jvoicexml.SessionIdentifier;
 import org.jvoicexml.SessionListener;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.EventBus;
 import org.jvoicexml.event.EventSubscriber;
 import org.jvoicexml.event.JVoiceXMLEvent;
-import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.error.jvxml.ExceptionWrapper;
 import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
@@ -94,7 +93,7 @@ public class JVoiceXmlSession extends Thread
     private final ScopeObserver scopeObserver;
 
     /** The universal unique id for this session. */
-    private final UUID uuid;
+    private final SessionIdentifier identifier;
 
     /** An error that occurred, while processing. */
     private ErrorEvent processingError;
@@ -131,15 +130,17 @@ public class JVoiceXmlSession extends Thread
      *            the connection information to use
      * @param prof
      *            the profile
+     * @param id
+     *            the session identifier to use
      */
     public JVoiceXmlSession(final ImplementationPlatform ip,
             final JVoiceXmlCore jvxml,
             final ConnectionInformation connectionInformation,
-            final Profile prof) {
+            final Profile prof, final SessionIdentifier id) {
         // Create a unique session id
-        uuid = UUID.randomUUID();
+        identifier = id;
         // Store it in the MDC so that the session Id can be used by the loggers
-        MDC.put("sessionId", uuid.toString());
+        MDC.put("sessionId", identifier.getId());
 
         // Initialize this object
         info = connectionInformation;
@@ -208,8 +209,8 @@ public class JVoiceXmlSession extends Thread
      * 
      * @return Universal unique identifier for this session.
      */
-    public String getSessionId() {
-        return uuid.toString();
+    public SessionIdentifier getSessionId() {
+        return identifier;
     }
 
     /**
@@ -233,13 +234,13 @@ public class JVoiceXmlSession extends Thread
         }
 
         // Store the session Id in the MDC
-        MDC.put("sessionId", uuid.toString());
+        MDC.put("session Id", identifier.getId());
 
         // Some initialization stuff
         application = new JVoiceXmlApplication(scopeObserver);
         applicationUri = uri;
-        final String sessionId = getSessionId();
-        setName(sessionId);
+        final SessionIdentifier sessionId = getSessionId();
+        setName(sessionId.getId());
 
         // Start processing of the given URI
         start();
@@ -288,12 +289,11 @@ public class JVoiceXmlSession extends Thread
      */
     @Override
     public void waitSessionEnd() throws ErrorEvent {
-        LOGGER.info("waiting for end of session...");
-
         // Do not wait, if there is already an error.
         if (processingError != null) {
             throw processingError;
         }
+        LOGGER.info("waiting for end of session...");
 
         // Wait until the session ends.
         synchronized (sem) {
@@ -346,15 +346,28 @@ public class JVoiceXmlSession extends Thread
      */
     @Override
     public void run() {
+        LOGGER.info("starting session " + identifier.getId());
+        if (LOGGER.isDebugEnabled()) {
+            final Thread thread = Thread.currentThread();
+            final ClassLoader loader = thread.getContextClassLoader();
+            LOGGER.debug("using class loader " + loader);
+        }
+        processingError = null;
         createContext();
 
         try {
             final DocumentDescriptor descriptor = new DocumentDescriptor(
-                    applicationUri);
+                    applicationUri, DocumentDescriptor.MIME_TYPE_XML);
             final VoiceXmlDocument doc = context.loadDocument(descriptor);
             final URI resolvedUri = descriptor.getUri();
             application.addDocument(resolvedUri, doc);
-        } catch (BadFetchError e) {
+        } catch (ErrorEvent e) {
+            LOGGER.error("error processing application '" + application + "'",
+                    e);
+            processingError = e;
+            cleanup();
+            return;
+        } catch (Throwable e) {
             LOGGER.error("error processing application '" + application + "'",
                     e);
             processingError = new ExceptionWrapper(e.getMessage(), e);
@@ -389,7 +402,8 @@ public class JVoiceXmlSession extends Thread
         scopeObserver.enterScope(Scope.SESSION);
         final Connection connection = new Connection(info);
         model.createVariable("session.connection", connection, Scope.SESSION);
-        model.createVariable("session.sessionid", uuid, Scope.SESSION);
+        model.createVariable("session.sessionid", identifier.getId(),
+                Scope.SESSION);
         context.setProperty("bargein", "true");
         notifySessionStarted();
         try {
@@ -422,7 +436,7 @@ public class JVoiceXmlSession extends Thread
 
         profile.terminate(context);
         implementationPlatform.close();
-        final String sessionId = getSessionId();
+        final SessionIdentifier sessionId = getSessionId();
         documentServer.sessionClosed(sessionId);
         scopeObserver.exitScope(Scope.SESSION);
         context.close();

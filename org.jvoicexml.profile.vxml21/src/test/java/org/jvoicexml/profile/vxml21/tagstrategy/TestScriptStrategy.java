@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL: https://svn.code.sf.net/p/jvoicexml/code/trunk/org.jvoicexml/unittests/src/org/jvoicexml/interpreter/tagstrategy/TestScriptStrategy.java $
- * Version: $LastChangedRevision: 4175 $
- * Date:    $Date: 2014-05-06 10:37:12 +0200 (Tue, 06 May 2014) $
- * Author:  $LastChangedBy: schnelle $
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2007-2014 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2007-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -25,19 +20,14 @@
  */
 package org.jvoicexml.profile.vxml21.tagstrategy;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.jvoicexml.Application;
 import org.jvoicexml.documentserver.JVoiceXmlDocumentServer;
-import org.jvoicexml.documentserver.schemestrategy.FileSchemeStrategy;
 import org.jvoicexml.documentserver.schemestrategy.MappedDocumentStrategy;
+import org.jvoicexml.documentserver.schemestrategy.ResourceDocumentStrategy;
 import org.jvoicexml.event.JVoiceXMLEvent;
 import org.jvoicexml.event.error.BadFetchError;
 import org.jvoicexml.interpreter.JVoiceXmlApplication;
@@ -52,7 +42,6 @@ import org.mockito.Mockito;
  * Test case for {@link org.jvoicexml.interpreter.tagstrategy.ScriptStrategy}.
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision: 4175 $
  * @since 0.6
  */
 public final class TestScriptStrategy extends TagStrategyTestBase {
@@ -74,9 +63,8 @@ public final class TestScriptStrategy extends TagStrategyTestBase {
     public void setUp() throws Exception {
         final JVoiceXmlDocumentServer server = new JVoiceXmlDocumentServer();
         server.addSchemeStrategy(new MappedDocumentStrategy());
-        server.addSchemeStrategy(new FileSchemeStrategy());
-        final URL url = TestScriptStrategy.class.getResource("factorial.js");
-        uri = url.toURI();
+        server.addSchemeStrategy(new ResourceDocumentStrategy());
+        uri = new URI("res://factorial.js");
         final VoiceXmlInterpreterContext context = getContext();
         Mockito.when(context.getDocumentServer()).thenReturn(server);
     }
@@ -105,21 +93,6 @@ public final class TestScriptStrategy extends TagStrategyTestBase {
         Mockito.verify(model).evaluateExpression(SCRIPT, Object.class);
     }
 
-    private String readResource(final String name) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final InputStream input = TestScriptStrategy.class
-                .getResourceAsStream(name);
-        final byte[] buffer = new byte[1024];
-        int read;
-        do {
-            read = input.read(buffer);
-            if (read > 0) {
-                out.write(buffer, 0, read);
-            }
-        } while (read >= 0);
-        return out.toString();
-    }
-
     /**
      * Test method for
      * {@link org.jvoicexml.interpreter.tagstrategy.ScriptStrategy#execute(org.jvoicexml.interpreter.VoiceXmlInterpreterContext, org.jvoicexml.interpreter.VoiceXmlInterpreter, org.jvoicexml.interpreter.FormInterpretationAlgorithm, org.jvoicexml.interpreter.FormItem, org.jvoicexml.xml.VoiceXmlNode)}
@@ -141,7 +114,7 @@ public final class TestScriptStrategy extends TagStrategyTestBase {
         executeTagStrategy(script, strategy);
 
         final DataModel model = getDataModel();
-        final String externalScript = readResource("factorial.js");
+        final String externalScript = readResource("/factorial.js");
         Mockito.verify(model).evaluateExpression(externalScript, Object.class);
     }
 
@@ -159,18 +132,21 @@ public final class TestScriptStrategy extends TagStrategyTestBase {
     public void testExecuteRelativeSrc() throws JVoiceXMLEvent, Exception {
         final VoiceXmlDocument doc = createDocument();
         final Vxml vxml = doc.getVxml();
+        final URI uri = new URI("res://root.vxml");
+        vxml.setApplication(uri);
+        final URI base = new URI("res:///");
+        vxml.setXmlBase(base);
         final Script script = vxml.appendChild(Script.class);
-        script.setSrc("org/jvoicexml/interpreter/tagstrategy/factorial.js");
+        script.setSrc("factorial.js");
 
         final ScriptStrategy strategy = new ScriptStrategy();
         final Application application = new JVoiceXmlApplication(null);
-        final File file = new File("unittests/src/test.vxml");
-        application.addDocument(file.toURI(), doc);
-        getContext().setApplication(application);
+        application.addDocument(uri, doc);
+        Mockito.when(getContext().getApplication()).thenReturn(application);
         executeTagStrategy(script, strategy);
 
         final DataModel model = getDataModel();
-        final String externalScript = readResource("factorial.js");
+        final String externalScript = readResource("/factorial.js");
         Mockito.verify(model).evaluateExpression(externalScript, Object.class);
     }
 
@@ -198,7 +174,7 @@ public final class TestScriptStrategy extends TagStrategyTestBase {
         final ScriptStrategy strategy = new ScriptStrategy();
         executeTagStrategy(script, strategy);
 
-        final String externalScript = readResource("factorial.js");
+        final String externalScript = readResource("/factorial.js");
         Mockito.verify(model).evaluateExpression(externalScript, Object.class);
     }
 

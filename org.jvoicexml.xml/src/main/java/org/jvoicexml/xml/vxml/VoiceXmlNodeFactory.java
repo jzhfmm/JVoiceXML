@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2005-2011 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2005-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -61,7 +56,6 @@ import org.w3c.dom.Node;
  *
  * @author Dirk Schnelle-Walka
  * @author Steve Doyle
- * @version $Revision$
  */
 final class VoiceXmlNodeFactory
         implements XmlNodeFactory<VoiceXmlNode> {
@@ -84,7 +78,8 @@ final class VoiceXmlNodeFactory
         NODES.put(Catch.TAG_NAME, new Catch());
         NODES.put(Choice.TAG_NAME, new Choice());
         NODES.put(Clear.TAG_NAME, new Clear());
-        NODES.put(Data.TAG_NAME, new Data());
+        // TODO find a way to make this configurable
+        NODES.put(Data.TAG_NAME, new JVoiceXmlData());
         NODES.put(Disconnect.TAG_NAME, new Disconnect());
         NODES.put(Else.TAG_NAME, new Else());
         NODES.put(Elseif.TAG_NAME, new Elseif());
@@ -111,7 +106,8 @@ final class VoiceXmlNodeFactory
         NODES.put(ObjectTag.TAG_NAME, new ObjectTag());
         NODES.put(Option.TAG_NAME, new Option());
         NODES.put(Param.TAG_NAME, new Param());
-        NODES.put(Prompt.TAG_NAME, new Prompt());
+        // TODO find a way to make this configurable
+        NODES.put(Prompt.TAG_NAME, new JVoiceXmlPrompt());
         NODES.put(Property.TAG_NAME, new Property());
         NODES.put(Record.TAG_NAME, new Record());
         NODES.put(Reprompt.TAG_NAME, new Reprompt());
@@ -160,6 +156,7 @@ final class VoiceXmlNodeFactory
     /**
      * {@inheritDoc}
      */
+    @Override
     public VoiceXmlNode getXmlNode(final Node node) {
         // Do nothing if the node is null
         if (node == null) {

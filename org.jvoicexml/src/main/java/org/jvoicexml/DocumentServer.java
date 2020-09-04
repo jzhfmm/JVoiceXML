@@ -1,12 +1,7 @@
 /*
- * File:    $HeadURL$
- * Version: $LastChangedRevision$
- * Date:    $Date$
- * Author:  $LastChangedBy$
- *
  * JVoiceXML - A free VoiceXML implementation.
  *
- * Copyright (C) 2006-2012 JVoiceXML group - http://jvoicexml.sourceforge.net
+ * Copyright (C) 2006-2019 JVoiceXML group - http://jvoicexml.sourceforge.net
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -29,6 +24,7 @@ package org.jvoicexml;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.activation.MimeType;
 import javax.sound.sampled.AudioInputStream;
 
 import org.jvoicexml.event.error.BadFetchError;
@@ -44,17 +40,10 @@ import org.jvoicexml.xml.vxml.VoiceXmlDocument;
  * </p>
  *
  * @author Dirk Schnelle-Walka
- * @version $Revision$
  *
  * @since 0.5.5
  */
 public interface DocumentServer {
-    /** Constant for the object type <code>text/plain</code> to retrieve. */
-    String TEXT_PLAIN = "text/plain";
-
-    /** Constant for the object type <code>text/xml</code> to retrieve. */
-    String TEXT_XML = "text/xml";
-
     /**
      * Starts this document server.
      * 
@@ -76,11 +65,11 @@ public interface DocumentServer {
      *                The URI does not reference a document or an error occurred
      *                retrieving the document.
      */
-    VoiceXmlDocument getDocument(final String sessionId,
+    VoiceXmlDocument getDocument(final SessionIdentifier sessionId,
             final DocumentDescriptor descriptor) throws BadFetchError;
 
     /**
-     * Resolves the given URI ofg a builtin grammar to an URI that can be
+     * Resolves the given URI of a builtin grammar to an URI that can be
      * handled by this document server.
      * @param uri the builtin URI
      * @return the resolved URI
@@ -101,7 +90,7 @@ public interface DocumentServer {
      *                error generating the URI for the document
      * @since 0.7.7
      */
-    URI addGrammarDocument(final String sessionId,
+    URI addGrammarDocument(final SessionIdentifier sessionId,
             final GrammarDocument document) throws URISyntaxException;
 
     /**
@@ -117,6 +106,8 @@ public interface DocumentServer {
      *            the Id of the current JVoiceXML session
      * @param uri
      *            Where to find the grammar.
+     * @param type
+     *            the MIME type of the grammar
      * @param attributes
      *            attributes governing the fetch.
      *
@@ -126,8 +117,10 @@ public interface DocumentServer {
      *             The URI does not reference a document or an error occurred
      *             retrieving the document.
      */
-    GrammarDocument getGrammarDocument(final String sessionId, final URI uri,
-            final FetchAttributes attributes) throws BadFetchError;
+    GrammarDocument getGrammarDocument(final SessionIdentifier sessionId,
+            final URI uri, final MimeType type,
+            final FetchAttributes attributes)
+                    throws BadFetchError;
 
     /**
      * Retrieves an <code>AudioStream</code> to the audio file with the given
@@ -141,8 +134,8 @@ public interface DocumentServer {
      * @exception BadFetchError
      *                Error retrieving the audio file.
      */
-    AudioInputStream getAudioInputStream(final String sessionId, final URI uri)
-            throws BadFetchError;
+    AudioInputStream getAudioInputStream(final SessionIdentifier sessionId,
+            final URI uri) throws BadFetchError;
 
     /**
      * Retrieves an object of the given type from the given URI.
@@ -151,15 +144,13 @@ public interface DocumentServer {
      *            the Id of the current JVoiceXML session
      * @param descriptor
      *            descriptor for the document to fetch.
-     * @param type
-     *            the type, e.g. <code>text/plain</code>.
      * @return retrieved object
      * @throws BadFetchError
      *             Error retrieving the object.
      * @since 0.6
      */
-    Object getObject(final String sessionId,
-            final DocumentDescriptor descriptor, final String type)
+    Object getObject(final SessionIdentifier sessionId,
+            final DocumentDescriptor descriptor)
             throws BadFetchError;
 
     /**
@@ -181,7 +172,7 @@ public interface DocumentServer {
      *            the Id of the current JVoiceXML session.
      * @since 0.7
      */
-    void sessionClosed(final String sessionId);
+    void sessionClosed(final SessionIdentifier sessionId);
 
     /**
      * Stops this document server.
