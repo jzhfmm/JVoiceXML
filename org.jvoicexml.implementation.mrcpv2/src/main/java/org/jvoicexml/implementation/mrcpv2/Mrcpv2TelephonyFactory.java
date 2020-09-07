@@ -22,20 +22,21 @@
 package org.jvoicexml.implementation.mrcpv2;
 
 import org.jvoicexml.event.error.NoresourceError;
+import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.ResourceFactory;
-import org.jvoicexml.implementation.Telephony;
+import org.jvoicexml.xml.srgs.ModeType;
 import org.speechforge.cairo.client.SessionManager;
 
 /**
  * Implementation of a {@link org.jvoicexml.implementation.ResourceFactory}
- * for the {@link org.jvoicexml.implementation.Telephony} based on
+ * for the {@link org.jvoicexml.implementation.CallControlImplementation} based on
  * MRCPv2.
  *
  * @author Dirk Schnelle-Walka
  * @since 0.7.9
  */
 public final class Mrcpv2TelephonyFactory
-        implements ResourceFactory<Telephony> {
+        implements ResourceFactory<CallControlImplementation> {
     /** Number of instances that this factory will create. */
     private int instances;
 
@@ -61,7 +62,7 @@ public final class Mrcpv2TelephonyFactory
     /**
      * {@inheritDoc}
      */
-    public Telephony createResource() throws NoresourceError {
+    public CallControlImplementation createResource() throws NoresourceError {
         final Mrcpv2Telephony output = new Mrcpv2Telephony();
         return output;
     }
@@ -96,8 +97,16 @@ public final class Mrcpv2TelephonyFactory
      * {@inheritDoc}
      */
     @Override
-    public Class<Telephony> getResourceType() {
-        return Telephony.class;
+    public ModeType getModeType() {
+        return ModeType.DTMF;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Class<CallControlImplementation> getResourceType() {
+        return CallControlImplementation.class;
     }
     /**
      * Retrieves the session manager.

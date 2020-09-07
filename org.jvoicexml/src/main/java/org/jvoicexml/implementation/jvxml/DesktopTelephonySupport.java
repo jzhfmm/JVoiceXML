@@ -419,7 +419,7 @@ public final class DesktopTelephonySupport implements CallControlImplementation 
         // TODO add a cache for the modes
         final Collection<ModeType> modes =
                 new java.util.ArrayList<ModeType>();
-        modes.add(ModeType.DTMF);
+        modes.add(ModeType.VOICE);
         return modes;
     }
 

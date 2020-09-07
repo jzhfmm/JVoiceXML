@@ -23,6 +23,7 @@ package org.jvoicexml.callmanager.mrcpv2;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.sip.Dialog;
@@ -44,7 +45,7 @@ import org.jvoicexml.client.mrcpv2.Mrcpv2ConnectionInformation;
 import org.jvoicexml.event.ErrorEvent;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.event.plain.ConnectionDisconnectHangupEvent;
-import org.jvoicexml.implementation.Telephony;
+import org.jvoicexml.implementation.CallControlImplementation;
 import org.jvoicexml.implementation.jvxml.JVoiceXmlCallControl;
 import org.jvoicexml.zanzibar.sip.SipServer;
 import org.jvoicexml.zanzibar.speechlet.SpeechletService;
@@ -127,7 +128,7 @@ public final class SipCallManager
                 return;
             }
         }
-        final Telephony telephony = session.getTelephony();
+        final CallControlImplementation telephony = session.getTelephony();
         telephony.hangup();
         cleanupSession(id);
     }
@@ -196,7 +197,9 @@ public final class SipCallManager
             final ImplementationPlatform platform =
                     platformFactory.getImplementationPlatform(info);
             final JVoiceXmlCallControl call = (JVoiceXmlCallControl) platform.getCallControl();
-            final Telephony telephony = call.getTelephony();
+            final Collection<CallControlImplementation> callImplementations = call.getCallControlImplementations();
+            // TODO Do a proper handling for call control implementaions
+            final CallControlImplementation telephony = callImplementations.iterator().next();
             final SipCallManagerSession session = new SipCallManagerSession(id,
                             pbxSession, mrcpSession, speechClient, null,
                             telephony);

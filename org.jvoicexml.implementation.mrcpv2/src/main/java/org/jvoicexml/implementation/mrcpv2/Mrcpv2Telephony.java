@@ -34,26 +34,27 @@ import org.jvoicexml.CallControlProperties;
 import org.jvoicexml.ConnectionInformation;
 import org.jvoicexml.event.error.NoresourceError;
 import org.jvoicexml.implementation.AudioSource;
-import org.jvoicexml.implementation.SpokenInput;
-import org.jvoicexml.implementation.SynthesizedOutput;
-import org.jvoicexml.implementation.Telephony;
-import org.jvoicexml.implementation.TelephonyEvent;
-import org.jvoicexml.implementation.TelephonyListener;
+import org.jvoicexml.implementation.CallControlImplementation;
+import org.jvoicexml.implementation.CallControlImplementationEvent;
+import org.jvoicexml.implementation.CallControlImplementationListener;
+import org.jvoicexml.implementation.SystemOutputImplementation;
+import org.jvoicexml.implementation.UserInputImplementation;
+import org.jvoicexml.xml.srgs.ModeType;
 
 /**
- * Implementation of a {@link Telephony} resource to be used for the MRCPv2
+ * Implementation of a {@link CallControlImplementation} resource to be used for the MRCPv2
  * implementation platform.
  * @author Dirk Schnelle-Walka
  *
  * @since 0.7.9
  */
-public final class Mrcpv2Telephony implements Telephony {
+public final class Mrcpv2Telephony implements CallControlImplementation {
     /** Logger for this class. */
     private static final Logger LOGGER = LogManager
             .getLogger(Mrcpv2Telephony.class);
 
     /** Registered output listener. */
-    private final Collection<TelephonyListener> listener;
+    private final Collection<CallControlImplementationListener> listener;
 
     /** Flag if this device is busy. */
     private boolean busy;
@@ -65,7 +66,7 @@ public final class Mrcpv2Telephony implements Telephony {
      * Constructs a new object.
      */
     public Mrcpv2Telephony() {
-        listener = new java.util.ArrayList<TelephonyListener>();
+        listener = new java.util.ArrayList<CallControlImplementationListener>();
     }
 
     /**
@@ -97,6 +98,39 @@ public final class Mrcpv2Telephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
+    public ModeType getModeType() {
+        return ModeType.VOICE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<ModeType> getSupportedOutputModeTypes() {
+        // TODO add a cache for the modes
+        final Collection<ModeType> modes =
+                new java.util.ArrayList<ModeType>();
+        modes.add(ModeType.VOICE);
+        return modes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<ModeType> getSupportedInputModeTypes() {
+        // TODO add a cache for the modes
+        final Collection<ModeType> modes =
+                new java.util.ArrayList<ModeType>();
+        modes.add(ModeType.VOICE);
+        modes.add(ModeType.DTMF);
+        return modes;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void open() throws NoresourceError {
     }
 
@@ -116,12 +150,12 @@ public final class Mrcpv2Telephony implements Telephony {
     @Override
     public void connect(final ConnectionInformation client) throws IOException {
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.ANSWERED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.ANSWERED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyCallAnswered(event);
             }
         }
@@ -135,12 +169,12 @@ public final class Mrcpv2Telephony implements Telephony {
     public void disconnect(final ConnectionInformation client) {
         active = false;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.HUNGUP);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = new CallControlImplementationEvent(this,
+                    CallControlImplementationEvent.HUNGUP);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyCallHungup(event);
             }
         }
@@ -150,12 +184,13 @@ public final class Mrcpv2Telephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void play(final SynthesizedOutput output,
+    public void play(final Collection<SystemOutputImplementation> outputs,
             final CallControlProperties props)
             throws IOException, NoresourceError {
         if (!active) {
             throw new NoresourceError("desktop telephony is no longer active");
         }
+        final SystemOutputImplementation output = outputs.iterator().next();
         if (output instanceof AudioSource) {
             final AudioSource source = (AudioSource) output;
             try {
@@ -166,12 +201,13 @@ public final class Mrcpv2Telephony implements Telephony {
         }
         busy = true;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.PLAY_STARTED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = 
+                    new CallControlImplementationEvent(this,
+                            CallControlImplementationEvent.PLAY_STARTED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -202,12 +238,13 @@ public final class Mrcpv2Telephony implements Telephony {
         }
         busy = false;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.PLAY_STOPPED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = 
+                    new CallControlImplementationEvent(this,
+                            CallControlImplementationEvent.PLAY_STOPPED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -217,7 +254,7 @@ public final class Mrcpv2Telephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void record(final SpokenInput input,
+    public void record(final Collection<UserInputImplementation> inputs,
             final CallControlProperties props)
             throws IOException, NoresourceError {
         if (!active) {
@@ -225,12 +262,13 @@ public final class Mrcpv2Telephony implements Telephony {
         }
         busy = true;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.RECORD_STARTED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = 
+                    new CallControlImplementationEvent(this,
+                            CallControlImplementationEvent.RECORD_STARTED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -248,7 +286,7 @@ public final class Mrcpv2Telephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void startRecording(final SpokenInput input,
+    public void startRecording(final UserInputImplementation input,
             final OutputStream stream, final CallControlProperties props)
             throws IOException, NoresourceError {
         if (!active) {
@@ -256,12 +294,13 @@ public final class Mrcpv2Telephony implements Telephony {
         }
         busy = true;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.RECORD_STARTED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = 
+                    new CallControlImplementationEvent(this,
+                            CallControlImplementationEvent.RECORD_STARTED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -277,12 +316,13 @@ public final class Mrcpv2Telephony implements Telephony {
         }
         busy = false;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.RECORD_STOPPED);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event = 
+                    new CallControlImplementationEvent(this,
+                            CallControlImplementationEvent.RECORD_STOPPED);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyMediaEvent(event);
             }
         }
@@ -302,12 +342,13 @@ public final class Mrcpv2Telephony implements Telephony {
     public void hangup() {
         active = false;
         synchronized (listener) {
-            final Collection<TelephonyListener> copy =
-                    new java.util.ArrayList<TelephonyListener>();
+            final Collection<CallControlImplementationListener> copy =
+                    new java.util.ArrayList<CallControlImplementationListener>();
             copy.addAll(listener);
-            final TelephonyEvent event = new TelephonyEvent(this,
-                    TelephonyEvent.HUNGUP);
-            for (TelephonyListener current : copy) {
+            final CallControlImplementationEvent event =
+                    new CallControlImplementationEvent(this,
+                            CallControlImplementationEvent.HUNGUP);
+            for (CallControlImplementationListener current : copy) {
                 current.telephonyCallHungup(event);
             }
         }
@@ -317,7 +358,7 @@ public final class Mrcpv2Telephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void addListener(final TelephonyListener callListener) {
+    public void addListener(final CallControlImplementationListener callListener) {
         synchronized (listener) {
             listener.add(callListener);
         }
@@ -327,7 +368,7 @@ public final class Mrcpv2Telephony implements Telephony {
      * {@inheritDoc}
      */
     @Override
-    public void removeListener(final TelephonyListener callListener) {
+    public void removeListener(final CallControlImplementationListener callListener) {
         synchronized (listener) {
             listener.add(callListener);
         }
